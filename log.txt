@@ -1,0 +1,333 @@
+PS C:\Users\cab02322\src\nomura\nri_manual> $env:GIT_TRACE="1"
+>> $env:GIT_CURL_VERBOSE="1"
+>> git push origin main
+21:08:59.139453 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/bin
+21:08:59.155425 git.c:502               trace: built-in: git push origin main
+21:08:59.171382 run-command.c:674       trace: run_command: GIT_DIR=.git git remote-https origin https://github.com/masaki-infinite/nri_manual.git
+21:08:59.173227 run-command.c:935       trace: start_command: git remote-https origin https://github.com/masaki-infinite/nri_manual.git
+21:08:59.219839 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:08:59.238756 git.c:807               trace: exec: git-remote-https origin https://github.com/masaki-infinite/nri_manual.git
+21:08:59.275180 run-command.c:674       trace: run_command: git-remote-https origin https://github.com/masaki-infinite/nri_manual.git
+21:08:59.275180 run-command.c:935       trace: start_command: git-remote-https origin https://github.com/masaki-infinite/nri_manual.git
+21:08:59.330464 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:08:59.374547 http.c:915              == Info: Couldn't find host github.com in the .netrc file; using defaults
+21:08:59.416521 http.c:915              == Info: Host partnerproxy.nri.co.jp:88 was resolved.
+21:08:59.416521 http.c:915              == Info: IPv6: (none)
+21:08:59.416521 http.c:915              == Info: IPv4: 172.19.248.129
+21:08:59.416521 http.c:915              == Info:   Trying 172.19.248.129:88...
+21:08:59.430162 http.c:915              == Info: CONNECT: no ALPN negotiated
+21:08:59.430162 http.c:915              == Info: allocate connect buffer      
+21:08:59.430162 http.c:915              == Info: Establish HTTP proxy tunnel to github.com:443
+21:08:59.430162 http.c:862              => Send header, 0000000121 bytes (0x00000079)
+21:08:59.430162 http.c:874              => Send header: CONNECT github.com:443 HTTP/1.1
+21:08:59.430162 http.c:874              => Send header: Host: github.com:443  
+21:08:59.430162 http.c:874              => Send header: User-Agent: git/2.51.2.windows.1
+21:08:59.430162 http.c:874              => Send header: Proxy-Connection: Keep-Alive
+21:08:59.430162 http.c:874              => Send header:
+21:08:59.440362 http.c:862              <= Recv header, 0000000044 bytes (0x0000002c)
+21:08:59.440362 http.c:874              <= Recv header: HTTP/1.1 407 Proxy Authentication Required
+21:08:59.440362 http.c:862              <= Recv header, 0000000025 bytes (0x00000019)
+21:08:59.440362 http.c:874              <= Recv header: Proxy-Connection: close
+21:08:59.442116 http.c:862              <= Recv header, 0000000040 bytes (0x00000028)
+21:08:59.442116 http.c:874              <= Recv header: Content-Type: text/html; charset=utf-8
+21:08:59.442116 http.c:862              <= Recv header, 0000000048 bytes (0x00000030)
+21:08:59.442116 http.c:874              <= Recv header: Proxy-Authenticate: Basic realm="inetnf.proxy"
+21:08:59.443126 http.c:862              <= Recv header, 0000000039 bytes (0x00000027)
+21:08:59.443126 http.c:874              <= Recv header: Expires: Tue, 2 Jan 2001 20:00:00 GMT
+21:08:59.443126 http.c:862              <= Recv header, 0000000022 bytes (0x00000016)
+21:08:59.443126 http.c:874              <= Recv header: Content-Length: 2585  
+21:08:59.443126 http.c:862              <= Recv header, 0000000029 bytes (0x0000001d)
+21:08:59.443126 http.c:874              <= Recv header: X-Frame-Options: SAMEORIGIN
+21:08:59.443126 http.c:862              <= Recv header, 0000000033 bytes (0x00000021)
+21:08:59.443126 http.c:874              <= Recv header: X-XSS-Protection: 1; mode=block
+21:08:59.443126 http.c:862              <= Recv header, 0000000033 bytes (0x00000021)
+21:08:59.443126 http.c:874              <= Recv header: X-Content-Type-Options: nosniff
+21:08:59.443126 http.c:862              <= Recv header, 0000000018 bytes (0x00000012)
+21:08:59.443126 http.c:874              <= Recv header: Pragma: no-cache      
+21:08:59.444428 http.c:862              <= Recv header, 0000000052 bytes (0x00000034)
+21:08:59.444428 http.c:874              <= Recv header: Cache-Control: no-cache, no-store, must-revalidate
+21:08:59.444428 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+21:08:59.444428 http.c:874              <= Recv header:
+21:08:59.444428 http.c:915              == Info: Ignore 2585 bytes of response-body
+21:08:59.447233 http.c:915              == Info: Connect me again please
+21:08:59.447233 http.c:915              == Info:   Trying 172.19.248.129:88...
+21:08:59.451620 http.c:915              == Info: Proxy auth using Basic with user 'cab02322'
+21:08:59.454202 http.c:915              == Info: Establish HTTP proxy tunnel to github.com:443
+21:08:59.454202 http.c:862              => Send header, 0000000174 bytes (0x000000ae)
+21:08:59.454202 http.c:874              => Send header: CONNECT github.com:443 HTTP/1.1
+21:08:59.454202 http.c:874              => Send header: Host: github.com:443  
+21:08:59.455383 http.c:874              => Send header: Proxy-Authorization: Basic <redacted>
+21:08:59.455383 http.c:874              => Send header: User-Agent: git/2.51.2.windows.1
+21:08:59.455383 http.c:874              => Send header: Proxy-Connection: Keep-Alive
+21:08:59.455383 http.c:874              => Send header:
+21:08:59.483633 http.c:862              <= Recv header, 0000000037 bytes (0x00000025)
+21:08:59.484968 http.c:874              <= Recv header: HTTP/1.0 200 Connection established
+21:08:59.484968 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+21:08:59.484968 http.c:874              <= Recv header:
+21:08:59.484968 http.c:915              == Info: CONNECT phase completed      
+21:08:59.484968 http.c:915              == Info: CONNECT tunnel established, response 200
+21:08:59.484968 http.c:915              == Info: schannel: disabled automatic use of client certificate
+21:08:59.485791 http.c:915              == Info: ALPN: curl offers http/1.1   
+21:08:59.519140 http.c:915              == Info: ALPN: server did not agree on a protocol. Uses default.
+21:08:59.519140 http.c:915              == Info: Established connection to partnerproxy.nri.co.jp (172.19.248.129 port 88) from 172.104.60.186 port 62965   
+21:08:59.519140 http.c:915              == Info: using HTTP/1.x
+21:08:59.519140 http.c:862              => Send header, 0000000208 bytes (0x000000d0)
+21:08:59.526670 http.c:874              => Send header: GET /masaki-infinite/nri_manual.git/info/refs?service=git-receive-pack HTTP/1.1
+21:08:59.526670 http.c:874              => Send header: Host: github.com      
+21:08:59.526670 http.c:874              => Send header: User-Agent: git/2.51.2.windows.1
+21:08:59.526670 http.c:874              => Send header: Accept: */*
+21:08:59.526670 http.c:874              => Send header: Accept-Encoding: deflate, gzip, br, zstd
+21:08:59.526670 http.c:874              => Send header: Pragma: no-cache      
+21:08:59.526670 http.c:874              => Send header:
+21:08:59.526670 http.c:915              == Info: Request completely sent off  
+21:08:59.526670 http.c:915              == Info: schannel: remote party requests renegotiation
+21:08:59.528684 http.c:915              == Info: schannel: renegotiating SSL/TLS connection
+21:08:59.528684 http.c:915              == Info: schannel: SSL/TLS connection renegotiated
+21:08:59.530703 http.c:915              == Info: schannel: remote party requests renegotiation
+21:08:59.530703 http.c:915              == Info: schannel: renegotiating SSL/TLS connection
+21:08:59.530703 http.c:915              == Info: schannel: SSL/TLS connection renegotiated
+21:08:59.777978 http.c:915              == Info: schannel: server close notification received (close_notify)
+21:08:59.779995 http.c:862              <= Recv header, 0000000027 bytes (0x0000001b)
+21:08:59.779995 http.c:874              <= Recv header: HTTP/1.1 401 Unauthorized
+21:08:59.779995 http.c:862              <= Recv header, 0000000026 bytes (0x0000001a)
+21:08:59.779995 http.c:874              <= Recv header: Server: GitHub-Babel/3.0
+21:08:59.779995 http.c:862              <= Recv header, 0000000054 bytes (0x00000036)
+21:08:59.779995 http.c:874              <= Recv header: Content-Security-Policy: default-src 'none'; sandbox
+21:08:59.779995 http.c:862              <= Recv header, 0000000041 bytes (0x00000029)
+21:08:59.779995 http.c:874              <= Recv header: Content-Type: text/plain; charset=UTF-8
+21:08:59.779995 http.c:862              <= Recv header, 0000000040 bytes (0x00000028)
+21:08:59.779995 http.c:874              <= Recv header: www-authenticate: Basic realm="GitHub"
+21:08:59.779995 http.c:862              <= Recv header, 0000000020 bytes (0x00000014)
+21:08:59.781750 http.c:874              <= Recv header: Content-Length: 26    
+21:08:59.782643 http.c:862              <= Recv header, 0000000037 bytes (0x00000025)
+21:08:59.782643 http.c:874              <= Recv header: Date: Fri, 06 Mar 2026 12:08:59 GMT
+21:08:59.782643 http.c:862              <= Recv header, 0000000023 bytes (0x00000017)
+21:08:59.782643 http.c:874              <= Recv header: X-Frame-Options: DENY 
+21:08:59.782643 http.c:862              <= Recv header, 0000000073 bytes (0x00000049)
+21:08:59.782643 http.c:874              <= Recv header: Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+21:08:59.782643 http.c:862              <= Recv header, 0000000059 bytes (0x0000003b)
+21:08:59.782643 http.c:874              <= Recv header: X-GitHub-Request-Id: 8995:2BA853:10E8AFF:141C17B:69AAC3DB
+21:08:59.782643 http.c:915              == Info: HTTP/1.1 proxy connection set close
+21:08:59.782643 http.c:862              <= Recv header, 0000000025 bytes (0x00000019)
+21:08:59.782643 http.c:874              <= Recv header: Proxy-Connection: close
+21:08:59.782643 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+21:08:59.782643 http.c:874              <= Recv header:
+21:08:59.782643 http.c:915              == Info: shutting down connection #0  
+21:08:59.819050 run-command.c:674       trace: run_command: 'git credential-manager get'
+21:08:59.819050 run-command.c:935       trace: start_command: 'C:/Program Files/Git/usr/bin/sh.exe' -c 'git credential-manager get' 'git credential-manager get'
+21:09:00.015931 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:09:00.047426 git.c:807               trace: exec: git-credential-manager get
+21:09:00.047426 run-command.c:674       trace: run_command: git-credential-manager get
+21:09:00.048755 run-command.c:935       trace: start_command: git-credential-manager get
+21:09:00.264540 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:09:00.265990 git.c:502               trace: built-in: git config --null --list
+21:09:00.482832 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:09:00.502264 git.c:502               trace: built-in: git version
+21:09:00.547931 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:09:00.564963 git.c:502               trace: built-in: git config --null --type=path credential.https://github.com.gitHubHelper
+21:09:00.603464 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:09:00.622701 git.c:502               trace: built-in: git config --null --type=path credential.github.com.gitHubHelper
+21:09:00.668134 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:09:00.686100 git.c:502               trace: built-in: git config --null --type=path credential.gitHubHelper
+21:09:05.707511 http.c:915              == Info: Hostname partnerproxy.nri.co.jp was found in DNS cache
+21:09:05.707511 http.c:915              == Info:   Trying 172.19.248.129:88...
+21:09:05.707511 http.c:915              == Info: CONNECT: no ALPN negotiated  
+21:09:05.707511 http.c:915              == Info: allocate connect buffer      
+21:09:05.707511 http.c:915              == Info: Proxy auth using Basic with user 'cab02322'
+21:09:05.707511 http.c:915              == Info: Server auth using Basic with user 'masaki-infinite'
+21:09:05.707511 http.c:915              == Info: Establish HTTP proxy tunnel to github.com:443
+21:09:05.707511 http.c:862              => Send header, 0000000174 bytes (0x000000ae)
+21:09:05.707511 http.c:874              => Send header: CONNECT github.com:443 HTTP/1.1
+21:09:05.707511 http.c:874              => Send header: Host: github.com:443  
+21:09:05.707511 http.c:874              => Send header: Proxy-Authorization: Basic <redacted>
+21:09:05.707511 http.c:874              => Send header: User-Agent: git/2.51.2.windows.1
+21:09:05.707511 http.c:874              => Send header: Proxy-Connection: Keep-Alive
+21:09:05.707511 http.c:874              => Send header:
+21:09:05.727163 http.c:862              <= Recv header, 0000000037 bytes (0x00000025)
+21:09:05.727163 http.c:874              <= Recv header: HTTP/1.0 200 Connection established
+21:09:05.727163 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+21:09:05.727163 http.c:874              <= Recv header:
+21:09:05.727163 http.c:915              == Info: CONNECT phase completed      
+21:09:05.727163 http.c:915              == Info: CONNECT tunnel established, response 200
+21:09:05.727163 http.c:915              == Info: ALPN: curl offers http/1.1   
+21:09:05.740898 http.c:915              == Info: ALPN: server did not agree on a protocol. Uses default.
+21:09:05.740898 http.c:915              == Info: Established connection to partnerproxy.nri.co.jp (172.19.248.129 port 88) from 172.104.60.186 port 62967   
+21:09:05.740898 http.c:915              == Info: using HTTP/1.x
+21:09:05.740898 http.c:915              == Info: Server auth using Basic with user 'masaki-infinite'
+21:09:05.740898 http.c:862              => Send header, 0000000307 bytes (0x00000133)
+21:09:05.740898 http.c:874              => Send header: GET /masaki-infinite/nri_manual.git/info/refs?service=git-receive-pack HTTP/1.1
+21:09:05.740898 http.c:874              => Send header: Host: github.com      
+21:09:05.740898 http.c:874              => Send header: Authorization: Basic <redacted>
+21:09:05.740898 http.c:874              => Send header: User-Agent: git/2.51.2.windows.1
+21:09:05.740898 http.c:874              => Send header: Accept: */*
+21:09:05.740898 http.c:874              => Send header: Accept-Encoding: deflate, gzip, br, zstd
+21:09:05.740898 http.c:874              => Send header: Pragma: no-cache      
+21:09:05.740898 http.c:874              => Send header:
+21:09:05.740898 http.c:915              == Info: Request completely sent off  
+21:09:05.740898 http.c:915              == Info: schannel: remote party requests renegotiation
+21:09:05.740898 http.c:915              == Info: schannel: renegotiating SSL/TLS connection
+21:09:05.740898 http.c:915              == Info: schannel: SSL/TLS connection renegotiated
+21:09:05.740898 http.c:915              == Info: schannel: remote party requests renegotiation
+21:09:05.740898 http.c:915              == Info: schannel: renegotiating SSL/TLS connection
+21:09:05.740898 http.c:915              == Info: schannel: SSL/TLS connection renegotiated
+21:09:06.015595 http.c:862              <= Recv header, 0000000017 bytes (0x00000011)
+21:09:06.027027 http.c:874              <= Recv header: HTTP/1.1 200 OK
+21:09:06.027027 http.c:862              <= Recv header, 0000000026 bytes (0x0000001a)
+21:09:06.027027 http.c:874              <= Recv header: Server: GitHub-Babel/3.0
+21:09:06.027027 http.c:862              <= Recv header, 0000000060 bytes (0x0000003c)
+21:09:06.027027 http.c:874              <= Recv header: Content-Type: application/x-git-receive-pack-advertisement
+21:09:06.029056 http.c:862              <= Recv header, 0000000054 bytes (0x00000036)
+21:09:06.029056 http.c:874              <= Recv header: Content-Security-Policy: default-src 'none'; sandbox
+21:09:06.029610 http.c:862              <= Recv header, 0000000040 bytes (0x00000028)
+21:09:06.029610 http.c:874              <= Recv header: expires: Fri, 01 Jan 1980 00:00:00 GMT
+21:09:06.030706 http.c:862              <= Recv header, 0000000018 bytes (0x00000012)
+21:09:06.030706 http.c:874              <= Recv header: pragma: no-cache      
+21:09:06.030706 http.c:862              <= Recv header, 0000000053 bytes (0x00000035)
+21:09:06.030706 http.c:874              <= Recv header: Cache-Control: no-cache, max-age=0, must-revalidate
+21:09:06.031969 http.c:862              <= Recv header, 0000000023 bytes (0x00000017)
+21:09:06.031969 http.c:874              <= Recv header: Vary: Accept-Encoding 
+21:09:06.033603 http.c:862              <= Recv header, 0000000028 bytes (0x0000001c)
+21:09:06.033603 http.c:874              <= Recv header: Transfer-Encoding: chunked
+21:09:06.033603 http.c:862              <= Recv header, 0000000037 bytes (0x00000025)
+21:09:06.034862 http.c:874              <= Recv header: Date: Fri, 06 Mar 2026 12:09:05 GMT
+21:09:06.034862 http.c:862              <= Recv header, 0000000023 bytes (0x00000017)
+21:09:06.034862 http.c:874              <= Recv header: X-Frame-Options: DENY 
+21:09:06.034862 http.c:862              <= Recv header, 0000000073 bytes (0x00000049)
+21:09:06.034862 http.c:874              <= Recv header: Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+21:09:06.034862 http.c:862              <= Recv header, 0000000058 bytes (0x0000003a)
+21:09:06.034862 http.c:874              <= Recv header: X-GitHub-Request-Id: 9759:2E6AB:10F5734:1429439:69AAC3E1
+21:09:06.034862 http.c:862              <= Recv header, 0000000030 bytes (0x0000001e)
+21:09:06.034862 http.c:874              <= Recv header: Proxy-Connection: Keep-Alive
+21:09:06.036402 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+21:09:06.036402 http.c:874              <= Recv header:
+21:09:06.036402 http.c:915              == Info: Connection #1 to host partnerproxy.nri.co.jp:88 left intact
+21:09:06.036402 run-command.c:674       trace: run_command: 'git credential-manager store'
+21:09:06.036402 run-command.c:935       trace: start_command: 'C:/Program Files/Git/usr/bin/sh.exe' -c 'git credential-manager store' 'git credential-manager store'
+21:09:06.240611 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:09:06.271008 git.c:807               trace: exec: git-credential-manager store
+21:09:06.271008 run-command.c:674       trace: run_command: git-credential-manager store
+21:09:06.271008 run-command.c:935       trace: start_command: git-credential-manager store
+21:09:06.508641 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:09:06.532525 git.c:502               trace: built-in: git config --null --list
+21:09:06.767610 run-command.c:674       trace: run_command: 'git credential-manager store'
+21:09:06.767610 run-command.c:935       trace: start_command: 'C:/Program Files/Git/usr/bin/sh.exe' -c 'git credential-manager store' 'git credential-manager store'
+21:09:06.902301 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:09:06.920190 git.c:807               trace: exec: git-credential-manager store
+21:09:06.920190 run-command.c:674       trace: run_command: git-credential-manager store
+21:09:06.920190 run-command.c:935       trace: start_command: git-credential-manager store
+21:09:07.152601 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:09:07.171827 git.c:502               trace: built-in: git config --null --list
+21:09:07.339278 run-command.c:674       trace: run_command: git send-pack --stateless-rpc --helper-status --thin --progress https://github.com/masaki-infinite/nri_manual.git/ --stdin
+21:09:07.339278 run-command.c:935       trace: start_command: git send-pack --stateless-rpc --helper-status --thin --progress https://github.com/masaki-infinite/nri_manual.git/ --stdin
+21:09:07.393868 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:09:07.412557 git.c:502               trace: built-in: git send-pack --stateless-rpc --helper-status --thin --progress https://github.com/masaki-infinite/nri_manual.git/ --stdin
+21:09:07.416585 run-command.c:674       trace: run_command: git pack-objects --all-progress-implied --revs --stdout --thin --delta-base-offset --progress   
+21:09:07.422718 run-command.c:935       trace: start_command: git pack-objects --all-progress-implied --revs --stdout --thin --delta-base-offset --progress 
+21:09:07.495943 exec-cmd.c:266          trace: resolved executable dir: C:/Program Files/Git/mingw64/libexec/git-core
+21:09:07.513750 git.c:502               trace: built-in: git pack-objects --all-progress-implied --revs --stdout --thin --delta-base-offset --progress      
+Enumerating objects: 162, done.
+Counting objects: 100% (162/162), done.
+Delta compression using up to 14 threads
+Compressing objects: 100% (135/135), done.
+21:09:07.774761 http.c:915              == Info: Connection 1 seems to be dead
+21:09:07.774761 http.c:915              == Info: shutting down connection #1  
+21:09:07.774761 http.c:915              == Info: Hostname partnerproxy.nri.co.jp was found in DNS cache
+21:09:07.783178 http.c:915              == Info:   Trying 172.19.248.129:88...
+21:09:07.799486 http.c:915              == Info: CONNECT: no ALPN negotiated
+21:09:07.799486 http.c:915              == Info: allocate connect buffer      
+21:09:07.799486 http.c:915              == Info: Proxy auth using Basic with user 'cab02322'
+21:09:07.799486 http.c:915              == Info: Server auth using Basic with user 'masaki-infinite'
+21:09:07.799486 http.c:915              == Info: Establish HTTP proxy tunnel to github.com:443
+21:09:07.799486 http.c:862              => Send header, 0000000174 bytes (0x000000ae)
+21:09:07.799486 http.c:874              => Send header: CONNECT github.com:443 HTTP/1.1
+21:09:07.799486 http.c:874              => Send header: Host: github.com:443  
+21:09:07.799486 http.c:874              => Send header: Proxy-Authorization: Basic <redacted>
+21:09:07.799486 http.c:874              => Send header: User-Agent: git/2.51.2.windows.1
+21:09:07.799486 http.c:874              => Send header: Proxy-Connection: Keep-Alive
+21:09:07.799486 http.c:874              => Send header:
+21:09:07.808472 http.c:862              <= Recv header, 0000000037 bytes (0x00000025)
+21:09:07.808472 http.c:874              <= Recv header: HTTP/1.0 200 Connection established
+21:09:07.808472 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+21:09:07.808472 http.c:874              <= Recv header:
+21:09:07.808472 http.c:915              == Info: CONNECT phase completed      
+21:09:07.808472 http.c:915              == Info: CONNECT tunnel established, response 200
+21:09:07.808472 http.c:915              == Info: ALPN: curl offers http/1.1   
+21:09:07.818473 http.c:915              == Info: ALPN: server did not agree on a protocol. Uses default.
+21:09:07.818473 http.c:915              == Info: Established connection to partnerproxy.nri.co.jp (172.19.248.129 port 88) from 172.104.60.186 port 62969   
+21:09:07.818473 http.c:915              == Info: using HTTP/1.x
+21:09:07.818473 http.c:915              == Info: Server auth using Basic with user 'masaki-infinite'
+21:09:07.818473 http.c:862              => Send header, 0000000337 bytes (0x00000151)
+21:09:07.824517 http.c:874              => Send header: POST /masaki-infinite/nri_manual.git/git-receive-pack HTTP/1.1
+21:09:07.824517 http.c:874              => Send header: Host: github.com      
+21:09:07.824517 http.c:874              => Send header: Authorization: Basic <redacted>
+21:09:07.824517 http.c:874              => Send header: User-Agent: git/2.51.2.windows.1
+21:09:07.824517 http.c:874              => Send header: Content-Type: application/x-git-receive-pack-request
+21:09:07.824517 http.c:874              => Send header: Accept: application/x-git-receive-pack-result
+21:09:07.824517 http.c:874              => Send header: Content-Length: 4     
+21:09:07.824517 http.c:874              => Send header:
+21:09:07.824517 http.c:915              == Info: upload completely sent off: 4 bytes
+21:09:07.830195 http.c:915              == Info: schannel: remote party requests renegotiation
+21:09:07.830195 http.c:915              == Info: schannel: renegotiating SSL/TLS connection
+21:09:07.830772 http.c:915              == Info: schannel: SSL/TLS connection renegotiated
+21:09:07.832104 http.c:915              == Info: schannel: remote party requests renegotiation
+21:09:07.832104 http.c:915              == Info: schannel: renegotiating SSL/TLS connection
+21:09:07.832104 http.c:915              == Info: schannel: SSL/TLS connection renegotiated
+21:09:07.834873 http.c:915              == Info: schannel: server close notification received (close_notify)
+21:09:07.834873 http.c:862              <= Recv header, 0000000034 bytes (0x00000022)
+21:09:07.834873 http.c:874              <= Recv header: HTTP/1.1 503 Service Unavailable
+21:09:07.834873 http.c:915              == Info: HTTP/1.1 proxy connection set close
+21:09:07.834873 http.c:862              <= Recv header, 0000000025 bytes (0x00000019)
+21:09:07.834873 http.c:874              <= Recv header: Proxy-Connection: close
+21:09:07.834873 http.c:862              <= Recv header, 0000000040 bytes (0x00000028)
+21:09:07.834873 http.c:874              <= Recv header: Content-Type: text/html; charset=utf-8
+21:09:07.834873 http.c:862              <= Recv header, 0000000039 bytes (0x00000027)
+21:09:07.840409 http.c:874              <= Recv header: Expires: Tue, 2 Jan 2001 20:00:00 GMT
+21:09:07.840409 http.c:862              <= Recv header, 0000000022 bytes (0x00000016)
+21:09:07.840409 http.c:874              <= Recv header: Content-Length: 3981  
+21:09:07.840409 http.c:862              <= Recv header, 0000000029 bytes (0x0000001d)
+21:09:07.840409 http.c:874              <= Recv header: X-Frame-Options: SAMEORIGIN
+21:09:07.840409 http.c:862              <= Recv header, 0000000033 bytes (0x00000021)
+21:09:07.840409 http.c:874              <= Recv header: X-XSS-Protection: 1; mode=block
+21:09:07.840409 http.c:862              <= Recv header, 0000000033 bytes (0x00000021)
+21:09:07.840409 http.c:874              <= Recv header: X-Content-Type-Options: nosniff
+21:09:07.840409 http.c:862              <= Recv header, 0000000018 bytes (0x00000012)
+21:09:07.840409 http.c:874              <= Recv header: Pragma: no-cache      
+21:09:07.842235 http.c:862              <= Recv header, 0000000052 bytes (0x00000034)
+21:09:07.842235 http.c:874              <= Recv header: Cache-Control: no-cache, no-store, must-revalidate
+21:09:07.842235 http.c:915              == Info: The requested URL returned error: 503
+21:09:07.842235 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+rol: no-cache, no-store, must-revalidate
+21:09:07.842235 http.c:915              == Info: The requested URL returned error: 503
+21:09:07.842235 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+21:09:07.842235 http.c:874              <= Recv header:
+21:09:07.842235 http.c:915              == Info: closing connection #2
+error: RPC failed; HTTP 503 curl 22 The requested URL returned error: 503
+send-pack: unexpected disconnect while reading sideband packet    
+Writing objects: 100% (162/162), 2.59 MiB | 9.87 MiB/s, done.     
+Total 162 (delta 49), reused 0 (delta 0), pack-reused 0 (from 0)  
+fatal: the remote end hung up unexpectedly
+Everything up-to-date
+PS C:\Users\cab02322\src\nomura\nri_manual>
+
+rol: no-cache, no-store, must-revalidate
+21:09:07.842235 http.c:915              == Info: The requested URL returned error: 503
+21:09:07.842235 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+21:09:07.842235 http.c:874              <= Recv header:
+21:09:07.842235 http.c:915              == Info: closing connection #2
+error: RPC failed; HTTP 503 curl 22 The requested URL returned errrol: no-cache, no-store, must-revalidate
+21:09:07.842235 http.c:915              == Info: The requested URL returned error: 503
+21:09:07.842235 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+21:09:07.842235 http.c:874              <= Recv header:
+21:09:07.842235 http.c:915              == Info: The requested URL returned error: 503
+21:09:07.842235 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+21:09:07.842235 http.c:862              <= Recv header, 0000000002 bytes (0x00000002)
+21:09:07.842235 http.c:874              <= Recv header:
+21:09:07.842235 http.c:874              <= Recv header:
+21:09:07.842235 http.c:915              == Info: closing connectio21:09:07.842235 http.c:915              == Info: closing connection #2
+error: RPC failed; HTTP 503 curl 22 The requested URL returned error: 503
+or: 503
+send-pack: unexpected disconnect while reading sideband packet    
+Writing objects: 100% (162/162), 2.59 MiB | 9.87 MiB/s, done.     
+Total 162 (delta 49), reused 0 (delta 0), pack-reused 0 (from 0)  
+fatal: the remote end hung up unexpectedly
+Everything up-to-date

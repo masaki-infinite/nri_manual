@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import ExternalLinks from "@/app/dashboard/projects/components/ExternalLinks";
+import ProjectMinutes from "@/app/dashboard/projects/components/ProjectMinutes";
 
 type ProjectTask = {
   id: string;
@@ -39,6 +40,14 @@ const PROJECT_ID = "github-group";
 const PROJECT_NAME = "GitHubグループ会社";
 
 export default function GitHubGroupProjectPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-gray-500">読み込み中...</div>}>
+      <GitHubGroupProjectContent />
+    </Suspense>
+  );
+}
+
+function GitHubGroupProjectContent() {
   const searchParams = useSearchParams();
   const companyParam = searchParams.get("company");
   
@@ -60,7 +69,6 @@ export default function GitHubGroupProjectPage() {
   const [taskDeadline, setTaskDeadline] = useState("");
   const [taskCompany, setTaskCompany] = useState<string>("NRIネットコム");
   const [editingTask, setEditingTask] = useState<ProjectTask | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "wbs">("list");
   const [filterCompany, setFilterCompany] = useState<string>(companyParam || "all");
   const [isEditingAssignee, setIsEditingAssignee] = useState(false);
   const [assigneeInput, setAssigneeInput] = useState("");
@@ -446,6 +454,9 @@ export default function GitHubGroupProjectPage() {
         </div>
       </div>
 
+      {/* 議事録 */}
+      <ProjectMinutes companyName={PROJECT_NAME} />
+
       {/* 外部リンク */}
       <ExternalLinks storageKey={PROJECT_ID} />
 
@@ -487,28 +498,6 @@ export default function GitHubGroupProjectPage() {
             やることリスト
           </h3>
           <div className="flex gap-2">
-            <div className="flex border border-gray-300 rounded-lg overflow-hidden">
-              <button
-                onClick={() => setViewMode("list")}
-                className={`px-3 py-1 text-sm transition-colors ${
-                  viewMode === "list"
-                    ? "bg-indigo-600 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                リスト表示
-              </button>
-              <button
-                onClick={() => setViewMode("wbs")}
-                className={`px-3 py-1 text-sm transition-colors ${
-                  viewMode === "wbs"
-                    ? "bg-indigo-600 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                WBS表示
-              </button>
-            </div>
             <button
               onClick={() => {
                 setShowTaskForm(true);
@@ -626,7 +615,8 @@ export default function GitHubGroupProjectPage() {
           <p className="text-gray-500 text-center py-8">
             タスクがまだ登録されていません
           </p>
-        ) : viewMode === "list" ? (
+        ) : (
+          <>
           <div className="space-y-2">
             {project.tasks
               .filter((task) => filterCompany === "all" || task.company === filterCompany)
@@ -709,7 +699,10 @@ export default function GitHubGroupProjectPage() {
                 );
               })}
           </div>
-        ) : (
+
+          {/* WBS ガントチャート（常時表示） */}
+          <div className="mt-6">
+            <h4 className="text-md font-semibold text-gray-700 mb-3">WBS ガントチャート</h4>
           <div className="border rounded-lg">
             <div className="overflow-x-auto max-w-[784px]">
               <div className="inline-block min-w-full">
@@ -857,6 +850,8 @@ export default function GitHubGroupProjectPage() {
             </div>
           </div>
         </div>
+          </div>
+          </>
         )}
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import ExternalLinks from "@/app/dashboard/projects/components/ExternalLinks";
+import ProjectMinutes from "@/app/dashboard/projects/components/ProjectMinutes";
 
 type ProjectTask = {
   id: string;
@@ -57,7 +58,6 @@ export default function NRISecureProjectPage() {
   const [taskStartDate, setTaskStartDate] = useState("");
   const [taskDeadline, setTaskDeadline] = useState("");
   const [editingTask, setEditingTask] = useState<ProjectTask | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "wbs">("list");
   const [memo, setMemo] = useState("");
   const [isEditingAssignee, setIsEditingAssignee] = useState(false);
   const [assigneeInput, setAssigneeInput] = useState("");
@@ -291,6 +291,9 @@ export default function NRISecureProjectPage() {
         </div>
       )}
 
+      {/* 議事録 */}
+      <ProjectMinutes companyName={COMPANY_NAME} />
+
       {/* 外部リンク */}
       <ExternalLinks storageKey={PROJECT_ID} />
 
@@ -320,28 +323,6 @@ export default function NRISecureProjectPage() {
             {displayTasks.length})
           </h2>
           <div className="flex items-center space-x-2">
-            <div className="flex rounded-lg border border-gray-300 overflow-hidden">
-              <button
-                onClick={() => setViewMode("list")}
-                className={`px-3 py-1 text-sm ${
-                  viewMode === "list"
-                    ? "bg-indigo-600 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                リスト
-              </button>
-              <button
-                onClick={() => setViewMode("wbs")}
-                className={`px-3 py-1 text-sm ${
-                  viewMode === "wbs"
-                    ? "bg-indigo-600 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                WBS
-              </button>
-            </div>
             <button
               onClick={() => {
                 setShowTaskForm(!showTaskForm);
@@ -409,8 +390,7 @@ export default function NRISecureProjectPage() {
           </div>
         )}
 
-        {viewMode === "list" ? (
-          <div className="space-y-2">
+        <div className="space-y-2">
             {displayTasks.length === 0 ? (
               <p className="text-gray-500 text-center py-8">
                 タスクがありません
@@ -484,7 +464,10 @@ export default function NRISecureProjectPage() {
               })
             )}
           </div>
-        ) : (
+
+        {/* WBS テーブル（常時表示） */}
+        <div className="mt-6">
+          <h4 className="text-md font-semibold text-gray-700 mb-3">WBS テーブル</h4>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -592,7 +575,7 @@ export default function NRISecureProjectPage() {
               </tbody>
             </table>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import ExternalLinks from "@/app/dashboard/projects/components/ExternalLinks";
+import ProjectMinutes from "@/app/dashboard/projects/components/ProjectMinutes";
 
 type ProjectTask = {
   id: string;
@@ -486,6 +487,9 @@ export default function SnowflakeExternalProjectPage() {
           )}
         </div>
       </div>
+
+      {/* 議事録 */}
+      <ProjectMinutes companyName={PROJECT_NAME} />
 
       {/* 外部リンク */}
       <ExternalLinks storageKey={PROJECT_ID} />

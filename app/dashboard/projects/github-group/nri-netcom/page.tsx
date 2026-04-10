@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { migrateCompanyMemo } from "@/lib/memoMigration";
 import Link from "next/link";
 import ExternalLinks from "@/app/dashboard/projects/components/ExternalLinks";
+import ProjectMinutes from "@/app/dashboard/projects/components/ProjectMinutes";
 
 type ProjectTask = {
   id: string;
@@ -58,7 +59,6 @@ export default function NRINetcomProjectPage() {
   const [taskStartDate, setTaskStartDate] = useState("");
   const [taskDeadline, setTaskDeadline] = useState("");
   const [editingTask, setEditingTask] = useState<ProjectTask | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "wbs">("list");
   const [memo, setMemo] = useState("");
   const [isEditingAssignee, setIsEditingAssignee] = useState(false);
   const [assigneeInput, setAssigneeInput] = useState("");
@@ -261,26 +261,6 @@ export default function NRINetcomProjectPage() {
             <h2 className="text-xl font-semibold text-gray-800">タスク管理</h2>
             <div className="flex gap-2">
               <button
-                onClick={() => setViewMode("list")}
-                className={`px-3 py-1 rounded-lg transition-colors text-sm ${
-                  viewMode === "list"
-                    ? "bg-indigo-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                リスト表示
-              </button>
-              <button
-                onClick={() => setViewMode("wbs")}
-                className={`px-3 py-1 rounded-lg transition-colors text-sm ${
-                  viewMode === "wbs"
-                    ? "bg-indigo-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                WBS表示
-              </button>
-              <button
                 onClick={() => {
                   setShowTaskForm(!showTaskForm);
                   setEditingTask(null);
@@ -360,7 +340,8 @@ export default function NRINetcomProjectPage() {
             <p className="text-gray-500 text-center py-8">
               タスクがまだ登録されていません
             </p>
-          ) : viewMode === "list" ? (
+          ) : (
+            <>
             <div className="space-y-2">
               {companyTasks
                 .sort((a, b) => a.deadline.localeCompare(b.deadline))
@@ -436,7 +417,10 @@ export default function NRINetcomProjectPage() {
                   );
                 })}
             </div>
-          ) : (
+
+            {/* WBS ガントチャート（常時表示） */}
+            <div className="mt-6">
+              <h4 className="text-md font-semibold text-gray-700 mb-3">WBS ガントチャート</h4>
             <div className="border rounded-lg">
               <div className="overflow-x-auto max-w-[784px]">
                 <div className="inline-block min-w-full">
@@ -610,8 +594,13 @@ export default function NRINetcomProjectPage() {
                 </div>
               </div>
             </div>
+            </div>
+            </>
           )}
         </div>
+
+        {/* 議事録 */}
+        <ProjectMinutes companyName={COMPANY_NAME} />
 
         {/* 外部リンク */}
         <ExternalLinks storageKey={PROJECT_ID} />

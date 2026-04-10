@@ -265,11 +265,11 @@ export default function DashboardPage() {
                 <h3 className="text-xl font-bold text-red-900 mb-3">
                   期限切れタスク {overdueTasks.length}件
                 </h3>
-                <div className="space-y-3 max-h-96 overflow-y-auto">
+                <div className="space-y-3 max-h-96 overflow-y-auto min-w-0">
                   {overdueTasks.map((task) => (
-                    <div key={task.id} className="bg-white border border-red-300 rounded-lg p-4">
+                    <div key={task.id} className="bg-white border border-red-300 rounded-lg p-4 min-w-0">
                       <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded">
                               {task.companyName}
@@ -278,9 +278,9 @@ export default function DashboardPage() {
                               期限: {task.deadline}
                             </span>
                           </div>
-                          <p className="text-sm font-semibold text-gray-900">{task.text}</p>
+                          <p className="text-sm font-semibold text-gray-900 break-words">{task.text}</p>
                           {task.description && (
-                            <p className="text-xs text-gray-600 mt-1">{task.description}</p>
+                            <p className="text-xs text-gray-600 mt-1 break-words">{task.description}</p>
                           )}
                         </div>
                         <Link
@@ -291,7 +291,7 @@ export default function DashboardPage() {
                               ? "nri-digital"
                               : "nri-data-itech"
                           }`}
-                          className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors whitespace-nowrap"
+                          className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
                         >
                           確認
                         </Link>

@@ -1,9 +1,9 @@
-import DashboardLayout from "../dashboard/layout";
+import SharedLayout from "../components/SharedLayout";
 
 export default function ContractsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return <SharedLayout>{children}</SharedLayout>;
 }

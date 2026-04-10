@@ -24,3 +24,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Prevent the whole page from producing a horizontal scrollbar.
+   Individual components that need horizontal scrolling keep their own
+   overflow-x-auto (e.g. WBS gantt) so internal scrolling still works. */
+body {
+  overflow-x: hidden;
+}

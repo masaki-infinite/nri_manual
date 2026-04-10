@@ -21,7 +21,7 @@ export default function GitHubTrainingPage() {
           GitHubとその関連ツールに関する勉強会資料をまとめています。
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           <Link href="/training/github/copilot">
             <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer">
               <div className="text-4xl mb-4">🤖</div>
@@ -47,6 +47,21 @@ export default function GitHubTrainingPage() {
                 CI/CD自動化のためのGitHub Actionsの基礎と実践
               </p>
               <div className="mt-4 text-indigo-600 text-sm font-medium">
+                資料を見る →
+              </div>
+            </div>
+          </Link>
+
+          <Link href="/training/github/agentic-workflow">
+            <div className="border border-purple-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer bg-purple-50/30">
+              <div className="text-4xl mb-4">🧠</div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                Agentic Workflow
+              </h3>
+              <p className="text-gray-600 text-sm">
+                GitHub ActionsとCopilotを組み合わせた自律的AI駆動ワークフローの構築
+              </p>
+              <div className="mt-4 text-purple-600 text-sm font-medium">
                 資料を見る →
               </div>
             </div>
