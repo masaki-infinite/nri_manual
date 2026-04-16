@@ -43,16 +43,30 @@ export default function SharedLayout({
   const [customProjects, setCustomProjects] = useState<Array<{id: string; name: string; category: string}>>([]);
   const [todayLabel, setTodayLabel] = useState("");
 
-  // 今日の日付を設定
+  // 今日の日付を設定（深夜0時に自動更新）
   useEffect(() => {
-    const now = new Date();
-    const formatted = now.toLocaleDateString("ja-JP", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      weekday: "short",
-    });
-    setTodayLabel(formatted);
+    const updateDate = () => {
+      const now = new Date();
+      const formatted = now.toLocaleDateString("ja-JP", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "short",
+      });
+      setTodayLabel(formatted);
+      return now;
+    };
+
+    const now = updateDate();
+
+    // 次の深夜0時までのミリ秒を計算してタイマーをセット
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const msUntilMidnight = tomorrow.getTime() - now.getTime();
+    const timeout = setTimeout(() => {
+      updateDate();
+    }, msUntilMidnight);
+
+    return () => clearTimeout(timeout);
   }, []);
 
   // カスタムプロジェクトを読み込む
