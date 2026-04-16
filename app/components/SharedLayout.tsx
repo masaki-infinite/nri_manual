@@ -41,6 +41,19 @@ export default function SharedLayout({
   const [actionItems, setActionItems] = useState<ActionItem[]>([]);
   const [showActionItems, setShowActionItems] = useState(false);
   const [customProjects, setCustomProjects] = useState<Array<{id: string; name: string; category: string}>>([]);
+  const [todayLabel, setTodayLabel] = useState("");
+
+  // 今日の日付を設定
+  useEffect(() => {
+    const now = new Date();
+    const formatted = now.toLocaleDateString("ja-JP", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "short",
+    });
+    setTodayLabel(formatted);
+  }, []);
 
   // カスタムプロジェクトを読み込む
   useEffect(() => {
@@ -353,6 +366,7 @@ export default function SharedLayout({
                 </span>
               )}
             </button>
+            <span className="text-sm text-gray-500">{todayLabel}</span>
             <span className="text-sm text-gray-600">{session?.user?.email}</span>
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
