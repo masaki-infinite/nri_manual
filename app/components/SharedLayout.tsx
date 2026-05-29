@@ -228,6 +228,7 @@ export default function SharedLayout({
       ],
     },
     { name: "議事録", href: "/dashboard/minutes" },
+    { name: "リポジトリ解析", href: "/dashboard/repo-analysis" },
     {
       name: "案件リスト",
       href: "/dashboard/projects",
