@@ -1,7 +1,115 @@
+import Link from "next/link";
+
 export default function TrainingPage() {
   return (
     <div>
       <h2 className="text-3xl font-bold text-gray-800 mb-6">勉強会</h2>
+
+      <div className="mb-8">
+        <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+          📘 勉強会資料
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <Link href="/training/copilot-rag">
+            <div className="border border-violet-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer bg-violet-50/40 h-full">
+              <div className="text-3xl mb-3">🧩</div>
+              <h4 className="font-semibold text-gray-800 mb-2">Copilot RAG</h4>
+              <p className="text-sm text-gray-600">
+                GitHub / Azure / AWS で分けた Copilot から使う企業ナレッジRAGの構築方法を整理します。
+              </p>
+              <div className="mt-4 text-violet-700 text-sm font-medium">資料を見る →</div>
+            </div>
+          </Link>
+
+          <Link href="/training/snowflake">
+            <div className="border border-sky-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer bg-sky-50/40 h-full">
+              <div className="text-3xl mb-3">❄️</div>
+              <h4 className="font-semibold text-gray-800 mb-2">Snowflake / SPCS</h4>
+              <p className="text-sm text-gray-600">
+                Snowpark Container Services の概要、特徴、ユースケースを解説します。
+              </p>
+              <div className="mt-4 text-sky-600 text-sm font-medium">資料を見る →</div>
+            </div>
+          </Link>
+
+          <Link href="/training/github">
+            <div className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer h-full">
+              <div className="text-3xl mb-3">🧰</div>
+              <h4 className="font-semibold text-gray-800 mb-2">GitHub</h4>
+              <p className="text-sm text-gray-600">
+                Copilot、Actions、Agentic Workflow など GitHub 関連の資料です。
+              </p>
+              <div className="mt-4 text-indigo-600 text-sm font-medium">資料を見る →</div>
+            </div>
+          </Link>
+
+          <Link href="/training/semantic-layer">
+            <div className="border border-emerald-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer bg-emerald-50/40 h-full">
+              <div className="text-3xl mb-3">📊</div>
+              <h4 className="font-semibold text-gray-800 mb-2">セマンティックレイヤー</h4>
+              <p className="text-sm text-gray-600">
+                データの意味を統一し、分析や可視化を安定させる考え方をまとめています。
+              </p>
+              <div className="mt-4 text-emerald-600 text-sm font-medium">資料を見る →</div>
+            </div>
+          </Link>
+
+          <Link href="/training/claude-code">
+            <div className="border border-purple-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer bg-purple-50/40 h-full">
+              <div className="text-3xl mb-3">🤖</div>
+              <h4 className="font-semibold text-gray-800 mb-2">Claude Code</h4>
+              <p className="text-sm text-gray-600">
+                AI を使った開発の進め方や、プロンプト運用の資料をまとめています。
+              </p>
+              <div className="mt-4 text-purple-600 text-sm font-medium">資料を見る →</div>
+            </div>
+          </Link>
+
+          <Link href="/training/arcgis">
+            <div className="border border-cyan-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer bg-cyan-50/40 h-full">
+              <div className="text-3xl mb-3">🗺️</div>
+              <h4 className="font-semibold text-gray-800 mb-2">ArcGIS</h4>
+              <p className="text-sm text-gray-600">
+                ArcGIS Online と Experience Builder の概要、用途、開発パターンを解説します。
+              </p>
+              <div className="mt-4 text-cyan-600 text-sm font-medium">資料を見る →</div>
+            </div>
+          </Link>
+
+          <Link href="/training/snowflake-arcgis">
+            <div className="border border-teal-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer bg-teal-50/40 h-full">
+              <div className="text-3xl mb-3">🔗</div>
+              <h4 className="font-semibold text-gray-800 mb-2">Snowflake × ArcGIS 連携</h4>
+              <p className="text-sm text-gray-600">
+                SnowflakeとArcGISを接続して、地理空間データを活用する開発パターンを解説します。
+              </p>
+              <div className="mt-4 text-teal-700 text-sm font-medium">資料を見る →</div>
+            </div>
+          </Link>
+
+          <Link href="/training/catalog">
+            <div className="border border-fuchsia-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer bg-fuchsia-50/40 h-full">
+              <div className="text-3xl mb-3">🔎</div>
+              <h4 className="font-semibold text-gray-800 mb-2">テーマ検索ページ</h4>
+              <p className="text-sm text-gray-600">
+                今後ページが増えても素早く探せるよう、キーワード検索とカテゴリ絞り込みを提供します。
+              </p>
+              <div className="mt-4 text-fuchsia-700 text-sm font-medium">検索ページへ →</div>
+            </div>
+          </Link>
+
+          <Link href="/training/government-proposals">
+            <div className="border border-amber-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer bg-amber-50/40 h-full">
+              <div className="text-3xl mb-3">🏛️</div>
+              <h4 className="font-semibold text-gray-800 mb-2">省庁提案</h4>
+              <p className="text-sm text-gray-600">
+                中小企業庁など行政機関の組織図と役割を踏まえた提案整理資料です。
+              </p>
+              <div className="mt-4 text-amber-700 text-sm font-medium">資料を見る →</div>
+            </div>
+          </Link>
+        </div>
+      </div>
 
       <div className="prose max-w-none">
         <div className="mb-8">

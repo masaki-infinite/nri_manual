@@ -214,6 +214,8 @@ export default function SharedLayout({
       name: "勉強会",
       href: "/training",
       subItems: [
+        { name: "テーマ検索", href: "/training/catalog" },
+        { name: "R&D", href: "/training/r-and-d" },
         {
           name: "GitHub",
           href: "/training/github",
@@ -223,16 +225,71 @@ export default function SharedLayout({
             { name: "Agentic Workflow", href: "/training/github/agentic-workflow" },
           ],
         },
-        { name: "Claude Code", href: "/training/claude-code" },
-        { name: "セマンティックレイヤー", href: "/training/semantic-layer" },
+        {
+          name: "Claude",
+          href: "/training/claude-code",
+          subItems: [
+            { name: "Claude Code 概要", href: "/training/claude-code" },
+            { name: "Skills vs SubAgents", href: "/training/claude-code/skills-vs-subagents" },
+          ],
+        },
+        {
+          name: "IDE",
+          href: "/training/ide",
+          subItems: [
+            { name: "CodeX", href: "/training/ide/codex" },
+            { name: "Antigravity", href: "/training/ide/antigravity" },
+            { name: "Cursor", href: "/training/ide/cursor" },
+          ],
+        },
+        {
+          name: "セマンティックレイヤー",
+          href: "/training/semantic-layer",
+          subItems: [
+            { name: "概要", href: "/training/semantic-layer" },
+            { name: "AtScale", href: "/training/semantic-layer/atscale" },
+            { name: "Cube", href: "/training/semantic-layer/cube" },
+          ],
+        },
+        { name: "NotebookLM", href: "/training/notebooklm" },
+        {
+          name: "Snowflake",
+          href: "/training/snowflake",
+          subItems: [
+            { name: "Snowflake の強み", href: "/training/snowflake/strengths" },
+            { name: "データ基盤の位置づけ", href: "/training/snowflake/data-platform" },
+            { name: "SPCS の基本", href: "/training/snowflake" },
+            { name: "Cortex AI", href: "/training/snowflake/cortex" },
+            { name: "RAG 構築", href: "/training/snowflake/rag" },
+            { name: "MCP ゲートウェイ", href: "/training/snowflake/mcp-gateway" },
+            { name: "ArcGIS 連携", href: "/training/snowflake-arcgis" },
+          ],
+        },
+        { name: "Databricks", href: "/training/databricks" },
+        {
+          name: "Copilot RAG",
+          href: "/training/copilot-rag",
+          subItems: [
+            { name: "GitHub", href: "/training/copilot-rag/github" },
+            { name: "Azure", href: "/training/copilot-rag/azure" },
+            { name: "AWS", href: "/training/copilot-rag/aws" },
+          ],
+        },
+        { name: "ArcGIS", href: "/training/arcgis" },
+        { name: "Snowflake×ArcGIS連携", href: "/training/snowflake-arcgis" },
+        { name: "省庁提案", href: "/training/government-proposals" },
+        { name: "Docker", href: "/training/docker" },
       ],
     },
     { name: "議事録", href: "/dashboard/minutes" },
     { name: "リポジトリ解析", href: "/dashboard/repo-analysis" },
+    { name: "市場", href: "/dashboard/market" },
     {
       name: "案件リスト",
       href: "/dashboard/projects",
       subItems: [
+        { name: "東京都庁", href: "/dashboard/projects/tocho" },
+        { name: "海上保安庁", href: "/dashboard/projects/kaijo-hoancho" },
         { name: "竹中工務店", href: "/dashboard/projects/takenaka" },
         { name: "株式会社KBS", href: "/dashboard/projects/kbs" },
         { name: "株式会社スバル", href: "/dashboard/projects/subaru" },

@@ -1,4 +1,4 @@
-export default function RepoAnalysisLayout({
+export default function SkillsVsSubAgentsLayout({
   children,
 }: {
   children: React.ReactNode;

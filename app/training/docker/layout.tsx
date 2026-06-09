@@ -1,4 +1,4 @@
-export default function RepoAnalysisLayout({
+export default function DockerLayout({
   children,
 }: {
   children: React.ReactNode;

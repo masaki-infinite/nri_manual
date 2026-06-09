@@ -18,6 +18,8 @@ type ProjectData = {
 };
 
 const PROJECT_IDS = [
+  "tocho",
+  "kaijo-hoancho",
   "takenaka",
   "subaru",
   "snowflake-internal",
@@ -27,6 +29,8 @@ const PROJECT_IDS = [
 ];
 
 const PROJECT_NAMES: Record<string, string> = {
+  tocho: "東京都庁",
+  "kaijo-hoancho": "海上保安庁",
   takenaka: "竹中工務店",
   subaru: "株式会社スバル",
   "snowflake-internal": "Snowflake内販",
