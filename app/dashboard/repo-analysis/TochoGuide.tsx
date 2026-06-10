@@ -470,12 +470,13 @@ function ScenarioFlow({ onDocOpen }: { onDocOpen: (file: string) => void }) {
 
 function Architecture({ onDocOpen }: { onDocOpen: (file: string) => void }) {
   const [sub, setSub] = useState<ArchSub>("overview");
+  const [showDetailedScript, setShowDetailedScript] = useState(false);
   const subTabs: { id: ArchSub; label: string }[] = [
     { id: "overview", label: "🏗️ 全体構成" },
     { id: "chatbot", label: "💬 チャットボット（RAG）" },
     { id: "consistency", label: "🛡️ 整合性チェック" },
     { id: "scenario", label: "⚡ シナリオ生成" },
-    { id: "slidescript", label: "🎤 説明スライド（台本付き）" },
+    { id: "slidescript", label: "🎤 スライド" },
   ];
   return (
     <div className="space-y-5">
@@ -505,12 +506,17 @@ function Architecture({ onDocOpen }: { onDocOpen: (file: string) => void }) {
       {sub === "slidescript" && (
         <div className="space-y-6">
           <SlideScript />
-          <div className="flex items-center gap-3 pt-2">
-            <span className="h-px flex-1 bg-slate-200" />
-            <span className="text-[12px] font-bold text-slate-500">📖 構成判断の詳細台本</span>
-            <span className="h-px flex-1 bg-slate-200" />
+          <div className="flex items-center justify-center pt-1">
+            <button
+              onClick={() => setShowDetailedScript((v) => !v)}
+              aria-pressed={showDetailedScript}
+              className={`flex items-center gap-1.5 text-[12px] font-bold px-3.5 py-2 rounded-lg border transition ${showDetailedScript ? "bg-slate-700 text-white border-slate-700" : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"}`}
+            >
+              <span>📖</span>
+              <span>{showDetailedScript ? "詳細台本を隠す" : "詳細台本を表示"}</span>
+            </button>
           </div>
-          <Script />
+          {showDetailedScript && <Script />}
         </div>
       )}
     </div>
@@ -3928,10 +3934,8 @@ function SlideScript() {
       <div className="bg-gradient-to-r from-indigo-700 to-purple-700 text-white rounded-xl p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h3 className="font-bold text-base mb-1">🎤 説明スライド（台本付き）</h3>
-            <p className="text-indigo-100 text-xs leading-relaxed">
-              この構成図タブ（全体構成・チャットボット(RAG)・整合性チェック・シナリオ生成）の内容を、説明用スライド（全12枚）にまとめました。技術構成が中心です。右上の「台本」ボタンを押すと、各スライドで話す台本が横に表示されます。下部には構成判断の根拠を述べる「詳細台本」も収録しています。
-            </p>
+            <div className="text-indigo-100 text-xs font-semibold mb-1">説明スライド</div>
+            <h3 className="font-bold text-base truncate">{current.label}</h3>
           </div>
           <button
             onClick={() => setShowScript((v) => !v)}
