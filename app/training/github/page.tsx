@@ -66,6 +66,21 @@ export default function GitHubTrainingPage() {
               </div>
             </div>
           </Link>
+
+          <Link href="/training/copilot-rag">
+            <div className="border border-violet-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer bg-violet-50/30">
+              <div className="text-4xl mb-4">🧩</div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                Copilot RAG
+              </h3>
+              <p className="text-gray-600 text-sm">
+                GitHub / Azure / AWS 向けの企業ナレッジ RAG を Copilot から利用する構築方法
+              </p>
+              <div className="mt-4 text-violet-700 text-sm font-medium">
+                資料を見る →
+              </div>
+            </div>
+          </Link>
         </div>
 
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">

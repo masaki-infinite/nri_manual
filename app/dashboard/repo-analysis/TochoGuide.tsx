@@ -55,8 +55,19 @@ function Overview({ onDocOpen }: { onDocOpen: (file: string) => void }) {
         <h3 className="font-semibold text-rose-800 mb-2">tocho-geospatial-platform とは？</h3>
         <p className="text-sm text-rose-700">
           東京都庁向けの geospatial プラットフォーム案件です。Snowflake をデータ中核に、
-          ArcGIS Maps SDK for JavaScript と Next.js を組み合わせ、部局横断で利用できる
-          地図・3D可視化・RAG検索基盤を構築します。
+          ArcGIS Enterprise（Portal + Server）と Maps SDK for JavaScript、Next.js を組み合わせ、
+          部局横断で利用できる地図・3D可視化・RAG検索基盤を庁内閉域で構築します。
+        </p>
+      </div>
+
+      <div className="bg-violet-50 border border-violet-200 rounded-lg p-4">
+        <h3 className="font-semibold text-violet-900 mb-2">ArcGIS Enterprise の置き場所</h3>
+        <p className="text-sm text-gray-700 leading-6">
+          Portal・Server・Data Store は Snowflake 上ではなく、
+          <span className="font-semibold">都庁のデータセンター／サーバールームの VM・物理サーバー（オンプレ）</span>
+          または
+          <span className="font-semibold">庁内専用プライベートクラウド（閉域クラウド）</span>
+          に構築します。③ Maps SDK はこの庁内 GIS を REST で参照します。
         </p>
       </div>
 
@@ -83,7 +94,7 @@ function Overview({ onDocOpen }: { onDocOpen: (file: string) => void }) {
       </div>
 
       <DocLinks onDocOpen={onDocOpen} />
-      <GlossarySection terms={["図上訓練", "RAG（Retrieval-Augmented Generation）", "Cortex AI", "ArcGIS Maps SDK for JavaScript", "ハザードマップ"]} />
+      <GlossarySection terms={["図上訓練", "RAG（Retrieval-Augmented Generation）", "Cortex AI", "BFF（Backend for Frontend）", "ArcGIS Maps SDK for JavaScript", "ハザードマップ"]} />
     </div>
   );
 }
@@ -319,7 +330,7 @@ function UIMock() {
   );
 }
 
-type ArchSub = "overview" | "chatbot" | "consistency" | "scenario" | "slidescript";
+type ArchSub = "overview" | "dev" | "chatbot" | "consistency" | "scenario" | "slidescript";
 
 type FlowNode = { icon: string; bg: string; title: string; sub: string; snow?: boolean; arrow?: string | null };
 
@@ -468,11 +479,27 @@ function ScenarioFlow({ onDocOpen }: { onDocOpen: (file: string) => void }) {
   );
 }
 
-function Architecture({ onDocOpen }: { onDocOpen: (file: string) => void }) {
-  const [sub, setSub] = useState<ArchSub>("overview");
+function Architecture({
+  onDocOpen,
+  sub,
+  setSub,
+  archSlideIdx,
+  setArchSlideIdx,
+  archShowScript,
+  setArchShowScript,
+}: {
+  onDocOpen: (file: string) => void;
+  sub: ArchSub;
+  setSub: (s: ArchSub) => void;
+  archSlideIdx: number;
+  setArchSlideIdx: (i: number) => void;
+  archShowScript: boolean;
+  setArchShowScript: (v: boolean) => void;
+}) {
   const [showDetailedScript, setShowDetailedScript] = useState(false);
   const subTabs: { id: ArchSub; label: string }[] = [
     { id: "overview", label: "🏗️ 全体構成" },
+    { id: "dev", label: "🛠️ 開発環境" },
     { id: "chatbot", label: "💬 チャットボット（RAG）" },
     { id: "consistency", label: "🛡️ 整合性チェック" },
     { id: "scenario", label: "⚡ シナリオ生成" },
@@ -493,6 +520,7 @@ function Architecture({ onDocOpen }: { onDocOpen: (file: string) => void }) {
       </div>
 
       {sub === "overview" && <ArchOverview onDocOpen={onDocOpen} />}
+      {sub === "dev" && <DevArchOverview onDocOpen={onDocOpen} />}
       {sub === "chatbot" && (
         <div>
           <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 mb-5 text-xs text-amber-800 leading-relaxed">
@@ -505,7 +533,7 @@ function Architecture({ onDocOpen }: { onDocOpen: (file: string) => void }) {
       {sub === "scenario" && <ScenarioFlow onDocOpen={onDocOpen} />}
       {sub === "slidescript" && (
         <div className="space-y-6">
-          <SlideScript />
+          <SlideScript idx={archSlideIdx} setIdx={setArchSlideIdx} showScript={archShowScript} setShowScript={setArchShowScript} />
           <div className="flex items-center justify-center pt-1">
             <button
               onClick={() => setShowDetailedScript((v) => !v)}
@@ -523,115 +551,381 @@ function Architecture({ onDocOpen }: { onDocOpen: (file: string) => void }) {
   );
 }
 
-function ArchOverview({ onDocOpen }: { onDocOpen: (file: string) => void }) {
+function HorizArrow({ label, icon = "→", dashed = false }: { label?: string; icon?: string; dashed?: boolean }) {
   return (
-    <div className="space-y-6">
-      <h3 className="font-semibold text-gray-800">システム構成図</h3>
+    <div className="flex flex-col items-center justify-center px-0.5 flex-shrink-0 self-stretch min-w-[28px]">
+      {label ? (
+        <span className={`text-[8.5px] text-center leading-tight mb-0.5 max-w-[56px] ${dashed ? "text-slate-400" : "text-slate-500"}`}>
+          {label}
+        </span>
+      ) : null}
+      <span
+        className={`font-bold text-base leading-none ${dashed ? "text-slate-300 border-b-2 border-dashed border-slate-400 w-6" : "text-slate-400"}`}
+      >
+        {icon}
+      </span>
+    </div>
+  );
+}
 
-      <div className="space-y-2 text-xs">
-        {/* Layer 1: Users */}
-        <div className="flex justify-center">
-          <div className="bg-blue-50 border border-blue-300 rounded-lg px-8 py-2 text-center">
-            <div className="font-bold text-blue-800 text-sm">利用者 / 都職員（20名）</div>
-            <div className="text-blue-600 mt-0.5">質問・条件設定・文書編集・訓練実施</div>
+function VertArrow({ label, icon = "↓", dashed = false, tone = "slate" }: { label?: string; icon?: string; dashed?: boolean; tone?: "slate" | "emerald" | "sky" }) {
+  const tones = {
+    slate: { line: "bg-slate-400", text: "text-slate-500", icon: "text-slate-400" },
+    emerald: { line: "bg-emerald-500", text: "text-emerald-700", icon: "text-emerald-500" },
+    sky: { line: "bg-sky-400", text: "text-sky-600", icon: "text-sky-400" },
+  };
+  const t = tones[tone];
+  return (
+    <div className="flex flex-col items-center justify-center py-0.5 flex-shrink-0 min-h-[24px]">
+      {label ? <span className={`text-[7.5px] font-semibold mb-0.5 whitespace-nowrap ${t.text}`}>{label}</span> : null}
+      <div className={`w-0.5 h-3 ${dashed ? "border-l-2 border-dashed border-sky-400 bg-transparent w-0" : t.line}`} />
+      <span className={`font-bold text-sm leading-none ${dashed ? "text-slate-300" : t.icon}`}>{icon}</span>
+    </div>
+  );
+}
+
+function VertBarrier({ title, sub, tone = "slate" }: { title: string; sub?: string; tone?: "slate" | "violet" | "purple" | "sky" }) {
+  const tones = {
+    slate: "bg-slate-200/80 border-slate-400 text-slate-700",
+    violet: "bg-violet-100 border-violet-400 text-violet-800",
+    purple: "bg-purple-100 border-purple-500 text-purple-800",
+    sky: "bg-sky-100 border-sky-400 text-sky-800",
+  };
+  return (
+    <div className={`flex flex-col items-center justify-center border-2 rounded-md flex-shrink-0 self-stretch px-1.5 py-2 min-w-[44px] max-w-[52px] ${tones[tone]}`}>
+      <span className="text-[9px] font-bold tracking-wider" style={{ writingMode: "vertical-rl" }}>{title}</span>
+      {sub ? <span className="text-[7.5px] mt-1 opacity-80 text-center leading-tight">{sub}</span> : null}
+    </div>
+  );
+}
+
+function InternetCloud({ label = "Internet" }: { label?: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center flex-shrink-0 self-stretch px-1">
+      <div className="w-12 h-8 border-2 border-slate-300 rounded-full bg-white flex items-center justify-center text-[8px] text-slate-500 font-semibold shadow-sm">{label}</div>
+    </div>
+  );
+}
+
+function DevArchDiagram() {
+  return (
+    <div className="overflow-x-auto pb-1">
+      <div className="flex items-stretch gap-0.5 min-w-[880px] text-[10px]">
+        {/* 左: 開発者 PC */}
+        <div className="w-[155px] flex-shrink-0 flex flex-col gap-1.5">
+          <div className="bg-violet-50 border-2 border-violet-400 rounded-lg p-2 flex-1">
+            <div className="font-bold text-violet-900 text-[11px] mb-1.5">💻 開発者 PC</div>
+            {[
+              { t: "Git", d: "アプリ / IaC / SQL" },
+              { t: "IDE", d: "VS Code / Cursor" },
+              { t: ".env.local", d: "PAT（gitignore）" },
+              { t: "config.toml", d: "Snowflake CLI" },
+            ].map((x) => (
+              <div key={x.t} className="bg-white border border-violet-200 rounded px-1.5 py-1 mb-1 last:mb-0">
+                <div className="font-bold text-violet-800 text-[9.5px]">{x.t}</div>
+                <div className="text-violet-600 text-[8.5px]">{x.d}</div>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-1">
+            {[
+              { c: "bg-amber-50 border-amber-300 text-amber-900", t: "① IaC", d: "terraform apply" },
+              { c: "bg-blue-50 border-blue-300 text-blue-900", t: "② データ", d: "PUT / snow sql" },
+              { c: "bg-orange-50 border-orange-300 text-orange-900", t: "③ アプリ", d: "npm run dev" },
+            ].map((x) => (
+              <div key={x.t} className={`border rounded px-1.5 py-0.5 ${x.c}`}>
+                <span className="font-bold">{x.t}</span>
+                <span className="ml-1 font-mono text-[8.5px] opacity-80">{x.d}</span>
+              </div>
+            ))}
           </div>
         </div>
-        <div className="text-center text-gray-400">↓ ↓ ↓ ↓</div>
 
-        {/* Layer 2: Feature UIs */}
-        <div className="grid grid-cols-4 gap-2">
-          <div className="bg-amber-50 border border-amber-300 rounded-lg p-3">
-            <div className="font-bold text-amber-800 mb-1">① AI機能群</div>
-            <div className="text-amber-700 space-y-0.5">
-              <div>• チャットボット（RAG Q&A）</div>
-              <div>• 訓練シナリオ整合性チェック</div>
-              <div>• 訓練シナリオ自動生成</div>
-            </div>
+        <InternetCloud label="TLS" />
+        <VertBarrier title="PAT認証" sub="Key Pair" tone="violet" />
+
+        {/* 中央: Snowflake */}
+        <div className="flex-1 border-2 border-green-500 bg-green-50/40 rounded-xl p-2.5 min-w-[340px]">
+          <div className="bg-green-600 text-white text-[9px] font-bold px-2 py-0.5 rounded inline-block mb-1.5">❄️ Snowflake（開発アカウント・東京リージョン）</div>
+          <div className="grid grid-cols-2 gap-1.5">
+            {[
+              { t: "インフラ（IaC）", d: "TOCHO_BOUSAI DB / RAW・RAG・APP\nROLE×3 / SEARCH_WH / Network Policy", c: "border-amber-300 bg-amber-50/60" },
+              { t: "データ格納", d: "DOCS_STAGE / DOCUMENTS\nCHUNKS / Directory Table", c: "border-blue-300 bg-blue-50/60" },
+              { t: "検索・AI", d: "Cortex Search Service\nAI_PARSE_DOCUMENT / COMPLETE", c: "border-emerald-300 bg-emerald-50/60" },
+              { t: "ガバナンス", d: "GRANT 最小権限 / Secrets\n監査ログ", c: "border-slate-300 bg-white/80" },
+            ].map((x) => (
+              <div key={x.t} className={`border rounded-lg p-1.5 ${x.c}`}>
+                <div className="font-bold text-green-900 text-[9.5px]">{x.t}</div>
+                <div className="text-green-800 text-[8.5px] mt-0.5 whitespace-pre-line leading-snug">{x.d}</div>
+              </div>
+            ))}
           </div>
-          <div className="bg-rose-50 border border-rose-300 rounded-lg p-3">
-            <div className="font-bold text-rose-800 mb-1">② 計画・文書作成</div>
-            <div className="text-rose-700 space-y-0.5">
-              <div>• AI提案付きエディタ</div>
-              <div>• 計画書・マニュアル改訂</div>
-              <div>• 版管理・差分表示・承認</div>
-            </div>
-          </div>
-          <div className="bg-emerald-50 border border-emerald-300 rounded-lg p-3">
-            <div className="font-bold text-emerald-800 mb-1">③ 被害予想シミュレーション</div>
-            <div className="text-emerald-700 space-y-0.5">
-              <div>• 条件設定UI（災害種別・規模）</div>
-              <div>• ArcGIS 2D/3D 地図ビュー</div>
-              <div>• 津波・震度・噴火・洪水レイヤー</div>
-            </div>
-          </div>
-          <div className="bg-violet-50 border border-violet-300 rounded-lg p-3">
-            <div className="font-bold text-violet-800 mb-1">④ 判断支援</div>
-            <div className="text-violet-700 space-y-0.5">
-              <div>• 情報統合ダッシュボード</div>
-              <div>• AI推奨アクション生成</div>
-              <div>• 被害予想×文書×チャット連携</div>
-            </div>
+          <div className="mt-1.5 text-[8.5px] text-green-700 bg-white/70 border border-green-200 rounded px-2 py-0.5 text-center">
+            ① terraform → ② PUT/SQL → ③ snowflake-sdk（いずれも PAT / Key Pair）
           </div>
         </div>
-        <div className="text-center text-gray-400">↓</div>
 
-        {/* Layer 3: App Server */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="bg-orange-100 border border-orange-400 rounded-lg p-3">
-            <div className="font-bold text-orange-800">Web アプリ（Next.js / SPCS）</div>
-            <div className="text-orange-700 mt-1">認証・IPアクセス制限・RBAC（3ロール）・APIゲートウェイ・マルチターン履歴管理</div>
-          </div>
-          <div className="bg-green-200 border border-green-600 rounded-lg p-3">
-            <div className="font-bold text-green-900">ArcGIS Maps SDK for JavaScript</div>
-            <div className="text-green-800 mt-1">WebGL 描画 / Feature Layer 動的切替 / 3D Scene View / 空間クエリ</div>
-          </div>
-        </div>
-        <div className="text-center text-gray-400">↓</div>
+        <VertBarrier title="本番時" sub="OAuth" tone="purple" />
 
-        {/* Layer 4: Backend Services */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-green-50 border border-green-500 rounded-lg p-3">
-            <div className="font-bold text-green-800">Snowflake Cortex AI</div>
-            <div className="text-green-700 mt-1 space-y-0.5">
-              <div>• LLM（Claude / Mixtral）200K+ トークン</div>
-              <div>• RAG Embedding・Cortex Search</div>
-              <div>• 国内リージョン（東京）対応</div>
-              <div>• 入力データ学習不使用（オプトアウト）</div>
-            </div>
-          </div>
-          <div className="bg-green-50 border border-green-500 rounded-lg p-3">
-            <div className="font-bold text-green-800">Snowflake データ基盤</div>
-            <div className="text-green-700 mt-1 space-y-0.5">
-              <div>• 文書ストレージ（RAG用 10GB+）</div>
-              <div>• チャット履歴・監査ログ</div>
-              <div>• RBAC・ネットワークポリシー</div>
-              <div>• APIキー Secrets 管理</div>
-            </div>
-          </div>
-          <div className="bg-teal-50 border border-teal-500 rounded-lg p-3">
-            <div className="font-bold text-teal-800">ArcGIS Platform</div>
-            <div className="text-teal-700 mt-1 space-y-0.5">
-              <div>• ハザードマップ配信（Feature Layer）</div>
-              <div>• 空間解析・ジオプロセシング</div>
-              <div>• PLATEAU CityGML → 3D シーン変換</div>
-              <div>• 被害推計レイヤー管理</div>
-            </div>
-          </div>
-        </div>
-        <div className="text-center text-gray-400">↓</div>
-
-        {/* Layer 5: Data Sources */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="bg-slate-50 border border-slate-300 rounded-lg p-3">
-            <div className="font-bold text-slate-700">訓練文書・参照データ</div>
-            <div className="text-slate-600 mt-1">計画書 / 手順書 / 訓練シナリオ / 過去事例 / 各局被害想定（PDF・docx・xlsx）</div>
-          </div>
-          <div className="bg-emerald-50 border border-emerald-300 rounded-lg p-3">
-            <div className="font-bold text-slate-700">地理空間データ / 被害想定データ</div>
-            <div className="text-slate-600 mt-1">津波浸水想定 / 首都直下地震 震度分布 / 南海トラフ / 富士山噴火降灰シミュ / 大規模風水害・土砂災害</div>
+        {/* 右: 本番 SPCS（参考） */}
+        <div className="w-[130px] flex-shrink-0 border border-orange-300 bg-orange-50/50 rounded-lg p-2 flex flex-col justify-center">
+          <div className="font-bold text-orange-800 text-[10px]">SPCS 本番</div>
+          <div className="text-orange-700 text-[8.5px] mt-1 leading-snug">
+            /snowflake/session/token
+            <br />
+            Next.js コンテナ内 OAuth
+            <br />
+            <span className="italic opacity-70">開発時は未使用</span>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function RuntimeArchDiagram() {
+  const features = [
+    { id: "①", t: "AI機能群", d: "チャット / 整合性 / シナリオ", c: "bg-amber-50 border-amber-300 text-amber-800", gis: false },
+    { id: "②", t: "計画・文書", d: "エディタ / 版管理", c: "bg-rose-50 border-rose-300 text-rose-800", gis: false },
+    { id: "③", t: "被害予想", d: "ArcGIS 2D/3D", c: "bg-emerald-100 border-emerald-500 text-emerald-900", gis: true },
+    { id: "④", t: "判断支援", d: "統合ダッシュボード", c: "bg-violet-50 border-violet-300 text-violet-800", gis: false },
+  ];
+  return (
+    <div className="overflow-x-auto pb-1 pt-0.5">
+      <div className="flex items-stretch gap-0.5 min-w-[1020px] text-[10px]">
+        {/* 左: 利用者・クライアント */}
+        <div className="w-[130px] flex-shrink-0 flex flex-col gap-1">
+          <div className="bg-blue-50 border border-blue-300 rounded-lg p-2 text-center">
+            <div className="font-bold text-blue-800 text-[11px]">👤 都職員</div>
+            <div className="text-blue-600 text-[8.5px]">20名・ブラウザ</div>
+          </div>
+          {features.map((f) => (
+            <div key={f.id} className={`border rounded px-1.5 py-1 ${f.c} ${f.gis ? "border-2" : ""}`}>
+              <div className="font-bold text-[9.5px]">{f.id} {f.t}</div>
+              <div className="text-[8.5px] opacity-85">{f.d}</div>
+              {f.gis ? <div className="text-[7.5px] font-bold mt-0.5 text-emerald-700">★ ArcGIS SDK</div> : null}
+            </div>
+          ))}
+        </div>
+
+        <HorizArrow label="HTTPS" />
+        <InternetCloud />
+        <VertBarrier title="アプリ認証" sub="セッション" tone="violet" />
+        <HorizArrow label="HTTPS" />
+
+        {/* フロントエンド / バックエンド（Snowflake の下に庁内 GIS） */}
+        <div className="flex items-stretch gap-0.5 flex-1 min-w-[480px]">
+          {/* フロントエンド */}
+          <div className="w-[158px] flex-shrink-0 flex flex-col self-stretch">
+            <div className="text-[8px] font-bold text-orange-700 tracking-wide mb-1">フロントエンド</div>
+            <div className="border-2 border-orange-400 bg-orange-50/40 rounded-xl p-2.5 flex flex-col flex-1">
+              <div className="bg-orange-600 text-white text-[9px] font-bold px-2 py-0.5 rounded inline-block mb-1 self-start">Next.js（BFF）</div>
+              <div className="text-[8px] text-orange-800 mb-1.5">API Route・セッション・画面出し分け・履歴</div>
+              <div className="flex flex-col gap-1">
+                {features.map((f) => (
+                  <div
+                    key={f.id}
+                    className={`border rounded px-2 py-1.5 bg-white/80 ${f.c} ${f.gis ? "border-2 ring-1 ring-emerald-300" : ""}`}
+                  >
+                    <div className="font-bold text-[9px]">{f.id}</div>
+                    <div className="text-[8.5px]">{f.gis ? "Maps SDK" : "Next.js UI"}</div>
+                    {f.gis ? <div className="text-[7px] text-emerald-700 font-semibold text-right mt-0.5">→ REST③</div> : null}
+                  </div>
+                ))}
+              </div>
+              <div className="flex-1 min-h-[8px]" />
+              <div className="mt-1.5 bg-white/80 border border-orange-200 rounded px-1.5 py-0.5 text-[8px] text-orange-700 text-center">
+                snowflake-sdk（サーバー側のみ）
+              </div>
+            </div>
+          </div>
+
+          {/* 接続矢印：上=SQL（BFF→Snowflake）、下=REST③（③ Maps SDK→庁内 GIS） */}
+          <div className="flex flex-col justify-between self-stretch py-4 min-w-[32px]">
+            <HorizArrow label="SQL" />
+            <HorizArrow label="REST③" />
+          </div>
+          <VertBarrier title="IP制限" sub="RBAC" tone="sky" />
+
+          {/* バックエンド + 庁内 GIS（Snowflake の下に縦配置） */}
+          <div className="flex-1 min-w-[200px] flex flex-col self-stretch">
+            <div className="text-[8px] font-bold text-sky-700 tracking-wide mb-1">バックエンド</div>
+            <div className="border-2 border-sky-400 bg-sky-50/50 rounded-xl p-2.5 flex flex-col flex-1">
+              <div className="bg-sky-600 text-white text-[9px] font-bold px-2 py-0.5 rounded inline-block mb-1.5 self-start">❄️ Snowflake（東京）</div>
+              <div className="grid grid-cols-1 gap-1">
+                <div className="bg-white border border-green-500 rounded p-1.5">
+                  <div className="font-bold text-green-800 text-[9px]">Cortex AI</div>
+                  <div className="text-green-700 text-[8px]">Search / COMPLETE</div>
+                </div>
+                <div className="bg-white border border-green-500 rounded p-1.5">
+                  <div className="font-bold text-green-800 text-[9px]">データ基盤</div>
+                  <div className="text-green-700 text-[8px]">文書 / 履歴（+ GIS mart 任意）</div>
+                </div>
+              </div>
+              <div className="mt-1 text-[7.5px] text-sky-700 bg-white/70 border border-sky-200 rounded px-1.5 py-0.5 text-center">
+                SPCS：バッチ / API ジョブ（任意）
+              </div>
+            </div>
+
+            <VertArrow label="同期（任意）" dashed tone="sky" />
+
+            <div className="text-[8px] font-bold text-teal-700 tracking-wide mb-0.5">庁内 GIS（閉域）</div>
+            <div className="border-2 border-teal-500 bg-teal-50/60 rounded-xl p-2 flex-shrink-0 space-y-1">
+              <div className="font-bold text-teal-900 text-[9px]">ArcGIS Enterprise</div>
+              <div className="bg-white/90 border border-amber-300 rounded px-1.5 py-1">
+                <div className="font-semibold text-amber-900 text-[8px]">Portal for ArcGIS</div>
+                <div className="text-amber-800 text-[7px]">認証・共有・カタログ</div>
+              </div>
+              <div className="bg-white/90 border border-violet-300 rounded px-1.5 py-1">
+                <div className="font-semibold text-violet-900 text-[8px]">Server + Data Store</div>
+                <div className="text-violet-800 text-[7px]">Hosted Feature Layer · ③のみ</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <HorizArrow label="取込" icon="←" />
+
+        {/* 右: データソース */}
+        <div className="w-[125px] flex-shrink-0 flex flex-col gap-1">
+          <div className="bg-slate-50 border border-slate-300 rounded-lg p-1.5 flex-1">
+            <div className="font-bold text-slate-700 text-[9px]">📄 訓練文書</div>
+            <div className="text-slate-600 text-[8px] mt-0.5 leading-snug">計画書 / 手順書 / シナリオ（PDF・docx・xlsx）</div>
+          </div>
+          <div className="bg-emerald-50 border border-emerald-300 rounded-lg p-1.5 flex-1">
+            <div className="font-bold text-slate-700 text-[9px]">🗺️ 地理空間（③用）</div>
+            <div className="text-slate-600 text-[8px] mt-0.5 leading-snug">Pro → Portal → Enterprise で Hosted Feature Layer 化</div>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-0.5 mt-1.5 text-[9px] text-slate-500">
+        <span>左 → 右：利用者 → フロントエンド（BFF）→ バックエンド（Snowflake + 庁内 GIS）</span>
+        <span className="hidden sm:inline">｜</span>
+        <span>実線：HTTPS / SQL（BFF→Snowflake）/ REST③（③ Maps SDK→庁内 GIS）</span>
+        <span className="hidden sm:inline">｜</span>
+        <span className="border-b border-dashed border-slate-400">点線：Snowflake → Enterprise 同期（Phase 2・任意）</span>
+        <span className="hidden sm:inline">｜</span>
+        <span>取込：訓練文書 → Snowflake ｜ GIS → Pro → Portal（Enterprise）</span>
+        <span className="hidden sm:inline">｜</span>
+        <span>庁内 GIS：DC／サーバールームの VM・物理機（オンプレ）または庁内プライベートクラウド</span>
+      </div>
+    </div>
+  );
+}
+
+function DevArchOverview({ onDocOpen }: { onDocOpen: (file: string) => void }) {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="font-semibold text-gray-800">開発環境構成図</h3>
+        <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+          ローカル IDE から Snowflake のインフラ・データを構築・投入するときの接続関係です。本番（SPCS）は OAuth トークンですが、
+          <span className="font-semibold">開発時は PAT（Programmatic Access Token）または Key Pair</span> で CLI / Terraform / Next.js から接続します。
+        </p>
+      </div>
+
+      <DevArchDiagram />
+
+      <div className="space-y-3 text-xs">
+        {/* 本番との違い */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+            <div className="font-bold text-slate-800 text-[11px] mb-1.5">開発 vs 本番（認証の違い）</div>
+            <table className="w-full text-[10px]">
+              <thead>
+                <tr className="text-left text-slate-500 border-b border-slate-200">
+                  <th className="pb-1 pr-2">環境</th>
+                  <th className="pb-1 pr-2">接続元</th>
+                  <th className="pb-1">認証</th>
+                </tr>
+              </thead>
+              <tbody className="text-slate-700">
+                <tr className="border-b border-slate-100">
+                  <td className="py-1 pr-2 font-semibold">開発</td>
+                  <td className="py-1 pr-2">ローカル IDE / CLI</td>
+                  <td className="py-1 font-mono">PAT / Key Pair</td>
+                </tr>
+                <tr>
+                  <td className="py-1 pr-2 font-semibold">本番</td>
+                  <td className="py-1 pr-2">SPCS 内 Next.js</td>
+                  <td className="py-1 font-mono">OAuth（/snowflake/session/token）</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            <div className="font-bold text-red-800 text-[11px] mb-1">⚠️ セキュリティ注意</div>
+            <ul className="text-[10px] text-red-700/90 space-y-0.5">
+              <li>• PAT / rsa_key は .env・.gitignore にのみ保存（リポジトリにコミットしない）</li>
+              <li>• 開発用ロールは最小権限（本番 ADMIN ロールをローカルに置かない）</li>
+              <li>• Network Policy で開発者 IP のみ許可する運用も可</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* 典型的な初回セットアップフロー */}
+        <div className="bg-indigo-50/50 border border-indigo-200 rounded-xl p-4">
+          <div className="font-bold text-indigo-900 text-[11px] mb-2">典型的な初回セットアップフロー</div>
+          <div className="flex flex-wrap items-center justify-center gap-1.5 text-[10px]">
+            {[
+              "Snowflake で PAT 発行",
+              "→ terraform apply（DB/Role/WH）",
+              "→ snow sql で GRANT 確認",
+              "→ PUT 文書を Stage へ",
+              "→ チャンク化・Search 作成 SQL",
+              "→ .env に PAT 設定",
+              "→ npm run dev で API 接続確認",
+            ].map((s, i) => (
+              <span key={i} className={i % 2 === 0 ? "bg-white border border-indigo-200 rounded px-2 py-1 text-indigo-800" : "text-indigo-400 font-bold"}>{s}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <DocLinks onDocOpen={onDocOpen} />
+      <GlossarySection terms={["IaC（Infrastructure as Code）", "PAT（Programmatic Access Token）", "BFF（Backend for Frontend）", "SPCS（Snowpark Container Services）"]} />
+    </div>
+  );
+}
+
+function ArchOverview({ onDocOpen }: { onDocOpen: (file: string) => void }) {
+  return (
+    <div className="space-y-6">
+      <nav className="text-xs text-slate-500" aria-label="構成図の階層">
+        構成図 <span className="text-slate-400 mx-1">›</span> 全体構成 <span className="text-slate-400 mx-1">›</span>
+        <span className="font-semibold text-slate-700">システム構成図（ランタイム）</span>
+      </nav>
+      <h3 className="font-semibold text-gray-800 -mt-2">システム構成図（ランタイム）</h3>
+      <p className="text-[10.5px] text-slate-500 -mt-4">
+        左から右へ：利用者 → フロントエンド（Next.js BFF）→ バックエンド（Snowflake）→ データソース。
+        地図配信は庁内の ArcGIS Enterprise（Portal + Server）が担う
+      </p>
+
+      <RuntimeArchDiagram />
+
+      <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 text-sm text-gray-700 leading-6">
+        <div className="font-bold text-violet-900 mb-2">庁内 GIS（閉域）のサーバーはどこに置くか</div>
+        <p className="mb-2">
+          構成図の <span className="font-semibold">庁内 GIS（閉域）</span>＝ Portal for ArcGIS・ArcGIS Server・ArcGIS Data Store の稼働先です。
+          Snowflake（東京リージョン）や SPCS 上の Next.js とは<span className="font-semibold">別インフラ</span>に載せます。
+        </p>
+        <ul className="space-y-1.5 text-[13px]">
+          <li>
+            ・<span className="font-semibold">オンプレミス</span>：都庁のデータセンター／サーバールームの物理サーバーまたは VM
+          </li>
+          <li>
+            ・<span className="font-semibold">閉域クラウド</span>：庁内専用のプライベートクラウド（インターネット上の Esri SaaS ではない）
+          </li>
+          <li>
+            ・<span className="font-semibold">接続</span>：都職員ブラウザの ③ Maps SDK が庁内 LAN 経由で REST 参照（機能③のみ）
+          </li>
+        </ul>
+        <p className="text-xs text-violet-800/90 mt-2">
+          詳細は研修ページ「ArcGIS Enterprise › サーバーの置き場所」も参照。ホスト名・区画・台数は基盤準備で確定。
+        </p>
+      </div>
+
+      <NextjsSnowflakeConnection />
 
       <h3 className="font-semibold text-gray-800">想定UI モック</h3>
       <UIMock />
@@ -639,7 +933,292 @@ function ArchOverview({ onDocOpen }: { onDocOpen: (file: string) => void }) {
       <DevDetail />
 
       <DocLinks onDocOpen={onDocOpen} />
-      <GlossarySection terms={["RAG（Retrieval-Augmented Generation）", "Cortex AI", "SPCS（Snowpark Container Services）", "ArcGIS Maps SDK for JavaScript", "PLATEAU", "ハザードマップ", "IaC（Infrastructure as Code）", "マルチターン対話"]} />
+      <GlossarySection terms={["RAG（Retrieval-Augmented Generation）", "Cortex AI", "BFF（Backend for Frontend）", "SPCS（Snowpark Container Services）", "ArcGIS Maps SDK for JavaScript", "GIS mart", "Feature Layer", "PLATEAU", "ハザードマップ", "IaC（Infrastructure as Code）", "マルチターン対話"]} />
+    </div>
+  );
+}
+
+function NextjsSnowflakeConnection() {
+  return (
+    <div className="space-y-4 border border-indigo-200 bg-indigo-50/30 rounded-xl p-5">
+      <div>
+        <h3 className="font-bold text-gray-800 flex items-center gap-2">
+          <span className="bg-indigo-700 text-white rounded px-2 py-0.5 text-xs">接続</span>
+          Next.js と Snowflake の接続方法（技術）
+        </h3>
+        <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
+          構成図のレイヤー間をつなぐ具体的な接続方式です。ブラウザは Next.js の <span className="font-semibold">API Route（BFF）</span> にだけアクセスし、
+          Snowflake への接続は <span className="font-semibold">サーバー側の snowflake-sdk</span> が担います（HVD / jcg_snowflake と同じパターン）。
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* 接続フロー（横方向） */}
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="text-sm font-bold text-gray-800 mb-2">接続フロー（実行時・左→右）</div>
+          <div className="overflow-x-auto pb-1">
+            <div className="flex items-stretch gap-0.5 min-w-[520px] text-[10px]">
+              {[
+                { c: "bg-blue-50 border-blue-200", t: "ブラウザ", b: "HTTPS / SSE" },
+                { c: "bg-orange-50 border-orange-200", t: "BFF", b: "API Route" },
+                { c: "bg-teal-50 border-teal-200", t: "snowflake-sdk", b: "SQL 実行" },
+                { c: "bg-green-50 border-green-200", t: "Snowflake", b: "検索+生成" },
+                { c: "bg-violet-50 border-violet-200", t: "レスポンス", b: "ストリーム返却" },
+              ].map((x, i, arr) => (
+                <div key={x.t} className="flex items-stretch">
+                  <div className={`border rounded-lg px-2 py-1.5 flex-1 min-w-[88px] ${x.c}`}>
+                    <div className="font-bold text-gray-800">{x.t}</div>
+                    <div className="text-gray-600 text-[9px] mt-0.5">{x.b}</div>
+                  </div>
+                  {i < arr.length - 1 ? <HorizArrow /> : null}
+                </div>
+              ))}
+            </div>
+          </div>
+          <p className="text-[10px] text-gray-500 mt-2">fetch(&apos;/api/chat&apos;) → lib/db/client.ts → SEARCH_PREVIEW / CORTEX.COMPLETE。資格情報は BFF 内のみ。</p>
+        </div>
+
+        {/* 右: 認証・環境変数・コード */}
+        <div className="space-y-3">
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="text-sm font-bold text-gray-800 mb-2">認証方式（2 パターン）</div>
+            <div className="space-y-2 text-xs">
+              <div className="bg-teal-50 border border-teal-200 rounded-lg p-2.5">
+                <div className="font-bold text-teal-800">本番（SPCS 内）</div>
+                <div className="text-gray-700 mt-1 leading-relaxed">
+                  コンテナに注入される <span className="font-mono">/snowflake/session/token</span> を OAuth トークンとして使用。
+                  <span className="font-mono"> SNOWFLAKE_HOST</span>（内部ホスト）経由で接続。ユーザー/ロール/WH はサービス spec が決定。
+                </div>
+              </div>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+                <div className="font-bold text-slate-800">開発（ローカル / Vercel 等）</div>
+                <div className="text-gray-700 mt-1 leading-relaxed">
+                  <span className="font-mono">SNOWFLAKE_PAT</span>（Programmatic Access Token）+ ユーザー名で接続。
+                  接続情報は <span className="font-mono">.env</span>（gitignore）のみ。Terraform / CLI でのインフラ構築も同じ PAT を使用 → 詳細は「構成図 › 開発環境」。
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="text-sm font-bold text-gray-800 mb-2">環境変数（BFF が参照）</div>
+            <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
+              {["SNOWFLAKE_ACCOUNT", "SNOWFLAKE_USER", "SNOWFLAKE_PAT", "SNOWFLAKE_ROLE", "SNOWFLAKE_WAREHOUSE", "SNOWFLAKE_DATABASE", "SNOWFLAKE_SCHEMA", "SNOWFLAKE_HOST (SPCS)"].map((v) => (
+                <span key={v} className="bg-slate-100 text-slate-700 rounded px-2 py-1">{v}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-gray-900 text-green-300 rounded-lg p-3 font-mono text-[10.5px] leading-relaxed overflow-auto">
+            <div className="text-gray-400">// lib/db/client.ts（サーバー側のみ）</div>
+            <div>import snowflake from &apos;snowflake-sdk&apos;</div>
+            <div className="mt-1">const conn = snowflake.createConnection({"{"}</div>
+            <div>{"  account: process.env.SNOWFLAKE_ACCOUNT,"}</div>
+            <div>{"  username: process.env.SNOWFLAKE_USER,"}</div>
+            <div>{"  token: process.env.SNOWFLAKE_PAT,"}</div>
+            <div>{"  authenticator: 'OAUTH', // SPCS 時"}</div>
+            <div>{"  database: 'TOCHO_BOUSAI', schema: 'RAG',"}</div>
+            <div>{"});"}</div>
+            <div className="mt-1 text-gray-400">// app/api/chat/route.ts</div>
+            <div>{"const rows = await execute(sql, [sysPrompt, query]);"}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+        {[
+          { i: "🚫", t: "やらないこと", b: "ブラウザから Snowflake へ直接接続（snowflake-sdk をクライアントに載せない）" },
+          { i: "🔐", t: "セキュリティ境界", b: "IP 制限・データ RBAC は Snowflake 側（Network Policy / GRANT）。アプリ認証は Next.js 側" },
+          { i: "📎", t: "詳細フロー", b: "RAG の SQL 手順は「構成図 › チャットボット（RAG）」の D/E セクション・技術スライド「呼び出しフロー」も参照" },
+        ].map((n) => (
+          <div key={n.t} className="bg-white border border-indigo-100 rounded-lg p-3 flex gap-2">
+            <span className="text-base flex-shrink-0">{n.i}</span>
+            <div>
+              <div className="font-bold text-indigo-800">{n.t}</div>
+              <div className="text-gray-600 mt-0.5 leading-snug">{n.b}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FrontendConnectionDiagram({ compact = false }: { compact?: boolean }) {
+  const fs = compact ? "text-[8px]" : "text-[9.5px]";
+  const flows: {
+    id: string;
+    name: string;
+    ui: string;
+    uiTone: string;
+    api: string;
+    transport: string;
+    bffWork: string;
+    backend: string;
+    backendTone: string;
+    req: string;
+    res: string;
+    gis: boolean;
+    gisNote?: string;
+  }[] = [
+    {
+      id: "①",
+      name: "AI機能群",
+      ui: "Chat / 整合性 / シナリオ",
+      uiTone: "bg-amber-50 border-amber-300 text-amber-900",
+      api: "/api/chat · /consistency · /scenario",
+      transport: "POST → SSE/JSON",
+      bffWork: "SEARCH_PREVIEW → COMPLETE（RAG 3 API）",
+      backend: "Snowflake Cortex",
+      backendTone: "bg-green-50 border-green-400 text-green-900",
+      req: "{ query, docIds, conditions }",
+      res: "stream / issues[] / timeline[]",
+      gis: false,
+    },
+    {
+      id: "②",
+      name: "計画・文書",
+      ui: "DocEditor / 版管理",
+      uiTone: "bg-rose-50 border-rose-300 text-rose-900",
+      api: "/api/documents",
+      transport: "GET/POST → JSON",
+      bffWork: "版保存・履歴・エディタ同期",
+      backend: "Snowflake APP スキーマ",
+      backendTone: "bg-green-50 border-green-400 text-green-900",
+      req: "{ docId, content, version }",
+      res: "{ saved, history[] }",
+      gis: false,
+    },
+    {
+      id: "③",
+      name: "被害予想",
+      ui: "MapView / SceneView",
+      uiTone: "bg-emerald-100 border-emerald-500 text-emerald-900",
+      api: "（BFF 非経由）",
+      transport: "REST③ 直接",
+      bffWork: "レイヤー配信は担わない",
+      backend: "庁内 ArcGIS Enterprise",
+      backendTone: "bg-teal-50 border-teal-500 text-teal-900",
+      req: "layerUrl + where / geometry",
+      res: "GeoJSON / FeatureSet",
+      gis: true,
+      gisNote: "Maps SDK → Feature Service（庁内 LAN）",
+    },
+    {
+      id: "④",
+      name: "判断支援",
+      ui: "Dashboard 統合",
+      uiTone: "bg-violet-50 border-violet-300 text-violet-900",
+      api: "/api/chat + REST③",
+      transport: "SSE + REST",
+      bffWork: "地図要約をプロンプトに注入",
+      backend: "Snowflake + Enterprise",
+      backendTone: "bg-gradient-to-r from-green-50 to-teal-50 border-sky-400 text-slate-800",
+      req: "{ query, geoSummary }",
+      res: "統合レポート + 地図連動",
+      gis: true,
+      gisNote: "③ と同経路で GIS、回答は BFF 経由",
+    },
+  ];
+
+  return (
+    <div className="space-y-2">
+      <div className={`overflow-x-auto pb-1 ${compact ? "pt-0" : "pt-0.5"}`}>
+        <div className={`flex flex-col gap-1 ${fs}`} style={{ minWidth: compact ? 880 : 1040 }}>
+          {/* レイヤーヘッダー */}
+          <div className="grid grid-cols-[118px_28px_1fr_28px_1fr] gap-0.5 items-stretch mb-0.5">
+            <div className="bg-blue-50 border border-blue-300 rounded-lg px-2 py-1.5 text-center">
+              <div className="font-bold text-blue-800 text-[10px]">👤 ブラウザ</div>
+              <div className="text-blue-600 text-[7.5px]">React UI / Maps SDK</div>
+            </div>
+            <div />
+            <div className="bg-orange-50 border-2 border-orange-400 rounded-lg px-2 py-1.5 text-center">
+              <div className="font-bold text-orange-800 text-[10px]">Next.js BFF（SPCS）</div>
+              <div className="text-orange-700 text-[7.5px]">API Route · snowflake-sdk（サーバー側のみ）</div>
+            </div>
+            <div />
+            <div className="bg-sky-50 border-2 border-sky-400 rounded-lg px-2 py-1.5 text-center">
+              <div className="font-bold text-sky-800 text-[10px]">バックエンド</div>
+              <div className="text-sky-700 text-[7.5px]">Snowflake（①②④）｜庁内 GIS（③④）</div>
+            </div>
+          </div>
+
+          {/* 機能別フロー行 */}
+          {flows.map((f) => (
+            <div key={f.id} className="grid grid-cols-[118px_28px_1fr_28px_1fr] gap-0.5 items-stretch">
+              <div className={`border rounded-lg px-2 py-1.5 flex flex-col justify-center ${f.uiTone} ${f.gis ? "border-2" : ""}`}>
+                <div className="font-bold">{f.id} {f.name}</div>
+                <div className="opacity-85 text-[8px] mt-0.5">{f.ui}</div>
+                {f.gis ? <div className="text-[7px] font-bold text-emerald-700 mt-0.5">★ Maps SDK</div> : null}
+              </div>
+
+              <div className="flex flex-col items-center justify-center gap-0.5 py-1">
+                <span className={`font-bold text-[8px] text-center leading-tight ${f.gis ? "text-emerald-600" : "text-slate-500"}`}>
+                  {f.transport.split(" ")[0]}
+                </span>
+                <HorizArrow label={f.gis && f.id === "③" ? "REST③" : undefined} />
+                {f.transport.includes("SSE") ? <span className="text-[7px] text-violet-600 font-semibold">SSE</span> : null}
+              </div>
+
+              <div className="border border-orange-300 bg-orange-50/50 rounded-lg px-2 py-1.5 flex flex-col justify-center">
+                <div className="font-mono font-bold text-orange-900 text-[8.5px]">{f.api}</div>
+                <div className="text-orange-800 text-[7.5px] mt-0.5">{f.bffWork}</div>
+                <div className="grid grid-cols-2 gap-1 mt-1 text-[7px]">
+                  <span className="bg-white/80 border border-orange-200 rounded px-1 py-0.5">
+                    <span className="text-orange-600 font-semibold">req </span>{f.req}
+                  </span>
+                  <span className="bg-white/80 border border-orange-200 rounded px-1 py-0.5">
+                    <span className="text-orange-600 font-semibold">res </span>{f.res}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center justify-center py-1">
+                {f.gis && f.id === "③" ? (
+                  <span className="text-[7px] text-teal-700 font-bold text-center leading-tight">庁内<br />LAN</span>
+                ) : (
+                  <HorizArrow label="SQL" />
+                )}
+              </div>
+
+              <div className={`border rounded-lg px-2 py-1.5 flex flex-col justify-center ${f.backendTone} ${f.gis ? "border-2" : ""}`}>
+                <div className="font-bold text-[8.5px]">{f.backend}</div>
+                {f.gisNote ? <div className="text-[7px] mt-0.5 opacity-90">{f.gisNote}</div> : null}
+                {f.id === "①" ? (
+                  <div className="text-[7px] mt-0.5 text-green-800">DOC_SEARCH · COMPLETE · シナリオ docx</div>
+                ) : null}
+                {f.id === "②" ? (
+                  <div className="text-[7px] mt-0.5 text-green-800">APP.DOCUMENTS · 版履歴</div>
+                ) : null}
+                {f.id === "③" ? (
+                  <div className="text-[7px] mt-0.5 text-teal-800">Hosted Feature Layer · ハザード / PLATEAU</div>
+                ) : null}
+              </div>
+            </div>
+          ))}
+
+          {/* 双方向・境界 */}
+          <div className="grid grid-cols-[118px_28px_1fr_28px_1fr] gap-0.5 items-center mt-1">
+            <div className="col-span-5 border border-dashed border-slate-300 rounded-lg px-2 py-1.5 bg-slate-50/80">
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 text-[7.5px] text-slate-600">
+                <span><span className="font-bold text-emerald-700">③→① 連携:</span> 地図選択範囲の要約を /api/chat の geoSummary に載せて RAG へ</span>
+                <span className="hidden sm:inline text-slate-300">｜</span>
+                <span><span className="font-bold text-orange-700">引用ジャンプ:</span> citations[].page_no → 文書ビューア（② 画面）</span>
+                <span className="hidden sm:inline text-slate-300">｜</span>
+                <span><span className="font-bold text-red-700">🚫</span> ブラウザから Snowflake 直接接続しない（PAT / OAuth は BFF のみ）</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className={`flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 ${compact ? "text-[7.5px]" : "text-[9px]"} text-slate-500`}>
+        <span>実線：①②④ は BFF 経由で Snowflake（HTTPS / SQL）</span>
+        <span className="hidden sm:inline">｜</span>
+        <span>③ は Maps SDK が庁内 Enterprise へ REST③ 直接（タイル・Feature は BFF を通さない）</span>
+        <span className="hidden sm:inline">｜</span>
+        <span className="border-b border-dashed border-slate-400">点線（別図）：Snowflake → Enterprise 同期は Phase 2・任意</span>
+      </div>
     </div>
   );
 }
@@ -1540,23 +2119,16 @@ function Rag({ onDocOpen }: { onDocOpen: (file: string) => void }) {
             </ul>
           </div>
         </div>
-        {/* 接続フロー図 */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
-            <span className="bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 font-semibold text-slate-700 text-center">ブラウザ<br /><span className="font-normal text-[10px]">チャット UI / 地図 UI</span></span>
-            <span className="text-gray-400 font-bold">⇄</span>
-            <span className="bg-orange-100 border border-orange-300 rounded-lg px-3 py-2 font-semibold text-orange-800 text-center">Next.js（BFF / SPCS）<br /><span className="font-normal text-[10px]">認証・RBAC・API・ストリーミング</span></span>
-            <span className="text-gray-400 font-bold">⇄</span>
-            <span className="bg-green-100 border border-green-400 rounded-lg px-3 py-2 font-semibold text-green-800 text-center">Snowflake Cortex<br /><span className="font-normal text-[10px]">Search（検索）＋ COMPLETE（生成）</span></span>
-            <span className="text-gray-400 font-bold">＋</span>
-            <span className="bg-emerald-100 border border-emerald-400 rounded-lg px-3 py-2 font-semibold text-emerald-800 text-center">ArcGIS Platform<br /><span className="font-normal text-[10px]">Feature Layer / 空間解析</span></span>
-          </div>
-          <p className="text-center text-[11px] text-gray-500 mt-3">回答テキストは Snowflake から、地図表示は ArcGIS から取得し、Next.js が 1 画面に統合して判断支援を行う</p>
+        {/* フロント↔バックエンド データ連携（機能別） */}
+        <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-2">
+          <div className="text-sm font-bold text-gray-800">フロント↔バックエンド データ連携（機能別）</div>
+          <p className="text-[11px] text-gray-500">①②④ は Next.js BFF 経由で Snowflake。③ は Maps SDK が庁内 Enterprise へ REST③ 直接。④ は両方を 1 画面に統合します。</p>
+          <FrontendConnectionDiagram />
         </div>
       </section>
 
       <DocLinks onDocOpen={onDocOpen} />
-      <GlossarySection terms={["RAG（Retrieval-Augmented Generation）", "Cortex Search", "Cortex COMPLETE", "チャンク（Chunking）", "埋め込み（Embedding）", "PARSE_DOCUMENT", "Stage / Directory Table", "BFF（Backend for Frontend）", "ArcGIS Maps SDK for JavaScript", "Feature Layer"]} />
+      <GlossarySection terms={["RAG（Retrieval-Augmented Generation）", "Cortex Search", "Cortex COMPLETE", "チャンク（Chunking）", "埋め込み（Embedding）", "PARSE_DOCUMENT", "Stage / Directory Table", "BFF（Backend for Frontend）", "ArcGIS Maps SDK for JavaScript", "GIS mart", "Feature Layer"]} />
     </div>
   );
 }
@@ -1590,13 +2162,25 @@ const GLOSSARY: { term: string; en: string; category: string; body: string }[] =
     term: "ArcGIS Maps SDK for JavaScript",
     en: "ArcGIS Maps SDK for JS",
     category: "GIS",
-    body: "Esri 社が提供する Web ブラウザ向け GIS ライブラリ。WebGL を使った 2D/3D 地図描画、Feature Layer（ハザードマップ等）の動的切替、空間解析エンジンを提供する。SDK 自体は無料で利用でき、有償部分は ArcGIS Platform のホスト型レイヤーや分析クレジット。本案件では津波・地震・噴火・洪水の被害予想を地図上でリアルタイム可視化するために使用。",
+    body: "Esri 社が提供する Web ブラウザ向け GIS ライブラリ。WebGL を使った 2D/3D 地図描画、Feature Layer（ハザードマップ等）の動的切替、空間解析エンジンを提供する。SDK 自体は無料で利用でき、有償部分は ArcGIS Enterprise 上のホスト型レイヤーや分析クレジット。本案件では機能③（被害予想シミュ）専用。①②④は Next.js + Snowflake のみで完結する。",
+  },
+  {
+    term: "庁内 GIS（閉域）",
+    en: "On-Prem / Private Cloud GIS",
+    category: "GIS",
+    body: "Portal for ArcGIS・ArcGIS Server・ArcGIS Data Store が稼働する庁内専用の GIS 基盤。オンプレなら都庁のデータセンター／サーバールーム上の VM または物理サーバー、閉域クラウドなら庁内専用プライベートクラウドに構築する。インターネット上の Esri SaaS（ArcGIS Online）や Snowflake 上には載らない。③ Maps SDK が REST で参照する配信先。",
   },
   {
     term: "IaC（Infrastructure as Code）",
     en: "Infrastructure as Code",
     category: "DevOps",
     body: "サーバー・ネットワーク・クラウドリソースなどのインフラ構成をコード（Terraform・Snowflake CLI 等）で記述・管理する手法。コードをリポジトリで管理することで、環境の再現性・変更履歴の追跡・他事業者への引継ぎが容易になる。仕様書の「他事業者引継ぎ」要件（×3 係数・最大 15pt）を満たすための重要な手段。",
+  },
+  {
+    term: "PAT（Programmatic Access Token）",
+    en: "Programmatic Access Token",
+    category: "認証",
+    body: "Snowflake が発行するプログラム用アクセストークン。開発時に Terraform・Snowflake CLI・snowsql・Next.js（snowflake-sdk）から Snowflake に接続する際に使用する。パスワードの代わりに .env や config.toml に設定し、git にはコミットしない。本番（SPCS 内）ではコンテナに注入される OAuth セッショントークンを使い、PAT は使わない。Key Pair 認証（rsa_key.pem）も開発で併用可能。",
   },
   {
     term: "ハザードマップ",
@@ -1628,6 +2212,42 @@ const GLOSSARY: { term: string; en: string; category: string; body: string }[] =
     category: "OSS / 検索エンジン",
     body: "Elastic 社が提供するオープンソースの全文検索・ベクトル検索エンジン。RAG のベクトルストアや文書検索バックエンドとして広く使われる。Snowflake Cortex Search の代替として利用可能だが、クラスター管理・インデックス設計・スケーリングを自前で行う必要があり、Snowflake のマネージドサービスと比較して運用コストが高い傾向がある。",
   },
+  {
+    term: "BFF（Backend for Frontend）",
+    en: "Backend for Frontend",
+    category: "アーキテクチャ",
+    body: "フロントエンド専用のサーバー側 API 層。本案件では Next.js の API Routes（/api/chat・/consistency・/scenario 等）が BFF を担い、ブラウザから Snowflake や ArcGIS へ直接接続せず、必ずサーバー側を経由する。これにより Snowflake の接続情報・資格情報をクライアントに露出させず、認証（ログイン/セッション）・アプリ権限（画面/機能の出し分け）・API ゲートウェイ・対話履歴管理・入力サニタイズを一箇所に集約できる。生成結果は SSE でストリーミング配信する。",
+  },
+  {
+    term: "Cortex Search",
+    en: "Snowflake Cortex Search",
+    category: "Snowflake",
+    body: "Snowflake が提供するマネージド・ハイブリッド検索サービス。ベクトル検索＋キーワード検索＋セマンティック再ランキングを内部で自動実行し、埋め込み生成・索引更新も Snowflake が管理する。DOCUMENT_CHUNKS テーブルを索引元に DOC_SEARCH サービスを作成して利用する。",
+  },
+  {
+    term: "Cortex COMPLETE",
+    en: "Snowflake Cortex COMPLETE",
+    category: "Snowflake",
+    body: "Snowflake Cortex の LLM 生成関数（`SNOWFLAKE.CORTEX.COMPLETE`）。Cortex Search で取得したチャンクを文脈として渡し、回答を生成する。モデル名を文字列で指定するだけで差し替え可能（ただし東京リージョンでは Llama/Mistral がネイティブ、Claude/GPT はクロスリージョン推論が必要な場合あり）。",
+  },
+  {
+    term: "Feature Layer",
+    en: "ArcGIS Feature Layer",
+    category: "GIS",
+    body: "ArcGIS Maps SDK for JavaScript で表示するベクター地図レイヤー。ハザードマップ（津波浸水域・震度分布・建物倒壊リスク等）を Feature Layer として読み込み、災害種別や条件設定に応じて動的に表示切替する。本案件の機能③（被害予想シミュレーション）の中核。",
+  },
+  {
+    term: "GIS mart",
+    en: "GIS Mart (dbt Mart Layer)",
+    category: "データ基盤",
+    body: "【Phase 2 以降・任意】dbt で Snowflake 上に構築する地理空間データマート（例: mart_arcgis_features）。初期開発では GIS データは ArcGIS Pro で整備し、Portal for ArcGIS 経由で ArcGIS Enterprise 上の Hosted Feature Layer として配信するため必須ではない。複数ソースの統合・文書・業務データとの SQL 結合・dbt による品質管理が必要になった段階で追加する拡張オプション。追加すると、RAW 層の Shapefile・GeoJSON・オープンデータ等を座標系（JGD2011 / EPSG 等）・属性名・主キーで標準化し、バッチまたは API で Enterprise の Hosted Feature Layer へ同期できる。",
+  },
+  {
+    term: "PLATEAU",
+    en: "PLATEAU Project",
+    category: "GIS / 3D",
+    body: "国土交通省が推進する3D都市モデル（CityGML）のオープンデータプロジェクト。東京都の建物・地形の3Dデータとして活用可能。本案件の令和8年度スコープでは ArcGIS 2D 地図が中心だが、将来の3D可視化拡張時に PLATEAU データとの連携が検討される。",
+  },
 ];
 
 function GlossarySection({ terms }: { terms: string[] }) {
@@ -1652,16 +2272,13 @@ function GlossarySection({ terms }: { terms: string[] }) {
   );
 }
 
-function QA() {
-  const [open, setOpen] = useState<number | null>(null);
+type QAItem = {
+  q: string;
+  tags: string[];
+  sections: { heading?: string; body: string; type?: "warn" | "ok" | "info" | "note" }[];
+};
 
-  type QAItem = {
-    q: string;
-    tags: string[];
-    sections: { heading?: string; body: string; type?: "warn" | "ok" | "info" | "note" }[];
-  };
-
-  const items: QAItem[] = [
+const QA_ITEMS: QAItem[] = [
     {
       q: "ArcGIS がないと開発できない？",
       tags: ["技術構成", "GIS", "依存性"],
@@ -1678,12 +2295,12 @@ function QA() {
         },
         {
           heading: "OSS 代替（MapLibre GL JS + GeoServer）を使った場合のコスト",
-          body: "MapLibre GL JS + GeoServer + PostGIS でハザードマップ配信は可能ですが、次の追加コストが発生します：\n・GeoServer / PostGIS の構築・運用（インフラ設計が必要）\n・PLATEAU CityGML → MVT 変換パイプライン自前実装\n・3D シーン管理・レンダリング最適化の自前実装\n・ArcGIS Platform が提供するハザードマップレイヤー（津波・地震・洪水）の自前整備\n\n結果として開発コスト増・納期リスク増・品質低下のリスクが生じるため、本案件ではArcGIS を採用するのが合理的です。",
+          body: "MapLibre GL JS + GeoServer + PostGIS でハザードマップ配信は可能ですが、次の追加コストが発生します：\n・GeoServer / PostGIS の構築・運用（インフラ設計が必要）\n・PLATEAU CityGML → MVT 変換パイプライン自前実装\n・3D シーン管理・レンダリング最適化の自前実装\n・Esri ハザードマップレイヤー（津波・地震・洪水）相当の自前整備\n\n結果として開発コスト増・納期リスク増・品質低下のリスクが生じるため、本案件では ArcGIS Enterprise を採用するのが合理的です。",
           type: "note",
         },
         {
           heading: "ライセンスコストの観点",
-          body: "ArcGIS Maps SDK for JavaScript 自体は無料（JSAPI）。有償部分は ArcGIS Platform のホスト型レイヤーや分析クレジットです。ハザードマップを国土数値情報（無料）やオープンデータで代替すれば、ArcGIS Platform のクレジット消費を最小限に抑えることも可能です。",
+          body: "ArcGIS Maps SDK for JavaScript 自体は無料（JSAPI）。有償部分は ArcGIS Enterprise 上のホスト型レイヤーや分析クレジットです。ハザードマップを国土数値情報（無料）やオープンデータで自社整備すれば、Enterprise のクレジット消費を最小限に抑えることも可能です。",
           type: "info",
         },
       ],
@@ -1719,8 +2336,9 @@ function QA() {
         },
       ],
     },
-  ];
+];
 
+function QA({ openIdx, setOpenIdx }: { openIdx: number | null; setOpenIdx: (i: number | null) => void }) {
   const typeStyle: Record<string, string> = {
     warn: "border-l-4 border-amber-400 bg-amber-50",
     ok: "border-l-4 border-green-500 bg-green-50",
@@ -1736,10 +2354,10 @@ function QA() {
 
   return (
     <div className="space-y-4">
-      {items.map((item, i) => (
+      {QA_ITEMS.map((item, i) => (
         <div key={i} className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
           <button
-            onClick={() => setOpen(open === i ? null : i)}
+            onClick={() => setOpenIdx(openIdx === i ? null : i)}
             className="w-full flex items-start justify-between px-6 py-4 bg-white hover:bg-gray-50 transition-colors text-left gap-4"
           >
             <div className="flex-1 min-w-0">
@@ -1750,10 +2368,10 @@ function QA() {
                 ))}
               </div>
             </div>
-            <span className="text-gray-400 text-lg mt-0.5 flex-shrink-0">{open === i ? "▲" : "▼"}</span>
+            <span className="text-gray-400 text-lg mt-0.5 flex-shrink-0">{openIdx === i ? "▲" : "▼"}</span>
           </button>
 
-          {open === i && (
+          {openIdx === i && (
             <div className="bg-white border-t border-gray-100 px-6 py-5 space-y-4">
               {item.sections.map((s, j) => (
                 <div key={j} className={`rounded-lg p-4 ${typeStyle[s.type ?? "note"]}`}>
@@ -1816,7 +2434,7 @@ function SlideCanvas({ children, overlay }: { children: React.ReactNode; overlay
   );
 }
 
-type Slide = { label: string; node: React.ReactNode };
+type Slide = { label: string; node: React.ReactNode; script?: string[] };
 
 function buildSlides(): Slide[] {
   return [
@@ -1917,6 +2535,11 @@ function buildSlides(): Slide[] {
           </div>
         </div>
       ),
+      script: [
+        "本日は、東京の災害対応力の向上に向けた、生成AIを活用した図上訓練構築支援についてご説明します。",
+        "東京都庁向けに、Snowflake Cortex による生成AIと、ArcGIS による地図表示を、Next.js で統合した、地図連動型のAI訓練支援システムです。",
+        "令和8年度から10年度までの3年間、都職員およそ20名の利用を想定し、段階的に機能を拡充していきます。",
+      ],
     },
     {
       label: "課題",
@@ -1994,6 +2617,12 @@ function buildSlides(): Slide[] {
           </div>
         </div>
       ),
+      script: [
+        "まず現状の課題です。大きく4つあります。",
+        "1点目は整合性チェックが手作業で、計画書・シナリオ・ハザードマップの矛盾が見落とされやすいこと。2点目はシナリオ作成の工数が大きく、1シナリオに数週間かかることです。",
+        "3点目は被害をリアルタイムに地図で重ね合わせて確認できるツールがないこと。4点目は特定ベンダー依存で、他事業者への引継ぎが困難なことです。",
+        "これらを、整合性の自動化・シナリオ作成の効率化・リアルタイム可視化・オープンな設計の4方向で解決します。",
+      ],
     },
     {
       label: "解決策",
@@ -2126,6 +2755,12 @@ function buildSlides(): Slide[] {
           </div>
         </div>
       ),
+      script: [
+        "解決策として、4つの機能を提案します。",
+        "機能①はAI機能群で、チャットボット・整合性チェック・シナリオ自動生成です。機能②は計画・マニュアルの見直し修正、機能③は地図連動の被害予想シミュレーション、機能④は判断支援ダッシュボードです。",
+        "機能①を初年度に開発し、②③④は2年目以降に段階的に展開します。",
+        "これにより、対応スピードの向上、計画精度の向上、関係者の連携強化、リスクの最小化という4つの効果が期待できます。",
+      ],
     },
     {
       label: "機能①",
@@ -2303,6 +2938,12 @@ function buildSlides(): Slide[] {
           </div>
         </div>
       ),
+      script: [
+        "機能①のAI機能群です。3つのデモでご説明します。これは初年度・令和8年度に開発します。",
+        "チャットボットは、Cortex Search で計画書を横断検索し、出典ページ付きで回答します。訓練構築中に生じた疑問を、その場で根拠付きに解消できます。",
+        "整合性チェックは、文書間の記述差分をAIが自動検出します。例えば参集基準の震度が、対処計画と被害想定で食い違う箇所を抽出し、推奨修正まで提示します。",
+        "シナリオ生成は、災害・時刻・対象局を選ぶだけで、Cortex COMPLETE がおよそ20秒でタイムライン素案を作成し、docx として出力・編集できます。",
+      ],
     },
     {
       label: "機能②",
@@ -2407,6 +3048,11 @@ function buildSlides(): Slide[] {
           </div>
         </div>
       ),
+      script: [
+        "機能②は計画・マニュアルの見直し修正です。2年目以降の開発です。",
+        "AIが最新の災害傾向やハザードマップと既存の計画書を照合し、改訂が必要な箇所をページ単位で自動提案します。",
+        "ブラウザのエディタで直接編集し、変更前後の差分を色付きで確認できます。改訂履歴はSnowflakeに保存され、版管理と他事業者への引継ぎが容易です。",
+      ],
     },
     {
       label: "機能③",
@@ -2532,6 +3178,11 @@ function buildSlides(): Slide[] {
           </div>
         </div>
       ),
+      script: [
+        "機能③は被害予想シミュレーションで、地図連動・GISが核となる機能です。2年目以降の開発です。",
+        "災害種別・規模・時刻・表示レイヤーを設定して実行すると、ArcGIS の地図上に、震度分布・浸水域・建物倒壊リスク・避難所位置を重ねてリアルタイムに可視化します。",
+        "選択地点の主要リスク指標と、おすすめアクションを併せて表示し、被害規模の直感的な把握と、迅速な意思決定を支援します。",
+      ],
     },
     {
       label: "機能④",
@@ -2612,6 +3263,11 @@ function buildSlides(): Slide[] {
           </div>
         </div>
       ),
+      script: [
+        "機能④は判断支援ダッシュボードです。2年目以降の開発です。",
+        "被害予想シミュレーション・チャット回答・計画書を1画面に統合し、現況アラートと、Cortex によるAI推奨アクションを提示します。",
+        "局・課単位のロール付与に対応し、2年目以降の区市町村展開も見据えた権限構造を採用しています。",
+      ],
     },
     {
       label: "技術構成",
@@ -2624,7 +3280,7 @@ function buildSlides(): Slide[] {
           <div className="flex-1 p-4 grid grid-cols-2 gap-4 text-xs">
             {/* 左列: アーキテクチャ図 */}
             <div className="flex flex-col gap-1.5">
-              <div className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-0.5">システム構成図</div>
+              <div className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-0.5">システム構成図（ランタイム）</div>
               {/* ユーザー層 */}
               <div className="bg-indigo-100 border border-indigo-300 rounded-lg px-3 py-2 text-center">
                 <div className="font-bold text-indigo-800">👤 都職員ブラウザ（20名）</div>
@@ -2647,8 +3303,8 @@ function buildSlides(): Slide[] {
                   </div>
                 </div>
                 <div className="flex-1 bg-teal-100 border border-teal-300 rounded-lg px-2 py-2 text-center">
-                  <div className="font-bold text-teal-800">🗺️ ArcGIS SDK</div>
-                  <div className="text-teal-700 text-xs">GIS 地図 · Feature Layer</div>
+                  <div className="font-bold text-teal-800">🗺️ Portal + Enterprise</div>
+                  <div className="text-teal-700 text-xs">Maps SDK · Feature Layer</div>
                   <div className="mt-1 flex justify-center">
                     <span className="bg-teal-200 text-teal-800 px-1 rounded text-xs">機能③</span>
                   </div>
@@ -2698,6 +3354,11 @@ function buildSlides(): Slide[] {
           </div>
         </div>
       ),
+      script: [
+        "技術構成です。都職員のブラウザから、SPCS 上の Next.js アプリにアクセスし、IPアクセス制限と3ロールのRBACで保護します。",
+        "機能①②④は Snowflake Cortex のみで完結し、機能③だけ ArcGIS SDK を使います。WebGL の地図描画やハザードマップ5種、Feature Layer の動的切替を単一SDKで提供できるOSSが現状ないためです。",
+        "ArcGIS への依存は機能③に限定して最小化し、引継ぎは標準SQL＋IaC、LLMはモデル名の変更のみで切替、運用コストは従量課金で最適化します。",
+      ],
     },
     {
       label: "ロードマップ",
@@ -2816,6 +3477,11 @@ function buildSlides(): Slide[] {
           </div>
         </div>
       ),
+      script: [
+        "3年間の開発ロードマップです。段階的に機能を拡充します。",
+        "1年目・令和8年度は、機能①を首都直下型で初期開発し、令和9年1月の図上訓練で実証します。あわせて②③④や区市町村展開の実施方法も検討します。",
+        "2年目は対象災害を南海トラフ・風水害・津波・火山等へ拡大し、チャットボットを運用開始。3年目は被害予想シミュレーションや判断支援の開発と、区市町村へのツール展開を進めます。",
+      ],
     },
     {
       label: "評価ポイント",
@@ -2891,6 +3557,11 @@ function buildSlides(): Slide[] {
           </div>
         </div>
       ),
+      script: [
+        "総合評価での強みです。技術点200点の内訳に沿って訴求します。",
+        "業務理解30点、業務受託実績30点、業務実施計画・手法105点、業務実施体制35点。特に配点の大きい実施計画では、GISと生成AIの統合、ハザードマップ多種対応、LLMの柔軟な切替を詳細に提案します。",
+        "防災専門知識を有する人材の参画は、未充足だと無効になる必須要件のため確実に満たします。引継ぎ設計・運用コスト抑制・モデル切替といった係数加点や、価格点100点も意識した提案とします。",
+      ],
     },
     {
       label: "弱み・留意点",
@@ -2989,6 +3660,11 @@ function buildSlides(): Slide[] {
           </div>
         </div>
       ),
+      script: [
+        "弱みも正直にお示しします。Snowflake へのロックインリスクです。",
+        "Cortex の独自SQL関数やベクトルインデックスは他DBへ移植しにくく、SPCS も Snowflake 基盤が前提です。さらにトークン消費量に応じてコストが変動します。",
+        "対策として、移行先は AWS の Bedrock や GCP の Vertex AI Search 等を整理済みです。LLM 呼出しを抽象化レイヤーで分離して切替コストを下げ、標準SQL＋IaC で引継ぎ容易性を確保し、東京リージョン・学習利用不可設定でデータガバナンスを担保します。",
+      ],
     },
     {
       label: "まとめ",
@@ -3015,6 +3691,11 @@ function buildSlides(): Slide[] {
           <div className="text-slate-400 text-sm">令和8年10月末納品 → 令和9年1月 図上訓練実証 → 3 年間で段階的に拡充</div>
         </div>
       ),
+      script: [
+        "まとめです。Snowflake と ArcGIS の組み合わせで、次世代の図上訓練支援を実現します。",
+        "AI機能群・文書作成・被害予想シミュレーション・判断支援の4機能で、災害対応の精度とスピードを高めます。",
+        "令和8年10月末に納品し、令和9年1月の図上訓練で実証、その後3年間で段階的に拡充していきます。本日のご説明は以上です。",
+      ],
     },
   ];
 }
@@ -3067,12 +3748,81 @@ function SlideViewer({ slides, idx, setIdx }: { slides: Slide[]; idx: number; se
   );
 }
 
-function Slides() {
-  const [idx, setIdx] = useState(0);
+function Slides({
+  idx,
+  setIdx,
+  showScript: controlledShowScript,
+  setShowScript: controlledSetShowScript,
+}: {
+  idx: number;
+  setIdx: (i: number) => void;
+  showScript?: boolean;
+  setShowScript?: (v: boolean) => void;
+}) {
+  const [internalShowScript, setInternalShowScript] = useState(false);
+  const showScript = controlledShowScript ?? internalShowScript;
+  const setShowScript = controlledSetShowScript ?? setInternalShowScript;
   const slides = buildSlides();
+  const current = slides[idx];
+  const lines = current.script ?? [];
   return (
     <div className="space-y-3">
-      <SlideViewer slides={slides} idx={idx} setIdx={setIdx} />
+      <div className="bg-gradient-to-r from-[#0b1f3a] via-[#13315c] to-[#1c3d6e] text-white rounded-xl p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="text-sky-200 text-xs font-semibold mb-1">提案プレゼンテーション</div>
+            <h3 className="font-bold text-base truncate">東京の災害対応力の向上に向けた 生成AI を活用した図上訓練構築支援委託</h3>
+          </div>
+          <button
+            onClick={() => setShowScript(!showScript)}
+            aria-pressed={showScript}
+            className={`flex-shrink-0 flex items-center gap-1.5 text-[12px] font-bold px-3.5 py-2 rounded-lg border transition ${showScript ? "bg-white text-[#13315c] border-white" : "bg-white/15 text-white border-white/40 hover:bg-white/25"}`}
+          >
+            <span>🗣️</span>
+            <span>{showScript ? "台本を隠す" : "台本を表示"}</span>
+          </button>
+        </div>
+      </div>
+
+      <div className={showScript ? "grid lg:grid-cols-[1.5fr_1fr] gap-4 items-start" : ""}>
+        <SlideViewer slides={slides} idx={idx} setIdx={setIdx} />
+
+        {showScript && (
+          <div className="bg-white border border-sky-200 rounded-xl shadow-sm flex flex-col">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-sky-100 bg-sky-50/60 rounded-t-xl">
+              <span className="text-[12px] font-bold text-sky-700 bg-white border border-sky-200 rounded-full px-2.5 py-0.5 tabular-nums">{idx + 1} / {slides.length}</span>
+              <span className="text-[13px] font-bold text-slate-700">{current.label}</span>
+            </div>
+            <div className="p-4 space-y-2 flex-1">
+              <div className="text-[11px] font-semibold text-sky-600 flex items-center gap-1">🗣️ このスライドの台本</div>
+              {lines.length > 0 ? (
+                lines.map((l, i) => (
+                  <p key={i} className="text-[12.5px] text-gray-700 leading-relaxed bg-slate-50 border border-slate-100 rounded-lg px-3 py-2">{l}</p>
+                ))
+              ) : (
+                <p className="text-[12px] text-slate-400">（このスライドの台本は未設定です）</p>
+              )}
+            </div>
+            <div className="flex items-center justify-between px-4 py-3 border-t border-sky-100">
+              <button
+                onClick={() => setIdx(Math.max(0, idx - 1))}
+                disabled={idx === 0}
+                className="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-default transition"
+              >
+                ‹ 前へ
+              </button>
+              <button
+                onClick={() => setIdx(Math.min(slides.length - 1, idx + 1))}
+                disabled={idx === slides.length - 1}
+                className="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-sky-600 text-white hover:bg-sky-700 disabled:opacity-40 disabled:cursor-default transition"
+              >
+                次へ ›
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       <GlossarySection terms={["図上訓練", "RAG（Retrieval-Augmented Generation）", "Cortex AI", "ArcGIS Maps SDK for JavaScript", "PLATEAU", "ハザードマップ"]} />
     </div>
   );
@@ -3105,6 +3855,166 @@ function SlideShell({ tag, title, subtitle, accent = "indigo", children }: { tag
   );
 }
 
+function SnowflakeRagPlatformComparison({ compact = false }: { compact?: boolean }) {
+  const platforms = [
+    {
+      id: "snowflake",
+      name: "Snowflake Cortex",
+      badge: "採用",
+      badgeCls: "bg-sky-600 text-white",
+      border: "border-sky-500 ring-2 ring-sky-300",
+      headerBg: "bg-gradient-to-br from-sky-600 to-sky-800 text-white",
+      stack: ["Stage / Directory Table", "PARSE_DOCUMENT → CHUNKS", "Cortex Search（索引）", "COMPLETE（生成）", "SPCS（Next.js BFF）"],
+      stackNote: "1 プラットフォーム・1 権限体系",
+    },
+    {
+      id: "azure",
+      name: "Azure RAG",
+      badge: "比較",
+      badgeCls: "bg-slate-500 text-white",
+      border: "border-slate-300",
+      headerBg: "bg-gradient-to-br from-[#0078d4] to-[#005a9e] text-white",
+      stack: ["Blob / SharePoint", "Document Intelligence", "Azure AI Search", "Azure OpenAI", "App Service / Functions"],
+      stackNote: "5+ サービス横断・Entra ID 連携",
+    },
+    {
+      id: "aws",
+      name: "AWS RAG",
+      badge: "比較",
+      badgeCls: "bg-slate-500 text-white",
+      border: "border-slate-300",
+      headerBg: "bg-gradient-to-br from-[#ff9900] to-[#cc7a00] text-white",
+      stack: ["S3", "Textract / Lambda 前処理", "OpenSearch または Bedrock KB", "Bedrock（Claude 等）", "Lambda + API GW / App Runner"],
+      stackNote: "5+ サービス横断・IAM 設計",
+    },
+  ];
+
+  const rows: { label: string; snow: string; azure: string; aws: string; snowWin?: boolean }[] = [
+    {
+      label: "RAG パイプライン",
+      snow: "文書取込〜チャンク〜索引〜生成が同一 DB 内。SQL / IaC で一気通貫",
+      azure: "Blob 取込 → AI Search indexer + skillset → OpenAI。設定がサービスごとに分散",
+      aws: "S3 → ingestion job → KB / OpenSearch → Bedrock。パイプライン部品が多い",
+      snowWin: true,
+    },
+    {
+      label: "検索（Retrieval）",
+      snow: "Cortex Search：ベクトル＋キーワード＋再ランクをマネージド。CREATE SERVICE のみ",
+      azure: "Azure AI Search：高精度だが index・skillset・スキーマを自前設計",
+      aws: "Bedrock KB（マネージド）または OpenSearch（チューニング・運用が必要）",
+      snowWin: true,
+    },
+    {
+      label: "3 機能の索引共有",
+      snow: "チャット・整合性・シナリオが DOC_SEARCH を共用。開発・保守が 1 基盤",
+      azure: "機能ごとに index 分割 or フィルタ設計。横断再利用は設計次第",
+      aws: "KB / index を機能別に分けると重複取込・同期コスト増",
+      snowWin: true,
+    },
+    {
+      label: "セキュリティ・監査",
+      snow: "RBAC・Network Policy・ACCESS_HISTORY がデータと AI で一貫",
+      azure: "Entra ID + Key Vault + 各 PaaS の RBAC を横断設計",
+      aws: "IAM + KMS + CloudTrail をサービスごとに束ねる設計",
+      snowWin: true,
+    },
+    {
+      label: "国内リージョン",
+      snow: "東京リージョン（ap-northeast-1）で Cortex 利用可。学習オプトアウト標準",
+      azure: "Japan East 利用可。OpenAI はリージョン・モデル制約に注意",
+      aws: "ap-northeast-1 利用可。Bedrock モデルはリージョン差あり",
+    },
+    {
+      label: "LLM 中立性",
+      snow: "COMPLETE のモデル名差替で複数 LLM。SQL 抽象化で切替容易",
+      azure: "Azure OpenAI 中心。他モデルは追加連携が必要",
+      aws: "Bedrock は複数モデル。ただし KB / OpenSearch 側は別管理",
+      snowWin: true,
+    },
+    {
+      label: "運用・引継ぎ",
+      snow: "Terraform + snow sql で DB/Role/Search をコード管理。1 リポジトリ",
+      azure: "Bicep/Terraform が Search・OpenAI・Storage で分散",
+      aws: "CDK/Terraform が S3・OpenSearch・Bedrock・Lambda で分散",
+      snowWin: true,
+    },
+    {
+      label: "本案件との相性",
+      snow: "◎ Next.js BFF + 庁内 GIS 分離と整合。文書 RAG に特化",
+      azure: "△ M365 / SharePoint 連携が主戦場の構成に寄りやすい",
+      aws: "△ AWS 全般向け。GIS（Enterprise）は別系統で同様",
+    },
+  ];
+
+  const fs = compact ? "text-[9px]" : "text-[10.5px]";
+  const headerFs = compact ? "text-[10px]" : "text-[11px]";
+
+  return (
+    <div className={`space-y-2 ${fs}`}>
+      {/* 3 プラットフォームのスタック */}
+      <div className="grid grid-cols-3 gap-2">
+        {platforms.map((p) => (
+          <div key={p.id} className={`rounded-xl border overflow-hidden ${p.border} ${p.id === "snowflake" ? "shadow-md" : ""}`}>
+            <div className={`${p.headerBg} px-2.5 py-1.5 flex items-center justify-between gap-1`}>
+              <span className={`font-bold ${compact ? "text-[11px]" : "text-[12px]"}`}>{p.name}</span>
+              <span className={`${p.badgeCls} text-[8px] font-bold rounded px-1.5 py-0.5`}>{p.badge}</span>
+            </div>
+            <div className={`p-2 space-y-0.5 ${p.id === "snowflake" ? "bg-sky-50/60" : "bg-slate-50"}`}>
+              {p.stack.map((s, i) => (
+                <div key={s} className="flex items-stretch gap-1">
+                  {i > 0 ? <span className="text-slate-300 text-[8px] w-3 text-center flex-shrink-0">↓</span> : <span className="w-3 flex-shrink-0" />}
+                  <div className={`flex-1 border rounded px-1.5 py-0.5 ${p.id === "snowflake" ? "bg-white border-sky-200 text-sky-900" : "bg-white border-slate-200 text-slate-700"}`}>
+                    {s}
+                  </div>
+                </div>
+              ))}
+              <div className={`text-[7.5px] mt-1 text-center font-semibold ${p.id === "snowflake" ? "text-sky-700" : "text-slate-500"}`}>{p.stackNote}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 比較表 */}
+      <div className="border border-slate-200 rounded-xl overflow-hidden">
+        <div className={`grid grid-cols-[88px_1fr_1fr_1fr] gap-px bg-slate-200 ${headerFs} font-bold`}>
+          <div className="bg-slate-100 px-2 py-1.5 text-slate-600">観点</div>
+          <div className="bg-sky-100 px-2 py-1.5 text-sky-800 text-center">❄️ Snowflake</div>
+          <div className="bg-blue-50 px-2 py-1.5 text-blue-800 text-center">Azure</div>
+          <div className="bg-orange-50 px-2 py-1.5 text-orange-800 text-center">AWS</div>
+        </div>
+        {rows.map((r) => (
+          <div key={r.label} className={`grid grid-cols-[88px_1fr_1fr_1fr] gap-px bg-slate-100 ${fs}`}>
+            <div className="bg-slate-50 px-2 py-1.5 font-semibold text-slate-700 flex items-center">{r.label}</div>
+            <div className={`px-2 py-1.5 leading-snug flex items-start gap-1 ${r.snowWin ? "bg-sky-50/80 text-sky-900" : "bg-white text-slate-700"}`}>
+              {r.snowWin ? <span className="text-emerald-600 flex-shrink-0 font-bold">✓</span> : null}
+              <span>{r.snow}</span>
+            </div>
+            <div className="bg-white px-2 py-1.5 text-slate-600 leading-snug">{r.azure}</div>
+            <div className="bg-white px-2 py-1.5 text-slate-600 leading-snug">{r.aws}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className={`grid grid-cols-4 gap-1.5 ${compact ? "text-[8.5px]" : "text-[9.5px]"}`}>
+        {[
+          { t: "1 基盤完結", b: "取込・索引・生成・監査が Snowflake 内。サービス間連携設計が不要" },
+          { t: "索引の使い回し", b: "3 AI 機能が同一 Cortex Search を共用し開発コスト最小" },
+          { t: "行政セキュリティ", b: "東京 DC・学習不可・RBAC・監査ログを標準機能で一括" },
+          { t: "引継ぎ容易", b: "SQL + IaC 1 本。Azure/AWS はマルチサービス Runbook が増える" },
+        ].map((c) => (
+          <div key={c.t} className="bg-emerald-50 border border-emerald-200 rounded-lg px-2 py-1.5">
+            <div className="font-bold text-emerald-800">{c.t}</div>
+            <div className="text-slate-600 leading-snug mt-0.5">{c.b}</div>
+          </div>
+        ))}
+      </div>
+      <p className={`text-center text-slate-500 ${compact ? "text-[7.5px]" : "text-[9px]"}`}>
+        ※ Azure / AWS も優れた RAG は構築可能。本案件は「訓練文書 RAG + 庁内 GIS 分離 + 他事業者引継ぎ」で Snowflake 完結が最も合理的
+      </p>
+    </div>
+  );
+}
+
 function buildArchSlides(): ArchSlide[] {
   return [
     {
@@ -3116,7 +4026,7 @@ function buildArchSlides(): ArchSlide[] {
             <div className="relative">
               <div className="text-sky-300 text-[12px] font-semibold tracking-[0.25em] uppercase mb-1.5">Architecture Overview</div>
               <h1 className="text-[30px] font-bold leading-tight">構成図 ― AI機能群を支える Snowflake RAG 基盤</h1>
-              <p className="text-sky-100 text-[14px] mt-2">Snowflake Cortex（検索＋生成）／ ArcGIS（地図）／ Next.js（統合）で構成し、すべて Snowflake 内で完結</p>
+              <p className="text-sky-100 text-[14px] mt-2">RAG は Snowflake Cortex 内で完結。地図は Pro → Portal → ArcGIS Enterprise。Next.js が統合</p>
             </div>
           </div>
           <div className="flex-1 px-9 py-4 flex flex-col justify-between gap-3 min-h-0">
@@ -3202,102 +4112,20 @@ function buildArchSlides(): ArchSlide[] {
     {
       label: "システム全体構成",
       node: (
-        <SlideShell tag="全体構成" accent="indigo" title="システム全体構成（フロントエンド / バックエンド）" subtitle="ブラウザ ⇄ Next.js BFF ⇄ Snowflake・ArcGIS／通信は必ず BFF を経由">
-          <div className="h-full flex flex-col gap-1.5 text-[11px]">
-            {/* 利用者 */}
-            <div className="bg-slate-700 text-white rounded-lg px-4 py-1.5 text-center flex items-center justify-center gap-2 flex-shrink-0">
-              <span className="text-[13px]">👥</span>
-              <span className="font-bold text-[12px]">利用者 / 都職員（20名）</span>
-              <span className="text-slate-300">質問・条件設定・文書編集・訓練実施</span>
-            </div>
-            <div className="text-center text-slate-300 leading-none text-[11px] flex-shrink-0">⇅</div>
-
-            {/* フロントエンド境界 */}
-            <div className="relative border-2 border-blue-400 bg-blue-50/40 rounded-xl px-4 pt-4 pb-3 flex-shrink-0">
-              <span className="absolute -top-2.5 left-4 bg-blue-600 text-white text-[10.5px] font-bold px-2.5 py-0.5 rounded">🖥️ フロントエンド（ブラウザ / クライアント）</span>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { t: "① AI機能群", d: "チャット / 整合性 / シナリオ", c: "bg-amber-50 border-amber-300 text-amber-800" },
-                  { t: "② 計画・文書作成", d: "AI提案エディタ / 版管理", c: "bg-rose-50 border-rose-300 text-rose-800" },
-                  { t: "③ 被害予想シミュ", d: "ArcGIS 2D/3D 地図", c: "bg-emerald-50 border-emerald-300 text-emerald-800" },
-                  { t: "④ 判断支援", d: "情報統合 / 推奨アクション", c: "bg-violet-50 border-violet-300 text-violet-800" },
-                ].map((x) => (
-                  <div key={x.t} className={"border rounded-lg px-2 py-1.5 " + x.c}>
-                    <div className="font-bold">{x.t}</div>
-                    <div className="opacity-80 mt-0.5 leading-snug">{x.d}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-2 bg-green-100 border border-green-500 rounded-lg px-3 py-1 text-center">
-                <span className="font-bold text-green-900">🟩 ArcGIS Maps SDK for JavaScript</span>
-                <span className="ml-1.5 text-green-800">地図描画（2D/3D）・Feature Layer 切替 <span className="text-[9px] bg-green-200 rounded px-1">将来：機能③</span></span>
-              </div>
-            </div>
-
-            {/* 境界の通信 */}
-            <div className="flex items-center justify-center gap-2 flex-shrink-0">
-              <span className="text-indigo-400 text-[13px]">⇅</span>
-              <span className="bg-white border border-indigo-300 text-indigo-700 text-[10.5px] font-semibold rounded-full px-3 py-0.5">HTTPS / SSE（ストリーミング）｜ 通信は必ず BFF 経由・資格情報を露出しない</span>
-            </div>
-
-            {/* バックエンド境界 */}
-            <div className="relative border-2 border-slate-400 bg-slate-50 rounded-xl px-4 pt-4 pb-3 flex-1 min-h-0 flex flex-col">
-              <span className="absolute -top-2.5 left-4 bg-slate-700 text-white text-[10.5px] font-bold px-2.5 py-0.5 rounded">🗄️ バックエンド（サーバー）</span>
-              <div className="bg-orange-100 border border-orange-400 rounded-lg px-3 py-1.5 text-center flex-shrink-0">
-                <span className="font-bold text-orange-800">🟧 Next.js BFF / API（SPCS）</span>
-                <span className="ml-1.5 text-orange-700">認証（ログイン/セッション・bcrypt保存）・アプリ権限（画面/機能の出し分け）・APIゲートウェイ・対話履歴管理</span>
-              </div>
-              <div className="flex items-center justify-center gap-10 text-[9.5px] text-slate-400 font-bold py-0.5 flex-shrink-0">
-                <span>▼ SQL（Cortex / データ基盤）</span>
-                <span>▼ REST（Feature Layer / 解析）</span>
-              </div>
-              <div className="grid grid-cols-[1.55fr_1fr] gap-3 flex-1 min-h-0">
-                {/* Snowflake セキュリティ境界 */}
-                <div className="relative border-2 border-sky-400 bg-sky-50/50 rounded-lg px-3 pt-4 pb-2 flex flex-col">
-                  <span className="absolute -top-2.5 left-3 bg-sky-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">❄️ Snowflake セキュリティ境界（データを外に出さない）</span>
-                  <div className="grid grid-cols-2 gap-2 flex-1">
-                    <div className="bg-white border border-green-500 rounded-lg px-2.5 py-1.5">
-                      <div className="font-bold text-green-800">Cortex AI</div>
-                      <div className="text-green-700 leading-snug mt-0.5">Search（検索）＋ COMPLETE（生成）/ Embedding</div>
-                    </div>
-                    <div className="bg-white border border-green-500 rounded-lg px-2.5 py-1.5">
-                      <div className="font-bold text-green-800">データ基盤</div>
-                      <div className="text-green-700 leading-snug mt-0.5">文書ストレージ / 履歴・監査 / RBAC（GRANT 最小権限）/ Secrets</div>
-                    </div>
-                  </div>
-                  <div className="mt-1.5 text-center text-[10px] text-sky-700 bg-white/70 border border-sky-200 rounded px-2 py-0.5">ネットワークポリシー（IP制限）・東京リージョン・保存/転送暗号化・学習オプトアウト</div>
-                </div>
-                {/* ArcGIS Platform */}
-                <div className="border border-teal-500 bg-teal-50 rounded-lg px-3 py-2 flex flex-col justify-center">
-                  <div className="font-bold text-teal-800">🟩 ArcGIS Platform <span className="text-[9px] font-normal bg-teal-200 text-teal-800 rounded px-1 ml-0.5">将来：被害予想（機能③）</span></div>
-                  <div className="text-teal-700 leading-snug mt-0.5">ハザードマップ配信（Feature Layer）/ 空間解析・ジオプロセシング</div>
-                </div>
-              </div>
-            </div>
-
-            {/* データソース */}
-            <div className="flex items-center justify-center gap-2 flex-shrink-0">
-              <span className="text-slate-400 text-[13px]">↑</span>
-              <span className="bg-white border border-slate-300 text-slate-600 text-[10.5px] font-semibold rounded-full px-3 py-0.5">読み込み（取込・参照）</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 flex-shrink-0">
-              <div className="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5">
-                <span className="font-bold text-slate-700">📄 訓練文書・参照データ</span>
-                <span className="text-slate-600 ml-1.5">計画書 / 手順書 / シナリオ / 過去事例（PDF・docx・xlsx）</span>
-              </div>
-              <div className="bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-1.5">
-                <span className="font-bold text-slate-700">🗺️ 地理空間 / 被害想定データ</span>
-                <span className="text-slate-600 ml-1.5">津波浸水 / 震度分布 / 南海トラフ / 噴火降灰 / 風水害</span>
-              </div>
+        <SlideShell tag="全体構成" accent="indigo" title="システム全体構成（フロントエンド / バックエンド）" subtitle="都職員 → フロントエンド（Next.js BFF）→ バックエンド（Snowflake）／ 地図は Portal + ArcGIS Enterprise（③のみ）">
+          <div className="h-full flex flex-col justify-center py-1">
+            <RuntimeArchDiagram />
+            <div className="mt-2 flex-shrink-0 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-1 text-center text-[9.5px] text-indigo-800">
+              フロント：HTTPS / SSE（BFF）｜ BFF→Snowflake：SQL ｜ ③ Maps SDK→Enterprise：REST③
             </div>
           </div>
         </SlideShell>
       ),
       script: [
-        "全体構成は、大きく『フロントエンド』と『バックエンド』に分けて整理しています。両者の境界は Next.js の BFF で、ブラウザから Snowflake へ直接つながず、必ずサーバー側を経由します。資格情報をクライアントに露出しないための設計です。",
-        "フロントエンドはブラウザ上で動き、4つの機能UIと、ArcGIS Maps SDK による2D/3Dの地図描画を担当します。利用者の操作はすべてここで受け、HTTPS と SSE で BFF とやり取りします。",
-        "バックエンドでは、Next.js の BFF が利用者の認証（ログイン・パスワード）とアプリレベルの権限（画面・機能の出し分け）、API ゲートウェイ、対話履歴を担い、SQL で Snowflake の Cortex とデータ基盤に、REST で ArcGIS Platform に接続します。なお、IP 制限とデータアクセスの最終的な権限制御は、Snowflake のネットワークポリシーと RBAC（GRANT）で強制します。",
-        "Snowflake のセキュリティ境界の中で、文書の保存・検索・生成が完結し、データを外に出しません。東京リージョン・暗号化・学習オプトアウトを前提にしています。最下段の訓練文書と地理空間・被害想定データが、その入力になります。",
+        "全体構成は、フロントエンドとバックエンドを明確に分けて整理しています。フロントエンドは Next.js の BFF が担い、ブラウザから Snowflake や ArcGIS へ直接つながず、必ずサーバー側を経由します。資格情報をクライアントに露出しないための設計です。",
+        "フロントエンドは4機能に対応した UI です。①②④は Next.js UI のみで、②の文書エディタや版管理に ArcGIS は不要です。ArcGIS Maps SDK は機能③の被害予想シミュ専用で、2D/3D 地図と Feature Layer 切替を担います。④は③の地図結果を埋め込んで統合表示します。",
+        "バックエンドは Snowflake が担い、Cortex AI とデータ基盤で文書の保存・検索・生成を行います。Next.js BFF は SQL で Snowflake に接続し、機能③の地図は Portal for ArcGIS 経由の ArcGIS Enterprise（Hosted Feature Layer）を REST で参照します。GIS データは ArcGIS Pro で整備し、Portal に共有して Enterprise 上にホストします。Snowflake の GIS mart への格納と Enterprise への同期は、文書・業務データとの統合が必要になった Phase 2 以降の任意拡張です。",
+        "右端の訓練文書は Snowflake に取り込み、地理空間データは Pro → Portal → Enterprise の流れで Feature Layer 化します。本番のホスティング先（SPCS 等）はデプロイ方式の話であり、論理構成上のフロント／バックの分離とは別です。開発時の接続は『構成図 › 開発環境』を参照してください。",
       ],
     },
     {
@@ -3723,46 +4551,32 @@ function buildArchSlides(): ArchSlide[] {
     {
       label: "フロントエンド接続",
       node: (
-        <SlideShell tag="E 接続" accent="orange" title="フロントエンド接続（Next.js / ArcGIS）" subtitle="回答は Snowflake、地図は ArcGIS、Next.js が1画面に統合">
-          <div className="h-full flex flex-col gap-4 text-[12px]">
-            <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
-              <div className="border border-orange-200 bg-orange-50/60 rounded-lg p-3 space-y-1.5">
-                <div className="font-bold text-orange-800 text-[13px]">🟧 Next.js（BFF / SPCS）</div>
-                {[
-                  "API Route が唯一の入口：/api/chat・/consistency・/scenario をサーバー側で実行",
-                  "ストリーミング表示：SSE / ReadableStream で逐次転送",
-                  "引用の画面連携：doc_name・page_no で文書ビューアの該当ページへジャンプ",
-                  "SPCS ホスティング：Snowflake と同一境界内で完結（外部公開面を最小化）",
-                ].map((t) => (<div key={t} className="flex gap-1.5"><span className="text-orange-500 font-bold flex-shrink-0">▸</span><span className="text-slate-700">{t}</span></div>))}
-              </div>
-              <div className="border border-emerald-200 bg-emerald-50/60 rounded-lg p-3 space-y-1.5">
-                <div className="font-bold text-emerald-800 text-[13px]">🟩 ArcGIS Maps SDK</div>
-                {[
-                  "回答 → 地図プロット：避難所・浸水域などを GraphicsLayer / FeatureLayer に描画",
-                  "条件 → レイヤー切替：災害種別・規模に応じてハザードマップを動的切替",
-                  "空間 → 文脈付与：地図上の被害推計を要約し RAG プロンプトに渡す",
-                  "3D 可視化：PLATEAU（CityGML）を 3D Scene View に取り込む",
-                ].map((t) => (<div key={t} className="flex gap-1.5"><span className="text-emerald-500 font-bold flex-shrink-0">▸</span><span className="text-slate-700">{t}</span></div>))}
+        <SlideShell tag="E 接続" accent="orange" title="フロントエンド接続（Next.js / ArcGIS）" subtitle="機能別の API・データの流れ — ①②④は BFF→Snowflake、③は Maps SDK→庁内 GIS">
+          <div className="h-full flex flex-col gap-2.5 text-[12px] min-h-0">
+            <div className="border-2 border-orange-200 bg-orange-50/30 rounded-lg p-2.5 flex-1 min-h-0 overflow-hidden">
+              <div className="origin-top-left" style={{ transform: "scale(0.88)", width: "113.6%" }}>
+                <FrontendConnectionDiagram compact />
               </div>
             </div>
-            <div className="bg-white border border-slate-200 rounded-lg p-3">
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <span className="bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 font-semibold text-slate-700 text-center">ブラウザ<span className="font-normal text-[10px] block">チャット / 地図 UI</span></span>
-                <span className="text-slate-400 font-bold">⇄</span>
-                <span className="bg-orange-100 border border-orange-300 rounded-lg px-3 py-2 font-semibold text-orange-800 text-center">Next.js（BFF / SPCS）<span className="font-normal text-[10px] block">認証・RBAC・API・ストリーミング</span></span>
-                <span className="text-slate-400 font-bold">⇄</span>
-                <span className="bg-green-100 border border-green-400 rounded-lg px-3 py-2 font-semibold text-green-800 text-center">Snowflake Cortex<span className="font-normal text-[10px] block">Search ＋ COMPLETE</span></span>
-                <span className="text-slate-400 font-bold">＋</span>
-                <span className="bg-emerald-100 border border-emerald-400 rounded-lg px-3 py-2 font-semibold text-emerald-800 text-center">ArcGIS Platform<span className="font-normal text-[10px] block">Feature Layer / 空間解析</span></span>
-              </div>
+            <div className="grid grid-cols-3 gap-2 flex-shrink-0 text-[10.5px]">
+              {[
+                { t: "BFF が Snowflake 窓口", b: "/api/chat 等で snowflake-sdk をサーバー側のみ実行。PAT/OAuth はブラウザに出さない。" },
+                { t: "③ は REST③ 直行", b: "Hosted Feature Layer の取得は Maps SDK が庁内 Enterprise へ直接。タイルは BFF を通さない。" },
+                { t: "双方向連携", b: "地図要約 → /api/chat、引用 page_no → 文書ビューア。④ で RAG と地図を 1 画面に統合。" },
+              ].map((c) => (
+                <div key={c.t} className="bg-white border border-orange-200 rounded-lg px-2.5 py-2">
+                  <div className="font-bold text-orange-800 mb-0.5">{c.t}</div>
+                  <div className="text-slate-600 leading-snug">{c.b}</div>
+                </div>
+              ))}
             </div>
           </div>
         </SlideShell>
       ),
       script: [
-        "利用者が触れる画面は Next.js で作り、Snowflake への接続は必ずサーバー側の BFF を経由させます。機能別に API を用意し、生成結果はストリーミングで逐次表示します。",
-        "地図は ArcGIS Maps SDK で、回答に含まれる避難所や浸水域を地図にプロットし、条件に応じてハザードマップのレイヤーを切り替えます。地図上の被害推計を要約して AI に渡す双方向連携も可能です。",
-        "回答テキストは Snowflake から、地図表示は ArcGIS から取得し、Next.js が1画面に統合して判断支援を行います。",
+        "この図は機能ごとに、ブラウザ・Next.js BFF・バックエンドの間で何が流れるかを示しています。①②④は必ず BFF 経由で Snowflake に接続し、リクエストとレスポンスの型も API Route 単位で分かれます。",
+        "③被害予想だけが例外で、Maps SDK が庁内 ArcGIS Enterprise の Feature Layer を REST③ で直接参照します。レイヤーのタイルや属性は BFF を通しません。",
+        "④判断支援では両方を統合し、地図上の要約を geoSummary としてチャット API に渡す双方向連携も可能です。資格情報はすべてサーバー側に閉じます。",
       ],
     },
     {
@@ -3920,13 +4734,341 @@ function buildArchSlides(): ArchSlide[] {
         "運用は、取込・索引更新だけウェアハウスを使い、ACCOUNT_USAGE で関数別のトークンとコストを継続監視します。索引の鮮度は TARGET_LAG で業務要件に合わせて調整します。",
       ],
     },
+    {
+      label: "Snowflake RAG 比較",
+      node: (
+        <div className="h-full bg-white flex flex-col">
+          <div className="relative bg-gradient-to-br from-[#0c4a6e] via-[#0369a1] to-[#0ea5e9] text-white px-9 pt-5 pb-5 overflow-hidden flex-shrink-0">
+            <div className="absolute -top-2 right-6 flex items-center gap-2 text-white/12 text-[52px] leading-none select-none pointer-events-none">
+              <span>❄️</span><span className="text-[36px]">⚖️</span>
+            </div>
+            <div className="relative flex items-center gap-3">
+              <span className="text-[12px] font-bold bg-white/20 border border-white/30 rounded-lg px-2.5 py-1 tracking-wider whitespace-nowrap">比較</span>
+              <div className="min-w-0">
+                <h2 className="text-[26px] font-bold leading-tight">なぜ Snowflake RAG か — Azure / AWS との比較</h2>
+                <p className="text-sky-100 text-[13px] mt-1">マルチクラウドでも RAG は構築できる。本案件では「1 基盤完結・索引共有・行政ガバナンス」で Snowflake が最適</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 px-6 py-3 min-h-0 overflow-hidden">
+            <div className="origin-top-left h-full" style={{ transform: "scale(0.92)", width: "108.7%" }}>
+              <SnowflakeRagPlatformComparison compact />
+            </div>
+          </div>
+        </div>
+      ),
+      script: [
+        "最後に、なぜ Snowflake で RAG を構築するのか。Azure や AWS でも同等の RAG は可能ですが、本案件の要件では Snowflake が最も合理的です。",
+        "まずアーキテクチャの違いです。Snowflake は Stage から PARSE、チャンク、Cortex Search、COMPLETE、SPCS 上の Next.js までが 1 プラットフォームに収まります。Azure は Blob、AI Search、OpenAI、App Service など、AWS は S3、OpenSearch または Bedrock KB、Bedrock、Lambda など、複数サービスの横断設計が必要です。",
+        "本案件の強みは、チャット・整合性チェック・シナリオ生成の 3 機能が同じ Cortex Search 索引を共用できることです。Azure や AWS では機能ごとに index や KB を分けると取込と同期が重複し、保守コストが上がります。",
+        "セキュリティ面では、Snowflake の RBAC・Network Policy・監査ログがデータと AI で一貫します。東京リージョンと学習オプトアウトも行政要件に直結します。引継ぎは SQL と IaC 1 本で済み、他事業者への移管がしやすい点も評価ポイントです。",
+        "まとめると、Azure は M365 連携、AWS は AWS 全般向けに強い一方、本案件の『訓練文書 RAG + 庁内 GIS 分離』には Snowflake 完結が最もバランスが良い選択です。",
+      ],
+    },
   ];
 }
 
-function SlideScript() {
+type TochoSearchTarget = {
+  tab: TabId;
+  archSub?: ArchSub;
+  presentationSlideIdx?: number;
+  archSlideIdx?: number;
+  qaIdx?: number;
+};
+
+type TochoSearchEntry = {
+  id: string;
+  category: string;
+  title: string;
+  body: string;
+  location: string;
+  target: TochoSearchTarget;
+};
+
+type TochoSearchHit = TochoSearchEntry & { snippet: string };
+
+function buildTochoSearchIndex(): TochoSearchEntry[] {
+  const entries: TochoSearchEntry[] = [];
+
+  for (const g of GLOSSARY) {
+    entries.push({
+      id: `glossary-${g.term}`,
+      category: "用語集",
+      title: g.term,
+      body: `${g.en} ${g.category} ${g.body}`,
+      location: "各タブ下部の用語集",
+      target: { tab: "overview" },
+    });
+  }
+
+  for (const t of tabs) {
+    entries.push({
+      id: `tab-${t.id}`,
+      category: "タブ",
+      title: t.label,
+      body: t.label,
+      location: "メインタブ",
+      target: { tab: t.id },
+    });
+  }
+
+  const archSubTabs: { id: ArchSub; label: string }[] = [
+    { id: "overview", label: "全体構成" },
+    { id: "dev", label: "開発環境" },
+    { id: "chatbot", label: "チャットボット（RAG）" },
+    { id: "consistency", label: "整合性チェック" },
+    { id: "scenario", label: "シナリオ生成" },
+    { id: "slidescript", label: "技術スライド" },
+  ];
+  for (const st of archSubTabs) {
+    entries.push({
+      id: `arch-${st.id}`,
+      category: "構成図",
+      title: st.label,
+      body: st.label,
+      location: "構成図タブ",
+      target: { tab: "architecture", archSub: st.id },
+    });
+  }
+
+  buildSlides().forEach((s, i) => {
+    entries.push({
+      id: `slide-pres-${i}`,
+      category: "提案スライド",
+      title: s.label,
+      body: (s.script ?? []).join(" "),
+      location: `説明スライド › ${s.label}`,
+      target: { tab: "slides", presentationSlideIdx: i },
+    });
+  });
+
+  buildArchSlides().forEach((s, i) => {
+    entries.push({
+      id: `slide-arch-${i}`,
+      category: "技術スライド",
+      title: s.label,
+      body: s.script.join(" "),
+      location: `構成図 › 技術スライド › ${s.label}`,
+      target: { tab: "architecture", archSub: "slidescript", archSlideIdx: i },
+    });
+  });
+
+  QA_ITEMS.forEach((item, i) => {
+    const body = [
+      item.q,
+      ...item.tags,
+      ...item.sections.map((s) => `${s.heading ?? ""} ${s.body}`),
+    ].join(" ");
+    entries.push({
+      id: `qa-${i}`,
+      category: "Q&A",
+      title: item.q,
+      body,
+      location: "Q&Aタブ",
+      target: { tab: "qa", qaIdx: i },
+    });
+  });
+
+  const sections: { title: string; body: string; tab: TabId; location: string; archSub?: ArchSub }[] = [
+    {
+      title: "tocho-geospatial-platform 概要",
+      body: "東京都庁向け geospatial プラットフォーム Snowflake ArcGIS Enterprise Portal Next.js 地図 3D可視化 RAG検索基盤 閉域",
+      tab: "overview",
+      location: "概要タブ",
+    },
+    {
+      title: "Next.js BFF 認証 RBAC",
+      body: "Next.js BFF サーバー側 API 資格情報 露出しない 認証 ログイン セッション アプリ権限 IP制限は Snowflake Network Policy RBAC GRANT",
+      tab: "architecture",
+      location: "構成図タブ",
+      archSub: "overview",
+    },
+    {
+      title: "Next.js と Snowflake の接続方法",
+      body: "snowflake-sdk API Route BFF lib/db/client.ts HTTPS SSE OAuth PAT SNOWFLAKE_ACCOUNT SNOWFLAKE_PAT SPCS セッショントークン サーバー側のみ 直接接続しない /api/chat /api/consistency /api/scenario",
+      tab: "architecture",
+      location: "構成図 › 全体構成",
+      archSub: "overview",
+    },
+    {
+      title: "開発環境構成図 Terraform PAT",
+      body: "開発環境 ローカル IDE Terraform Snowflake CLI snowsql dbt PUT Stage PAT Key Pair rsa_key config.toml env.local terraform apply npm run dev インフラ データ投入",
+      tab: "architecture",
+      location: "構成図 › 開発環境",
+      archSub: "dev",
+    },
+    {
+      title: "参照成果物",
+      body: "design.yaml design/1-15-requirements.yaml docs/snowflake-rag-vs-copilot-rag.html IaC",
+      tab: "artifacts",
+      location: "成果物タブ",
+    },
+  ];
+  for (const s of sections) {
+    entries.push({
+      id: `section-${s.title}`,
+      category: "セクション",
+      title: s.title,
+      body: s.body,
+      location: s.location,
+      target: { tab: s.tab, archSub: s.archSub },
+    });
+  }
+
+  return entries;
+}
+
+const TOCHO_SEARCH_INDEX = buildTochoSearchIndex();
+
+function makeSnippet(text: string, query: string, maxLen = 120): string {
+  const lower = text.toLowerCase();
+  const q = query.toLowerCase();
+  const idx = lower.indexOf(q);
+  if (idx === -1) return text.slice(0, maxLen) + (text.length > maxLen ? "…" : "");
+  const start = Math.max(0, idx - 40);
+  const end = Math.min(text.length, idx + query.length + 60);
+  const prefix = start > 0 ? "…" : "";
+  const suffix = end < text.length ? "…" : "";
+  return prefix + text.slice(start, end).replace(/\s+/g, " ").trim() + suffix;
+}
+
+function searchTochoGuide(query: string): TochoSearchHit[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const tokens = q.split(/\s+/).filter(Boolean);
+  return TOCHO_SEARCH_INDEX
+    .map((entry) => {
+      const haystack = `${entry.title} ${entry.body} ${entry.location}`.toLowerCase();
+      if (!tokens.every((t) => haystack.includes(t))) return null;
+      const snippet = makeSnippet(entry.body || entry.title, tokens[0]);
+      return { ...entry, snippet };
+    })
+    .filter((h): h is TochoSearchHit => h !== null)
+    .slice(0, 24);
+}
+
+function TochoGuideSearch({
+  onNavigate,
+}: {
+  onNavigate: (target: TochoSearchTarget) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const hits = searchTochoGuide(query);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setOpen(true);
+        setTimeout(() => inputRef.current?.focus(), 0);
+      }
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  const categoryColor: Record<string, string> = {
+    用語集: "bg-emerald-100 text-emerald-700",
+    タブ: "bg-slate-100 text-slate-600",
+    構成図: "bg-indigo-100 text-indigo-700",
+    提案スライド: "bg-sky-100 text-sky-700",
+    技術スライド: "bg-violet-100 text-violet-700",
+    "Q&A": "bg-amber-100 text-amber-700",
+    セクション: "bg-rose-100 text-rose-700",
+  };
+
+  return (
+    <div ref={containerRef} className="relative mb-5">
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+          <input
+            ref={inputRef}
+            type="search"
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+            onFocus={() => setOpen(true)}
+            placeholder="ガイド内を検索（例: BFF, Cortex Search, 整合性）"
+            className="w-full pl-9 pr-24 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-rose-400 bg-white"
+          />
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline text-[10px] text-slate-400 bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5">⌘K</kbd>
+        </div>
+        {query && (
+          <button
+            onClick={() => { setQuery(""); setOpen(false); }}
+            className="text-xs text-slate-500 hover:text-slate-700 px-2 py-1"
+          >
+            クリア
+          </button>
+        )}
+      </div>
+
+      {open && query.trim() && (
+        <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto">
+          {hits.length === 0 ? (
+            <div className="px-4 py-6 text-sm text-slate-500 text-center">
+              「{query}」に一致する結果はありません
+            </div>
+          ) : (
+            <ul className="py-1">
+              {hits.map((hit) => (
+                <li key={hit.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onNavigate(hit.target);
+                      setOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 hover:bg-rose-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${categoryColor[hit.category] ?? "bg-gray-100 text-gray-600"}`}>
+                        {hit.category}
+                      </span>
+                      <span className="text-sm font-semibold text-gray-800 truncate">{hit.title}</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 truncate">{hit.location}</div>
+                    <div className="text-xs text-slate-600 mt-0.5 line-clamp-2">{hit.snippet}</div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SlideScript({
+  idx,
+  setIdx,
+  showScript: controlledShowScript,
+  setShowScript: controlledSetShowScript,
+}: {
+  idx: number;
+  setIdx: (i: number) => void;
+  showScript?: boolean;
+  setShowScript?: (v: boolean) => void;
+}) {
   const slides = buildArchSlides();
-  const [idx, setIdx] = useState(0);
-  const [showScript, setShowScript] = useState(false);
+  const [internalShowScript, setInternalShowScript] = useState(false);
+  const showScript = controlledShowScript ?? internalShowScript;
+  const setShowScript = controlledSetShowScript ?? setInternalShowScript;
   const current = slides[idx];
   const lines = current.script;
   return (
@@ -3938,7 +5080,7 @@ function SlideScript() {
             <h3 className="font-bold text-base truncate">{current.label}</h3>
           </div>
           <button
-            onClick={() => setShowScript((v) => !v)}
+            onClick={() => setShowScript(!showScript)}
             aria-pressed={showScript}
             className={`flex-shrink-0 flex items-center gap-1.5 text-[12px] font-bold px-3.5 py-2 rounded-lg border transition ${showScript ? "bg-white text-indigo-700 border-white" : "bg-white/15 text-white border-white/40 hover:bg-white/25"}`}
           >
@@ -4399,10 +5541,30 @@ function Artifacts() {
 export default function TochoGuide() {
   const [tab, setTab] = useState<TabId>("overview");
   const [activeDoc, setActiveDoc] = useState<string>(tochoDocs[0].file);
+  const [archSub, setArchSub] = useState<ArchSub>("overview");
+  const [presentationSlideIdx, setPresentationSlideIdx] = useState(0);
+  const [archSlideIdx, setArchSlideIdx] = useState(0);
+  const [presentationShowScript, setPresentationShowScript] = useState(false);
+  const [archShowScript, setArchShowScript] = useState(false);
+  const [qaOpenIdx, setQaOpenIdx] = useState<number | null>(null);
 
   const openDoc = (file: string) => {
     setActiveDoc(file);
     setTab("docs");
+  };
+
+  const handleSearchNavigate = (target: TochoSearchTarget) => {
+    setTab(target.tab);
+    if (target.archSub) setArchSub(target.archSub);
+    if (target.presentationSlideIdx !== undefined) {
+      setPresentationSlideIdx(target.presentationSlideIdx);
+      setPresentationShowScript(true);
+    }
+    if (target.archSlideIdx !== undefined) {
+      setArchSlideIdx(target.archSlideIdx);
+      setArchShowScript(true);
+    }
+    if (target.qaIdx !== undefined) setQaOpenIdx(target.qaIdx);
   };
 
   return (
@@ -4411,6 +5573,8 @@ export default function TochoGuide() {
         <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">🗼 tocho-geospatial-platform</h2>
         <p className="text-sm text-gray-500 mt-1">HVD(Next.js + SPCS)と同じ粒度で整理した、東京都庁案件の開発ガイド</p>
       </div>
+
+      <TochoGuideSearch onNavigate={handleSearchNavigate} />
 
       <div className="flex gap-2 mb-6 border-b border-gray-200 pb-4 flex-wrap">
         {tabs.map((t) => (
@@ -4426,14 +5590,31 @@ export default function TochoGuide() {
         ))}
       </div>
 
-      {tab === "slides" && <Slides />}
+      {tab === "slides" && (
+        <Slides
+          idx={presentationSlideIdx}
+          setIdx={setPresentationSlideIdx}
+          showScript={presentationShowScript}
+          setShowScript={setPresentationShowScript}
+        />
+      )}
       {tab === "overview" && <Overview onDocOpen={openDoc} />}
-      {tab === "architecture" && <Architecture onDocOpen={openDoc} />}
+      {tab === "architecture" && (
+        <Architecture
+          onDocOpen={openDoc}
+          sub={archSub}
+          setSub={setArchSub}
+          archSlideIdx={archSlideIdx}
+          setArchSlideIdx={setArchSlideIdx}
+          archShowScript={archShowScript}
+          setArchShowScript={setArchShowScript}
+        />
+      )}
       {tab === "wbs" && <Wbs />}
       {tab === "steps" && <Steps />}
       {tab === "docs" && <DocViewer activeDoc={activeDoc} setActiveDoc={setActiveDoc} />}
       {tab === "artifacts" && <Artifacts />}
-      {tab === "qa" && <QA />}
+      {tab === "qa" && <QA openIdx={qaOpenIdx} setOpenIdx={setQaOpenIdx} />}
     </div>
   );
 }

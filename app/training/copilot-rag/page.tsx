@@ -4,8 +4,8 @@ export default function CopilotRagHomePage() {
   return (
     <div>
       <div className="mb-6">
-        <Link href="/training" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium">
-          ← 勉強会一覧に戻る
+        <Link href="/training/github" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium">
+          ← GitHub 勉強会に戻る
         </Link>
       </div>
 
