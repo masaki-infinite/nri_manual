@@ -24,8 +24,8 @@ const stackRows: StackRow[] = [
   {
     layer: "データ基盤",
     service: "Snowflake (HVD_TOCHO_DEV/UAT/PROD)",
-    role: "地理空間データ・業務データ・履歴を統合し、分析と配信の中核を担う",
-    notes: "dbtでmartを構築し ArcGIS 連携用データセットを標準化",
+    role: "文書・業務データ・履歴の中核。RAG・整合性チェック・判断支援を担う",
+    notes: "初期開発は GIS 不要。Phase 2 で GIS mart を追加可能",
   },
   {
     layer: "地図/3D可視化",
@@ -34,10 +34,10 @@ const stackRows: StackRow[] = [
     notes: "独自UI、複雑な地図連動、外部API連携に強い",
   },
   {
-    layer: "データ保管",
-    service: "ArcGIS Online Hosted Feature Layer",
-    role: "用途地域、建物属性、避難所、人口メッシュ等をレイヤ化",
-    notes: "権限管理をグループ単位で実施",
+    layer: "データ保管（GIS）",
+    service: "ArcGIS Pro → Portal → ArcGIS Enterprise（Hosted Feature Layer）",
+    role: "用途地域、建物属性、避難所、人口メッシュ等を Pro で整備し、Portal 経由で Enterprise にホスト",
+    notes: "庁内閉域。Portal で権限・グループ管理",
   },
   {
     layer: "3Dモデル格納",
@@ -47,9 +47,9 @@ const stackRows: StackRow[] = [
   },
   {
     layer: "データ連携",
-    service: "dbt + ArcGIS Data Pipelines + API",
-    role: "Snowflakeを起点にバッチ連携とAPI連携を組み合わせたハイブリッド連携を実施",
-    notes: "初期は日次バッチ、拡張時にAPI連携を増やす",
+    service: "Pro → Portal 共有 ／ dbt + API（Phase 2・任意）",
+    role: "初期は Pro から Portal 経由で Enterprise に公開。統合基盤が必要になったら Snowflake 経由の同期を追加",
+    notes: "Snowflake × ArcGIS 連携は拡張オプション",
   },
   {
     layer: "フロントエンド",
@@ -96,7 +96,7 @@ const stepRows: StepRow[] = [
   },
   {
     phase: "3. 基盤準備",
-    what: "ArcGIS Online組織設定に加え、Snowflake環境（DEV/UAT/PROD）とSPCS実行基盤を準備",
+    what: "Portal for ArcGIS + ArcGIS Enterprise 基盤に加え、Snowflake環境（DEV/UAT/PROD）とSPCS実行基盤を準備",
     deliverable: "運用設計書、権限マトリクス",
   },
   {
@@ -236,7 +236,7 @@ export default function TochoProjectPage() {
           <h3 className="text-2xl font-semibold text-gray-800 mb-3">ArcGIS Maps SDK for JavaScript とは</h3>
           <p className="text-slate-700 leading-7 mb-4">
             ArcGIS Maps SDK for JavaScript は、Webブラウザ上で2D/3D地図アプリを開発するための開発キットです。
-            ArcGIS Online のレイヤ資産を利用しながら、標準ビルダーでは難しい独自UIや業務ロジックを実装できます。
+            ArcGIS Enterprise 上のレイヤ資産を利用しながら、標準ビルダーでは難しい独自UIや業務ロジックを実装できます。
           </p>
           <ul className="space-y-2 text-slate-700 leading-7">
             <li>・3D都市モデル（Scene Layer / I3S）を使った高機能ビューアを構築可能</li>
@@ -246,7 +246,15 @@ export default function TochoProjectPage() {
         </section>
 
         <section className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8">
-          <h3 className="text-2xl font-semibold text-gray-800 mb-4">推奨SaaS構成（ArcGIS Online中心）</h3>
+          <div className="mb-4 rounded-lg border border-violet-200 bg-violet-50/60 p-4 text-sm text-slate-700 leading-6">
+            <span className="font-semibold text-violet-900">ArcGIS Enterprise のインフラ：</span>
+            Portal・Server・Data Store は都庁の
+            <span className="font-semibold">データセンター／サーバールーム上の VM または物理サーバー（オンプレ）</span>
+            、もしくは
+            <span className="font-semibold">庁内専用プライベートクラウド（閉域クラウド）</span>
+            に構築します。Snowflake・SPCS とは別系統で、GIS データは庁内ネットワークに閉じます。
+          </div>
+          <h3 className="text-2xl font-semibold text-gray-800 mb-4">推奨構成（Portal + ArcGIS Enterprise 中心）</h3>
           <div className="overflow-x-auto rounded-lg border border-gray-200">
             <table className="min-w-full text-sm">
               <thead className="bg-slate-100">
@@ -292,10 +300,11 @@ export default function TochoProjectPage() {
               <text x="410" y="115" textAnchor="middle" fontSize="12" fill="#334155">定期ETL</text>
 
               <rect x="580" y="20" width="250" height="140" rx="12" fill="#dcfce7" stroke="#16a34a" />
-              <text x="705" y="55" textAnchor="middle" fontSize="16" fill="#0f172a">ArcGIS Online</text>
-              <text x="705" y="80" textAnchor="middle" fontSize="12" fill="#334155">Hosted Feature Layer</text>
-              <text x="705" y="100" textAnchor="middle" fontSize="12" fill="#334155">Scene Layer (I3S)</text>
-              <text x="705" y="120" textAnchor="middle" fontSize="12" fill="#334155">グループ / 権限 / 監査</text>
+              <text x="705" y="48" textAnchor="middle" fontSize="16" fill="#0f172a">ArcGIS Enterprise</text>
+              <text x="705" y="68" textAnchor="middle" fontSize="11" fill="#334155">Portal for ArcGIS</text>
+              <text x="705" y="86" textAnchor="middle" fontSize="12" fill="#334155">Hosted Feature Layer</text>
+              <text x="705" y="104" textAnchor="middle" fontSize="12" fill="#334155">Scene Layer (I3S)</text>
+              <text x="705" y="122" textAnchor="middle" fontSize="12" fill="#334155">Server / Data Store（閉域）</text>
 
               <rect x="560" y="200" width="290" height="110" rx="12" fill="#ffedd5" stroke="#ea580c" />
               <text x="705" y="236" textAnchor="middle" fontSize="16" fill="#0f172a">Custom Web App</text>

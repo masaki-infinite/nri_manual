@@ -58,6 +58,56 @@ export default function ClaudeCodePage() {
           </div>
         </div>
 
+        <div id="models" className="scroll-mt-28 mb-10">
+          <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+            🧠 モデル
+          </h3>
+          <p className="text-sm text-gray-600 leading-6 mb-4 max-w-3xl">
+            Claude Code では用途に応じてモデルを切り替えます。
+            日常は <strong>Opus 4.8</strong>、最難問・長時間自律作業は <strong>Fable 5</strong> を検討してください。
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <Link href="/training/claude-code/models/opus-4-8">
+              <div className="h-full rounded-xl border border-violet-200 bg-violet-50/50 p-5 hover:shadow-md transition-shadow cursor-pointer">
+                <span className="bg-violet-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">主力</span>
+                <h4 className="font-bold text-gray-900 mt-2 mb-1">Claude Opus 4.8</h4>
+                <p className="text-xs font-mono text-gray-500 mb-2">claude-opus-4-8</p>
+                <p className="text-sm text-gray-700 leading-6">
+                  複雑なコーディング・エージェントのデイリードライバー。Effort 制御と Dynamic Workflows 対応。
+                </p>
+              </div>
+            </Link>
+            <Link href="/training/claude-code/models/fable">
+              <div className="h-full rounded-xl border border-fuchsia-200 bg-fuchsia-50/50 p-5 hover:shadow-md transition-shadow cursor-pointer">
+                <span className="bg-fuchsia-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">最上位</span>
+                <h4 className="font-bold text-gray-900 mt-2 mb-1">Claude Fable 5</h4>
+                <p className="text-xs font-mono text-gray-500 mb-2">claude-fable-5</p>
+                <p className="text-sm text-gray-700 leading-6">
+                  数日単位の自律作業向け。セーフガードにより一部は Opus 4.8 へフォールバック。
+                </p>
+              </div>
+            </Link>
+            <Link href="/training/claude-code/models">
+              <div className="h-full rounded-xl border border-gray-200 bg-gray-50 p-5 hover:shadow-md transition-shadow cursor-pointer">
+                <span className="bg-slate-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">一覧</span>
+                <h4 className="font-bold text-gray-900 mt-2 mb-1">モデル比較表</h4>
+                <p className="text-xs text-gray-500 mb-2">Opus / Fable / Sonnet / Haiku</p>
+                <p className="text-sm text-gray-700 leading-6">
+                  料金・コンテキスト・Effort 設定・選び方を一覧で確認できます。
+                </p>
+              </div>
+            </Link>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/training/claude-code/skills-vs-subagents"
+              className="text-sm font-medium text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-4 py-2 hover:bg-orange-100"
+            >
+              Skills vs SubAgents →
+            </Link>
+          </div>
+        </div>
+
         <div className="mb-10">
           <h3 className="text-2xl font-semibold text-gray-800 mb-4">
             📘 Claude Codeとは

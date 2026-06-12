@@ -10,23 +10,12 @@ export default function TrainingPage() {
           📘 勉強会資料
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          <Link href="/training/copilot-rag">
-            <div className="border border-violet-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer bg-violet-50/40 h-full">
-              <div className="text-3xl mb-3">🧩</div>
-              <h4 className="font-semibold text-gray-800 mb-2">Copilot RAG</h4>
-              <p className="text-sm text-gray-600">
-                GitHub / Azure / AWS で分けた Copilot から使う企業ナレッジRAGの構築方法を整理します。
-              </p>
-              <div className="mt-4 text-violet-700 text-sm font-medium">資料を見る →</div>
-            </div>
-          </Link>
-
           <Link href="/training/snowflake">
             <div className="border border-sky-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer bg-sky-50/40 h-full">
               <div className="text-3xl mb-3">❄️</div>
               <h4 className="font-semibold text-gray-800 mb-2">Snowflake / SPCS</h4>
               <p className="text-sm text-gray-600">
-                Snowpark Container Services の概要、特徴、ユースケースを解説します。
+                構成図・SPCS・RAG・Cortex AI・Snowflake × ArcGIS 連携などを解説します。
               </p>
               <div className="mt-4 text-sky-600 text-sm font-medium">資料を見る →</div>
             </div>
@@ -37,7 +26,7 @@ export default function TrainingPage() {
               <div className="text-3xl mb-3">🧰</div>
               <h4 className="font-semibold text-gray-800 mb-2">GitHub</h4>
               <p className="text-sm text-gray-600">
-                Copilot、Actions、Agentic Workflow など GitHub 関連の資料です。
+                Copilot、Actions、Agentic Workflow、Copilot RAG（GitHub / Azure / AWS）など GitHub 関連の資料です。
               </p>
               <div className="mt-4 text-indigo-600 text-sm font-medium">資料を見る →</div>
             </div>
@@ -70,20 +59,9 @@ export default function TrainingPage() {
               <div className="text-3xl mb-3">🗺️</div>
               <h4 className="font-semibold text-gray-800 mb-2">ArcGIS</h4>
               <p className="text-sm text-gray-600">
-                ArcGIS Online と Experience Builder の概要、用途、開発パターンを解説します。
+                ArcGIS Online・Enterprise・Pro の概要、Hosted Feature Layer、GIS データの取り込み手順を解説します。
               </p>
               <div className="mt-4 text-cyan-600 text-sm font-medium">資料を見る →</div>
-            </div>
-          </Link>
-
-          <Link href="/training/snowflake-arcgis">
-            <div className="border border-teal-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer bg-teal-50/40 h-full">
-              <div className="text-3xl mb-3">🔗</div>
-              <h4 className="font-semibold text-gray-800 mb-2">Snowflake × ArcGIS 連携</h4>
-              <p className="text-sm text-gray-600">
-                SnowflakeとArcGISを接続して、地理空間データを活用する開発パターンを解説します。
-              </p>
-              <div className="mt-4 text-teal-700 text-sm font-medium">資料を見る →</div>
             </div>
           </Link>
 

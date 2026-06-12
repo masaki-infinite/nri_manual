@@ -82,6 +82,27 @@ const topics: Topic[] = [
     summary: "中小企業庁を含む省庁の組織図と役割整理。",
     tags: ["government", "organization", "proposal"],
   },
+  {
+    title: "Claude Code モデル",
+    href: "/training/claude-code/models",
+    category: "AI / Dev",
+    summary: "Opus 4.8・Fable 5 など Claude Code で使うモデルの比較と選び方。",
+    tags: ["claude", "opus", "fable", "model"],
+  },
+  {
+    title: "Claude Opus 4.8",
+    href: "/training/claude-code/models/opus-4-8",
+    category: "AI / Dev",
+    summary: "Claude Code の主力モデル。Effort・Dynamic Workflows・料金。",
+    tags: ["claude", "opus", "claude code"],
+  },
+  {
+    title: "Claude Fable 5",
+    href: "/training/claude-code/models/fable",
+    category: "AI / Dev",
+    summary: "最上位モデル。長時間自律作業とセーフガードの仕組み。",
+    tags: ["claude", "fable", "mythos", "agent"],
+  },
 ];
 
 export default function TrainingCatalogPage() {

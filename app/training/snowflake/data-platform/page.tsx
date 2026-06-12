@@ -1,5 +1,4 @@
 import Link from "next/link";
-import SnowflakeSubNav from "../SnowflakeSubNav";
 
 export default function SnowflakeDataPlatformPage() {
   return (
@@ -11,7 +10,6 @@ export default function SnowflakeDataPlatformPage() {
       </div>
 
       <h2 className="text-3xl font-bold text-gray-800 mb-2">データ基盤としての Snowflake</h2>
-      <SnowflakeSubNav />
 
       <div className="space-y-8">
 
@@ -45,7 +43,7 @@ export default function SnowflakeDataPlatformPage() {
         </section>
 
         {/* 1. 進化の経緯 */}
-        <section>
+        <section id="phases" className="scroll-mt-28">
           <h3 className="text-2xl font-semibold text-gray-800 mb-4">1. Snowflake の進化：3 つのフェーズ</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
@@ -104,7 +102,7 @@ export default function SnowflakeDataPlatformPage() {
         </section>
 
         {/* 2. 機能レイヤー */}
-        <section>
+        <section id="layers" className="scroll-mt-28">
           <h3 className="text-2xl font-semibold text-gray-800 mb-4">2. 機能レイヤー構成</h3>
           <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
             <table className="min-w-full text-sm">
@@ -135,7 +133,7 @@ export default function SnowflakeDataPlatformPage() {
                   {
                     layer: "ガバナンス",
                     features: "RBAC・Dynamic Data Masking・行レベルセキュリティ・Query History",
-                    usecase: "都庁案件の監査要件対応・部署別権限設計",
+                    usecase: "厳格な監査要件対応・部署別権限設計",
                   },
                   {
                     layer: "連携",
@@ -155,7 +153,7 @@ export default function SnowflakeDataPlatformPage() {
         </section>
 
         {/* 3. 他基盤との比較 */}
-        <section>
+        <section id="compare" className="scroll-mt-28">
           <h3 className="text-2xl font-semibold text-gray-800 mb-4">3. 他基盤との位置づけ比較</h3>
           <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
             <table className="min-w-full text-sm">
@@ -172,7 +170,7 @@ export default function SnowflakeDataPlatformPage() {
                   ["AI 機能", "Cortex AI（LLM・Search・Agents）", "MLflow・Mosaic AI・DBRX", "Azure OpenAI 連携", "Gemini・Vertex AI 連携"],
                   ["コンテナ実行", "SPCS（Snowflake 内）", "Databricks Containers", "ACI / AKS 連携", "Cloud Run 連携"],
                   ["ガバナンス", "Snowflake 基盤で一元管理", "Unity Catalog", "Microsoft Purview", "BigQuery IAM"],
-                  ["NRI での採用理由", "都庁案件・監査・横展開", "ML 開発が主目的の案件", "M365 中心の案件", "GCP インフラの案件"],
+                  ["NRI での採用理由", "ガバナンス・監査・横展開", "ML 開発が主目的の案件", "M365 中心の案件", "GCP インフラの案件"],
                 ].map((row, i) => (
                   <tr key={i} className={`border-t border-gray-200 align-top ${i % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
                     {row.map((cell, j) => (
@@ -188,19 +186,19 @@ export default function SnowflakeDataPlatformPage() {
         </section>
 
         {/* 4. なぜ Snowflake が「データ基盤」なのか */}
-        <section>
+        <section id="why" className="scroll-mt-28">
           <h3 className="text-2xl font-semibold text-gray-800 mb-4">4. Snowflake を「データ基盤」として採用する理由</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               {
                 icon: "🔐",
                 title: "ガバナンスが崩れない",
-                body: "RBAC・監査ログ・Dynamic Data Masking がプラットフォーム標準として組み込まれており、アプリ側でセキュリティを再実装する必要がありません。都庁案件のような厳格な監査要件を Snowflake 基盤で担保できます。",
+                body: "RBAC・監査ログ・Dynamic Data Masking がプラットフォーム標準として組み込まれており、アプリ側でセキュリティを再実装する必要がありません。厳格な監査要件を Snowflake 基盤で担保できます。",
               },
               {
                 icon: "🤝",
                 title: "データを動かさずに共有できる",
-                body: "Data Sharing により、コピーを作らずにデータを別アカウント・別組織へ安全に公開できます。部局横断で同一データを参照する行政案件に特に有効です。",
+                body: "Data Sharing により、コピーを作らずにデータを別アカウント・別組織へ安全に公開できます。部門横断で同一データを参照する大規模組織案件に特に有効です。",
               },
               {
                 icon: "🧠",
@@ -233,16 +231,16 @@ export default function SnowflakeDataPlatformPage() {
         </section>
 
         {/* 5. NRI 案件での典型構成 */}
-        <section>
+        <section id="patterns" className="scroll-mt-28">
           <h3 className="text-2xl font-semibold text-gray-800 mb-4">5. NRI 案件での典型的な Snowflake 構成</h3>
           <div className="space-y-4">
             {[
               {
-                label: "東京都庁 地理情報 × AI 案件",
+                label: "地理情報 × AI 連携案件（例）",
                 color: "border-sky-200 bg-sky-50",
                 layers: [
-                  { role: "データ管理", desc: "GIS データ・仕様書 PDF を Snowflake に一元格納" },
-                  { role: "変換・モデリング", desc: "dbt で mart_arcgis_features を構築し ArcGIS に同期" },
+                  { role: "データ管理", desc: "仕様書 PDF・業務データを Snowflake に格納（GIS は Phase 1 は ArcGIS Pro）" },
+                  { role: "GIS（任意）", desc: "Phase 2 で dbt の GIS mart を追加し ArcGIS へ同期可能" },
                   { role: "RAG 検索", desc: "Cortex Search で仕様書を検索し根拠付き回答を生成" },
                   { role: "フロント", desc: "Next.js + ArcGIS Maps SDK で地図ビューを提供" },
                 ],
@@ -274,7 +272,7 @@ export default function SnowflakeDataPlatformPage() {
         </section>
 
         {/* まとめ */}
-        <section className="bg-slate-900 rounded-2xl p-6 md:p-8 text-white">
+        <section id="summary" className="scroll-mt-28 bg-slate-900 rounded-2xl p-6 md:p-8 text-white">
           <h3 className="text-2xl font-semibold mb-3">まとめ</h3>
           <p className="text-slate-200 leading-7 mb-4 max-w-4xl">
             Snowflake は「速い DWH」から「ガバナンス付き AI データ基盤」へと進化しています。

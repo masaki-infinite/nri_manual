@@ -1,5 +1,4 @@
 import Link from "next/link";
-import SnowflakeSubNav from "../snowflake/SnowflakeSubNav";
 
 type MethodRow = {
   method: string;
@@ -89,19 +88,22 @@ export default function SnowflakeArcGisTrainingPage() {
       </div>
 
       <h2 className="text-3xl font-bold text-gray-800 mb-2">Snowflake × ArcGIS 接続開発方法</h2>
-      <SnowflakeSubNav />
-      <p className="text-gray-700 leading-7 mb-8">
+      <p className="text-gray-700 leading-7 mb-4 max-w-4xl">
         SnowflakeとArcGISを接続する方法は1つではありません。更新頻度、運用体制、セキュリティ要件に応じて
         連携方式を選ぶことが重要です。本ページでは、実務で使いやすい方式と進め方を整理します。
+      </p>
+      <p className="text-sm text-sky-800 bg-sky-50 border border-sky-200 rounded-lg px-4 py-3 mb-8 max-w-4xl leading-6">
+        <span className="font-semibold">典型的な Phase 1 では GIS データは ArcGIS Pro で管理</span>し、Hosted Feature Layer として配信します。
+        Snowflake への GIS 格納は開発初期には不要なことが多いです。文書・業務データとの統合が必要になった段階で、本ページの連携方式を検討してください。
       </p>
 
       <div className="space-y-8">
         <section className="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-2xl p-6 md:p-8">
           <h3 className="text-2xl font-semibold text-slate-900 mb-3">設計の基本方針</h3>
           <ul className="space-y-2 text-slate-700 leading-7">
-            <li>・データ主系はSnowflakeに集約し、ArcGISは可視化/業務活用の出口として設計</li>
-            <li>・最初はシンプルな連携方式で立ち上げ、要件増加に応じて段階拡張</li>
-            <li>・更新頻度、監査、障害時復旧を最初に設計しておく</li>
+            <li>・Phase 1：GIS のマスタは ArcGIS Pro、配信は Hosted Feature Layer（Snowflake 不要）</li>
+            <li>・Phase 2 以降：必要に応じて Snowflake に GIS mart を置き、ArcGIS へ同期する拡張を検討</li>
+            <li>・連携を入れる場合は、更新頻度・監査・障害時復旧を最初に設計しておく</li>
           </ul>
         </section>
 
