@@ -98,7 +98,175 @@ export default function SnowflakeArcGisTrainingPage() {
       </p>
 
       <div className="space-y-8">
-        <section className="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-2xl p-6 md:p-8">
+        {/* ===== Snowflake の限界 ===== */}
+        <section id="snowflake-limits" className="scroll-mt-28 bg-gradient-to-br from-rose-50 to-orange-50 border border-rose-200 rounded-2xl p-6 md:p-8">
+          <div className="inline-flex items-center gap-2 bg-rose-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
+            <span>⚠️</span>
+            Snowflake だけでは限界がある領域
+          </div>
+          <h3 className="text-2xl font-semibold text-slate-900 mb-2">ArcGIS でしかできないこと</h3>
+          <p className="text-slate-600 text-sm leading-7 mb-5 max-w-3xl">
+            Snowflake は SQL・データ加工・AI/ML に優れますが、<strong>地図描画・GIS 専門作業・ノーコード可視化</strong>
+            の領域はネイティブに対応しておらず、ArcGIS が不可欠になります。
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            {[
+              {
+                icon: "🌐",
+                title: "WebGL ベース高品質地図描画",
+                snowflake: "地図描画エンジンを持たない。ST_ASGEOJSON で座標を取り出せるだけで、ブラウザに地図として描画する仕組みがない。",
+                arcgis: "ArcGIS Maps SDK for JavaScript が WebGL で 2D/3D マップをネイティブ描画。衛星画像・ハザードマップ・標高を重ね合わせ、ズーム/回転も即時。",
+              },
+              {
+                icon: "📐",
+                title: "GIS 専門ツール（ArcGIS Pro）",
+                snowflake: "SQL で空間演算はできるが、トポロジー検証・投影変換・ジオプロセシングパイプラインを GUI で組む手段がない。",
+                arcgis: "ArcGIS Pro でシェープファイル整備・投影変換・Network Analyst（最短ルート・サービス圏）・ラスタ解析を専門 GUI で実行できる。",
+              },
+              {
+                icon: "🛠️",
+                title: "ノーコード地図アプリ作成",
+                snowflake: "フロントエンドは別途自前実装が必要。ノーコードの地図アプリ作成ツールは存在しない。",
+                arcgis: "Experience Builder・StoryMaps・Dashboard でノーコードのインタラクティブ地図アプリを作成・公開できる。IT スキルなしで利用者に届けられる。",
+              },
+              {
+                icon: "🗂️",
+                title: "組織単位のコンテンツ共有（Portal）",
+                snowflake: "データは共有できても、地図レイヤー・スタイル・ポップアップ設定ごとパッケージして組織共有する仕組みがない。",
+                arcgis: "Portal for ArcGIS / ArcGIS Online で地図コンテンツをグループ・組織単位でアクセス制御し、共有・バージョン管理できる。",
+              },
+              {
+                icon: "📡",
+                title: "Hosted Feature Layer（REST 配信）",
+                snowflake: "テーブルをそのまま REST GeoJSON として外部に安全配信する仕組みがない（別途 API 実装が必要）。",
+                arcgis: "Feature Layer を Portal にホストするだけで REST エンドポイントが自動生成。クライアントは SDK 1行で参照でき、権限も Portal で制御。",
+              },
+              {
+                icon: "📱",
+                title: "オフライン編集（Field Maps）",
+                snowflake: "モバイルオフライン編集・現地調査フォームを提供しない。",
+                arcgis: "ArcGIS Field Maps でモバイルオフライン編集が可能。現地でデータを収集し、ネットワーク復帰時に Portal へ同期できる。",
+              },
+              {
+                icon: "🌍",
+                title: "Living Atlas（Esri 公式データ）",
+                snowflake: "行政境界・人口統計・衛星画像等を即座に重ねる仕組みがない。Marketplace からは別途購入が必要。",
+                arcgis: "Living Atlas of the World から世界の行政境界・人口・ハザード・衛星画像・気候データを即座に追加できる（ライセンス範囲内で無償）。",
+              },
+              {
+                icon: "🔄",
+                title: "リアルタイムストリーミング（Velocity）",
+                snowflake: "ストリームインジェストは可能だが、地図へのリアルタイム反映エンジンを持たない。",
+                arcgis: "ArcGIS Velocity でセンサー・IoT データをリアルタイムに取り込み、地図上でアニメーション・アラート表示できる。",
+              },
+            ].map((item) => (
+              <div key={item.title} className="bg-white border border-rose-200 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xl">{item.icon}</span>
+                  <h4 className="font-semibold text-slate-900">{item.title}</h4>
+                </div>
+                <div className="space-y-2 text-xs leading-5">
+                  <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                    <span className="font-semibold text-red-700">Snowflake の限界: </span>
+                    <span className="text-red-800">{item.snowflake}</span>
+                  </div>
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                    <span className="font-semibold text-emerald-700">ArcGIS でできること: </span>
+                    <span className="text-emerald-800">{item.arcgis}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ===== 連携メリット ===== */}
+        <section id="integration-benefits" className="scroll-mt-28 bg-gradient-to-br from-indigo-50 to-violet-50 border border-indigo-200 rounded-2xl p-6 md:p-8">
+          <div className="inline-flex items-center gap-2 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
+            <span>✨</span>
+            連携メリット
+          </div>
+          <h3 className="text-2xl font-semibold text-slate-900 mb-2">連携することで得られるメリット</h3>
+          <p className="text-slate-600 text-sm leading-7 mb-5 max-w-3xl">
+            Snowflake（データ基盤・AI）と ArcGIS（地図・GIS）はそれぞれ得意領域が異なります。
+            組み合わせることで「<strong>大規模データ処理 × リッチな地図表現</strong>」を同時に実現できます。
+          </p>
+
+          {/* 役割分担図 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6 text-sm text-center">
+            <div className="bg-sky-100 border border-sky-300 rounded-xl p-4">
+              <div className="text-2xl mb-1">❄️</div>
+              <div className="font-bold text-sky-900 mb-2">Snowflake が担う</div>
+              <ul className="text-sky-800 text-xs space-y-1 text-left list-disc pl-4">
+                <li>大量データの格納・SQL 集計</li>
+                <li>Cortex AI（RAG・予測・分類）</li>
+                <li>属性データの更新・管理</li>
+                <li>コスト効率の高いデータ基盤</li>
+              </ul>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col justify-center items-center">
+              <div className="text-3xl mb-2">🔗</div>
+              <div className="font-bold text-gray-700">API / バッチ / SPCS</div>
+              <div className="text-xs text-gray-500 mt-1">で連携</div>
+            </div>
+            <div className="bg-violet-100 border border-violet-300 rounded-xl p-4">
+              <div className="text-2xl mb-1">🗺️</div>
+              <div className="font-bold text-violet-900 mb-2">ArcGIS が担う</div>
+              <ul className="text-violet-800 text-xs space-y-1 text-left list-disc pl-4">
+                <li>2D/3D 地図描画（WebGL）</li>
+                <li>ノーコードアプリ公開</li>
+                <li>Living Atlas データ追加</li>
+                <li>Portal 組織共有・権限管理</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* メリット一覧 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            {[
+              {
+                icon: "🚀",
+                title: "AI 分析結果を地図に即反映",
+                body: "Snowflake Cortex でリスク予測・異常検知を行い、その結果を ArcGIS Feature Layer に同期。地図上で AI のアウトプットを直感的に確認できる。",
+              },
+              {
+                icon: "💾",
+                title: "既存 GIS 資産をそのまま活用",
+                body: "ArcGIS Pro で整備した GIS データ・Portal の権限設定・Dashboard をそのまま維持しつつ、Snowflake 側の属性データだけを追加できる。移行コストが低い。",
+              },
+              {
+                icon: "📊",
+                title: "業務データ × 地理の統合分析",
+                body: "ERPや業務システムのデータを Snowflake に集約し、住所・座標で地理結合。「売上の地域分布」「工場周辺のリスク」など地理軸の分析が可能になる。",
+              },
+              {
+                icon: "🔒",
+                title: "セキュリティの役割分離",
+                body: "Snowflake 側で行レベルセキュリティ・マスキングを行い、ArcGIS 側で Portal のグループ権限で地図アクセスを制御。二重のガバナンスが成立する。",
+              },
+              {
+                icon: "⚡",
+                title: "リアルタイム更新と地図の同期",
+                body: "Snowflake へのデータ更新を API 連携で ArcGIS Feature Layer に伝播させることで、地図が常に最新状態を反映。防災・交通管理に有効。",
+              },
+              {
+                icon: "📉",
+                title: "コスト最適化（役割に応じた選択）",
+                body: "大量の属性データは Snowflake の分離コンピューティングで格安管理し、表示用の軽量 GeoJSON のみ ArcGIS に渡す。ストレージと処理を最適配置できる。",
+              },
+            ].map((item) => (
+              <div key={item.title} className="bg-white border border-indigo-200 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xl">{item.icon}</span>
+                  <h4 className="font-semibold text-indigo-900">{item.title}</h4>
+                </div>
+                <p className="text-gray-700 leading-6 text-xs">{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="design-policy" className="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-2xl p-6 md:p-8">
           <h3 className="text-2xl font-semibold text-slate-900 mb-3">設計の基本方針</h3>
           <ul className="space-y-2 text-slate-700 leading-7">
             <li>・Phase 1：GIS のマスタは ArcGIS Pro、配信は Hosted Feature Layer（Snowflake 不要）</li>

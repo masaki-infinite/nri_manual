@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, Fragment } from "react";
 import Image from "next/image";
@@ -2321,7 +2321,7 @@ const QA_ITEMS: QAItem[] = [
         },
         {
           heading: "移行が比較的容易な部分",
-          body: "① データストレージは標準 SQL（Snowflake SQL は PostgreSQL 互換が高い）。\n② ドキュメント・チャット履歴は構造化テーブルに保存するため、CSV / Parquet でエクスポートしてどこへでも移行可能。\n③ フロントエンド（Next.js）は Snowflake に依存しない。API レイヤーのエンドポイント URL を変更するだけで他 LLM バックエンドに切り替え可能。\n④ IaC（Terraform / Snowflake CLI）でインフラをコード管理すれば、構成の再現性・引継ぎが容易。",
+          body: "① データストレージは標準 SQL（Snowflake SQL は PostgreSQL 互換が高い）。\n② ドキュメント・チャット履歴は構造化テーブルに保存するため、CSV / Parquet でエクスポートしてどこへでも移行可能。\n③ フロントエンド（Next.js）は Snowflake に依存しない。API レイヤーのエンドポイント URL を変更するだけで他 LLM バックエンドに切り替え可能。\n④ IaC（Terraform / Snowflake CLI）でインフラをコード管理すれば、構成の再現性・引継ぎが容易。\n⑤ Next.js アプリ本体は標準的な Docker コンテナのため、SPCS から他のコンテナ基盤（AKS・ECS・Cloud Run 等）へのコンテナ移植自体は容易（ただし Cortex AI / Cortex Search 等の Snowflake 固有 API 呼び出し部分は別途書き換えが必要）。",
           type: "ok",
         },
         {
@@ -3110,11 +3110,11 @@ function buildSlides(): Slide[] {
 
             {/* 中央: 地図ビュー */}
             <div className="flex-1 relative rounded-2xl overflow-hidden border border-slate-300 shadow-sm bg-slate-200 min-w-0">
-              <Image src="/images/tokyo_heatmap.png" alt="ArcGIS 地図ビュー" fill className="object-cover" style={{ objectPosition: "center" }} sizes="640px" />
+              <Image src="/images/tokyo_heatmap.png" alt="GIS 地図ビュー" fill className="object-cover" style={{ objectPosition: "center" }} sizes="640px" />
               <div className="absolute inset-0 bg-slate-900/0" />
               {/* タイトル */}
               <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow">
-                <div className="text-[14px] font-bold text-emerald-800 flex items-center gap-1">🛰️ ArcGIS 地図ビュー</div>
+                <div className="text-[14px] font-bold text-emerald-800 flex items-center gap-1">🛰️ GIS 地図ビュー</div>
                 <div className="text-[10px] text-slate-600 leading-snug mt-0.5">震度分布・浸水深・建物倒壊リスクを重ね合わせ<br />複数レイヤーでリアルタイム評価</div>
               </div>
               {/* 2D/3D */}
@@ -3180,8 +3180,270 @@ function buildSlides(): Slide[] {
       ),
       script: [
         "機能③は被害予想シミュレーションで、地図連動・GISが核となる機能です。2年目以降の開発です。",
-        "災害種別・規模・時刻・表示レイヤーを設定して実行すると、ArcGIS の地図上に、震度分布・浸水域・建物倒壊リスク・避難所位置を重ねてリアルタイムに可視化します。",
+        "災害種別・規模・時刻・表示レイヤーを設定して実行すると、地図上に、震度分布・浸水域・建物倒壊リスク・避難所位置を重ねてリアルタイムに可視化します。",
         "選択地点の主要リスク指標と、おすすめアクションを併せて表示し、被害規模の直感的な把握と、迅速な意思決定を支援します。",
+      ],
+    },
+    {
+      label: "機能③ 実装",
+      node: (
+        <div className="h-full bg-slate-50 flex flex-col">
+          <div className="relative overflow-hidden bg-gradient-to-r from-emerald-700 via-emerald-700 to-teal-800 text-white px-9 py-5 flex items-center justify-between">
+            <div className="absolute -right-10 -top-16 w-72 h-72 rounded-full bg-white/5" />
+            <div className="absolute right-28 -bottom-20 w-56 h-56 rounded-full bg-white/5" />
+            <div className="flex items-stretch gap-4 relative z-10">
+              <div className="w-1.5 rounded-full bg-white/60" />
+              <div>
+                <div className="text-[13px] text-emerald-200 font-semibold uppercase tracking-[0.3em]">Feature 03 — Implementation</div>
+                <h2 className="text-[27px] font-bold leading-tight mt-0.5">被害予想シミュレーションの実際の実装</h2>
+                <div className="text-[13px] text-emerald-50/90 mt-1">MapLibre GL JS ＋ deck.gl ＋ Snowflake で構築した動作する PoC（地震・津波・火災）</div>
+              </div>
+            </div>
+            <span className="relative z-10 bg-white/15 border border-white/40 text-white text-[13px] font-bold px-4 py-2 rounded-full whitespace-nowrap flex-shrink-0">tocho-geospatial-platform / web</span>
+          </div>
+
+          <div className="flex-1 px-7 py-4 flex gap-4 min-h-0">
+            {/* 左: 技術スタック */}
+            <div className="w-[300px] flex-shrink-0 flex flex-col gap-2.5 min-h-0">
+              <div className="text-[14px] font-bold text-emerald-800 flex items-center gap-1.5">🧱 技術スタック</div>
+              {[
+                { icon: "⚛️", label: "フロントエンド", val: "Next.js 16（App Router）/ React 19 / TypeScript" },
+                { icon: "🗺️", label: "ベースマップ", val: "MapLibre GL JS v5 — CARTO Dark Matter スタイル（OSM ラスターにフォールバック）" },
+                { icon: "📊", label: "データ可視化", val: "deck.gl v9 — MapboxOverlay で MapLibre 上にレイヤーを重畳" },
+                { icon: "🧊", label: "空間集計", val: "H3（h3-js）/ CARTO Native App 連携も検討余地あり" },
+                { icon: "❄️", label: "データ基盤", val: "Snowflake（GEOGRAPHY 型 / ST_ASGEOJSON・ST_CENTROID・HAVERSINE）REST SQL API v2・社内プロキシ対応" },
+              ].map((f) => (
+                <div key={f.label} className="bg-white border border-slate-200 rounded-xl px-3 py-2 flex gap-2.5 items-start shadow-sm">
+                  <span className="text-[18px] flex-shrink-0">{f.icon}</span>
+                  <div className="min-w-0">
+                    <div className="text-[12.5px] font-bold text-slate-700">{f.label}</div>
+                    <div className="text-[11px] text-slate-500 leading-snug mt-0.5">{f.val}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 中央: データフロー */}
+            <div className="flex-1 flex flex-col gap-2.5 min-w-0">
+              <div className="text-[14px] font-bold text-emerald-800 flex items-center gap-1.5">🔄 データフロー（地震シミュレーションの例）</div>
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 flex-1 flex flex-col justify-between">
+                {[
+                  { step: "1", t: "UI 操作", d: "断層プリセット選択・地図クリックで震源 / マグニチュード / 震源深さを設定", c: "bg-emerald-500" },
+                  { step: "2", t: "リアクティブ計算（useMemo）", d: "震度ゾーン・建物被害（全壊/半壊/一部損壊）・人的被害・施設稼働状況を推計", c: "bg-emerald-500" },
+                  { step: "3", t: "Snowflake クエリ", d: "ST_ASGEOJSON で浸水ゾーン GeoJSON、HAVERSINE で半径内の施設 POI を取得", c: "bg-sky-500" },
+                  { step: "4", t: "deck.gl レイヤー更新", d: "PolygonLayer / ScatterplotLayer / GeoJsonLayer / HeatmapLayer を再構成", c: "bg-violet-500" },
+                  { step: "5", t: "MapLibre 描画", d: "MapboxOverlay で重畳描画＋影響圏内施設は HTML マーカー（Lucide アイコン）", c: "bg-rose-500" },
+                ].map((s, i, arr) => (
+                  <div key={s.step}>
+                    <div className="flex gap-3 items-start">
+                      <span className={`w-6 h-6 rounded-full ${s.c} text-white text-[12px] font-bold flex items-center justify-center flex-shrink-0`}>{s.step}</span>
+                      <div className="min-w-0">
+                        <div className="text-[13px] font-bold text-slate-800">{s.t}</div>
+                        <div className="text-[11.5px] text-slate-500 leading-snug">{s.d}</div>
+                      </div>
+                    </div>
+                    {i < arr.length - 1 && <div className="ml-3 my-1 w-px h-3 bg-slate-300" />}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 右: 実装済みシミュレータ + レイヤー */}
+            <div className="w-[230px] flex-shrink-0 flex flex-col gap-3 min-h-0">
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-3.5">
+                <div className="text-[12.5px] font-bold text-slate-700 mb-2.5">実装済みシミュレータ</div>
+                <div className="space-y-2">
+                  {[
+                    { icon: "🌐", l: "地震被害", c: "text-rose-600", sub: "震度ゾーン・液状化・人的被害" },
+                    { icon: "🌊", l: "津波浸水", c: "text-sky-600", sub: "波前線・浸水深時系列" },
+                    { icon: "🔥", l: "火災延焼", c: "text-orange-600", sub: "風向風速・延焼面積アニメ" },
+                  ].map((s) => (
+                    <div key={s.l} className="flex items-start gap-2">
+                      <span className="text-[16px] flex-shrink-0">{s.icon}</span>
+                      <div className="min-w-0">
+                        <div className={`text-[12.5px] font-bold ${s.c}`}>{s.l}</div>
+                        <div className="text-[10.5px] text-slate-500 leading-snug">{s.sub}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl shadow-sm p-3.5 flex-1">
+                <div className="text-[12.5px] font-bold text-emerald-800 mb-2">使用 deck.gl レイヤー</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {["PolygonLayer", "ScatterplotLayer", "GeoJsonLayer", "HeatmapLayer", "ArcLayer"].map((l) => (
+                    <span key={l} className="bg-white border border-emerald-200 text-emerald-700 text-[10.5px] font-bold px-2 py-1 rounded-full">{l}</span>
+                  ))}
+                </div>
+                <div className="text-[10.5px] text-slate-500 leading-snug mt-2.5">※ 現状はモック係数による PoC。仕様の ArcGIS は概念図であり、実装は OSS スタックで再現。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+      script: [
+        "こちらが、被害予想シミュレーションの実際の実装です。仕様書の概念図では ArcGIS を想定していましたが、PoC は OSS 中心の構成で実装し、すでに地震・津波・火災の3つのシミュレータが動作しています。",
+        "ベースマップは MapLibre GL JS、その上に deck.gl のレイヤーを MapboxOverlay で重ねています。データはすべて Snowflake の GEOGRAPHY 型から、ST_ASGEOJSON や HAVERSINE といった空間関数で取得しています。",
+        "フローとしては、UI 操作から React の useMemo で被害量を推計し、deck.gl のレイヤーを再構成して MapLibre 上に描画します。フロントエンドは Next.js 16 と React 19 です。",
+      ],
+    },
+    {
+      label: "機能③ 比較",
+      node: (
+        <div className="h-full bg-slate-50 flex flex-col">
+          <div className="bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-800 text-white px-9 py-5 flex items-center justify-between">
+            <div className="flex items-stretch gap-4">
+              <div className="w-1.5 rounded-full bg-white/60" />
+              <div>
+                <div className="text-[13px] text-emerald-200 font-semibold uppercase tracking-[0.3em]">Feature 03 — Library Comparison</div>
+                <h2 className="text-[27px] font-bold leading-tight mt-0.5">被害予想シミュレーションで使う地図ライブラリ比較</h2>
+                <div className="text-[13px] text-emerald-50/90 mt-1">採用: MapLibre GL JS ＋ deck.gl（PoC 実装の推奨構成）</div>
+              </div>
+            </div>
+            <span className="bg-white/15 border border-white/40 text-white text-[13px] font-bold px-4 py-2 rounded-full whitespace-nowrap">比較観点: 役割 / 強み / 適性</span>
+          </div>
+
+          <div className="flex-1 px-7 py-3 flex flex-col gap-3">
+            <div className="grid grid-cols-3 gap-2.5">
+              {[
+                {
+                  name: "MapLibre GL JS",
+                  role: "ベースマップ",
+                  price: "無料（OSS / BSD）",
+                  priceNote: "ライセンス費ゼロ。地図タイル配信費のみ",
+                  points: ["完全 OSS・ライセンス費なし", "高速なベクター描画", "スタイル自由度が高い"],
+                  badge: "採用",
+                  tone: "emerald",
+                },
+                {
+                  name: "deck.gl",
+                  role: "データ可視化",
+                  price: "無料（OSS / MIT）",
+                  priceNote: "ライセンス費ゼロ",
+                  points: ["100万点級も WebGL で描画", "H3/Heatmap 等レイヤー豊富", "フレームワーク非依存"],
+                  badge: "採用",
+                  tone: "emerald",
+                },
+                {
+                  name: "MapLibre + deck.gl",
+                  role: "推奨構成",
+                  price: "無料（OSS 組合せ）",
+                  priceNote: "タイル配信費のみで本番運用可",
+                  points: ["ベースマップ＋可視化を統合", "MapboxOverlay で簡単連携", "本番実装の推奨パターン"],
+                  badge: "本採用",
+                  tone: "teal",
+                },
+                {
+                  name: "Google Maps JS API",
+                  role: "エンタープライズ",
+                  price: "従量課金",
+                  priceNote: "Dynamic Maps 約 $7/1,000 ロード。表示数に応じて增加",
+                  points: ["普及した UI/UX・高信頼", "StreetView・Places 連携", "API キー有料・持出制約"],
+                  badge: "比較",
+                  tone: "sky",
+                },
+                {
+                  name: "CARTO (deck.gl)",
+                  role: "空間分析",
+                  price: "年額サブスク",
+                  priceNote: "Enterprise 契約。年額数万ドル〜（要見積）",
+                  points: ["Snowflake Native App 対応", "H3/S2 空間インデックス", "CARTO アカウントが必要"],
+                  badge: "比較",
+                  tone: "amber",
+                },
+                {
+                  name: "ArcGIS Maps SDK",
+                  role: "商用 GIS（仕様想定）",
+                  price: "高額（ライセンス＋サーバー）",
+                  priceNote: "Pro: Creator 約$700～1,000 / Professional 約$2,500～3,500（年）。Enterprise Standard 100～300万円 / Advanced 300～800万円（要見積）",
+                  points: ["2D/3D・業務 GIS 機能が充実", "庁内 ArcGIS Enterprise と整合", "ライセンス費用が高く PoC では不採用"],
+                  badge: "不採用",
+                  tone: "rose",
+                },
+              ].map((lib) => {
+                const toneMap = {
+                  emerald: {
+                    card: "bg-emerald-50 border-emerald-200",
+                    head: "text-emerald-800",
+                    chip: "bg-emerald-600 text-white",
+                    fit: "text-emerald-700",
+                  },
+                  teal: {
+                    card: "bg-teal-50 border-teal-300 ring-2 ring-teal-300",
+                    head: "text-teal-800",
+                    chip: "bg-teal-600 text-white",
+                    fit: "text-teal-700",
+                  },
+                  sky: {
+                    card: "bg-sky-50 border-sky-200",
+                    head: "text-sky-800",
+                    chip: "bg-sky-600 text-white",
+                    fit: "text-sky-700",
+                  },
+                  amber: {
+                    card: "bg-amber-50 border-amber-200",
+                    head: "text-amber-800",
+                    chip: "bg-amber-600 text-white",
+                    fit: "text-amber-700",
+                  },
+                  violet: {
+                    card: "bg-violet-50 border-violet-200",
+                    head: "text-violet-800",
+                    chip: "bg-violet-600 text-white",
+                    fit: "text-violet-700",
+                  },
+                  rose: {
+                    card: "bg-rose-50 border-rose-200",
+                    head: "text-rose-800",
+                    chip: "bg-rose-600 text-white",
+                    fit: "text-rose-700",
+                  },
+                } as const;
+                const t = toneMap[lib.tone as keyof typeof toneMap];
+                return (
+                  <div key={lib.name} className={`border rounded-2xl px-3 py-2.5 flex flex-col min-h-[150px] ${t.card}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className={`text-[13px] font-bold leading-tight ${t.head}`}>{lib.name}</div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${t.chip}`}>{lib.badge}</span>
+                    </div>
+                    <div className="mt-1.5 text-[11.5px] text-slate-600">役割: <span className={`font-bold ${t.fit}`}>{lib.role}</span></div>
+                    <div className="mt-1.5 bg-white/70 border border-slate-200 rounded-lg px-2 py-1">
+                      <div className="text-[10px] text-slate-500 leading-none">💰 価格</div>
+                      <div className={`text-[12px] font-bold leading-tight mt-0.5 ${t.fit}`}>{lib.price}</div>
+                      <div className="text-[9.5px] text-slate-500 leading-snug mt-0.5">{lib.priceNote}</div>
+                    </div>
+                    <ul className="mt-1.5 space-y-1 text-[11px] text-slate-700 leading-snug">
+                      {lib.points.map((p) => (
+                        <li key={p} className="flex gap-1.5"><span className="font-bold text-slate-400">•</span><span>{p}</span></li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-stretch">
+              <div className="bg-white border border-emerald-200 rounded-xl p-3.5">
+                <div className="text-[12.5px] font-bold text-emerald-800 mb-1">tocho-geospatial-platform の判断</div>
+                <div className="text-[12px] text-slate-700 leading-relaxed">
+                  被害予想シミュレーションは、OSS でライセンス費を抑えつつ大規模データ可視化に強い <b>MapLibre GL JS ＋ deck.gl</b> を採用。Snowflake の GEOGRAPHY データを直接可視化できる構成を本番推奨パターンとした。
+                </div>
+              </div>
+              <div className="flex items-center justify-center text-slate-400 text-xl font-bold">→</div>
+              <div className="bg-white border border-slate-200 rounded-xl p-3.5">
+                <div className="text-[12.5px] font-bold text-slate-800 mb-1">ArcGIS を不採用とした理由</div>
+                <div className="text-[12px] text-slate-700 leading-relaxed">
+                  ArcGIS Maps SDK は業務 GIS 機能が充実し仕様想定も ArcGIS だが、<b>ライセンス費用が高く</b> PoC では不採用。Snowflake 連携の空間分析は CARTO、Google 連携が必要なら Google Maps を将来検討。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+      script: [
+        "機能③の補足として、被害予想シミュレーションで実際に利用する地図ライブラリを比較しています。仕様書では ArcGIS を想定していましたが、PoC では OSS スタックで実装しました。",
+        "ベースマップ描画の MapLibre GL JS と、大規模データ可視化に強い deck.gl を組み合わせた『MapLibre ＋ deck.gl』を本採用としています。MapboxOverlay で両者を簡単に統合でき、本番実装の推奨パターンです。",
+        "仕様書が想定していた ArcGIS Maps SDK は業務 GIS 機能が充実していますが、ライセンス費用が高く、PoC では不採用としました。CARTO や Google Maps も比較対象とし、要件と運用体制に応じて使い分ける前提です。",
       ],
     },
     {
@@ -3586,7 +3848,7 @@ function buildSlides(): Slide[] {
                 {[
                   { no: "01", icon: "🔒", title: "独自 SQL 関数", body: "SNOWFLAKE.CORTEX.COMPLETE / SEARCH は Snowflake 専用構文。他 DB にそのまま移植不可。" },
                   { no: "02", icon: "📦", title: "ベクトルインデックス非可搬", body: "Cortex Search のインデックスは Snowflake 内に閉じており、標準フォーマットでのエクスポートは不可。" },
-                  { no: "03", icon: "🧩", title: "SPCS は Snowflake 基盤前提", body: "コンテナ実行環境が Snowflake に依存。Kubernetes への移行には再設計が必要。" },
+                  { no: "03", icon: "🧩", title: "SPCS は Snowflake 基盤前提", body: "コンテナ実行環境が Snowflake に依存。Kubernetes への移行には再設計が必要。ただし Next.js コンテナ自体は AKS・ECS・Cloud Run 等への移植が容易。" },
                   { no: "04", icon: "💰", title: "コスト予測の難しさ", body: "LLM トークン消費量はクエリ内容次第で変動し、Snowflake クレジット超過のリスクがある。" },
                 ].map((r) => (
                   <div key={r.no} className="bg-white border border-rose-100 rounded-xl p-2.5 flex gap-3 items-start flex-1 shadow-sm">
@@ -3622,10 +3884,18 @@ function buildSlides(): Slide[] {
                       ["Vertex AI Vector Search", "大規模ベクトル専用。移行コスト中"],
                     ],
                   },
+                  {
+                    name: "Azure", badge: "bg-sky-500", border: "border-sky-200",
+                    items: [
+                      ["Azure AI Search", "エンタープライズ向けマネージド RAG・ベクトル検索。移行コスト低〜中"],
+                      ["Azure Database for PostgreSQL + pgvector", "PostgreSQL 互換。SQL 移行性が高い"],
+                      ["Azure OpenAI Service", "LLM 呼出し先の移行先として最適。抽象化レイヤー経由で切替容易"],
+                    ],
+                  },
                 ].map((p) => (
                   <div key={p.name} className={`bg-white border ${p.border} rounded-xl p-3 flex-1 shadow-sm`}>
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className={`${p.badge} text-white text-[11px] font-bold rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0`}>{p.name === "AWS" ? "aws" : "GCP"}</span>
+                      <span className={`${p.badge} text-white text-[11px] font-bold rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0`}>{p.name === "AWS" ? "aws" : p.name === "GCP" ? "GCP" : "Azure"}</span>
                       <span className="text-[17px] font-bold text-slate-800">{p.name}</span>
                     </div>
                     <div className="space-y-1 text-[12px] text-slate-600">
@@ -3697,54 +3967,58 @@ function buildSlides(): Slide[] {
         "令和8年10月末に納品し、令和9年1月の図上訓練で実証、その後3年間で段階的に拡充していきます。本日のご説明は以上です。",
       ],
     },
+    // ── アーキテクチャ詳細スライドを末尾に連結 ──
+    ...buildArchSlides(),
   ];
 }
 
 function SlideViewer({ slides, idx, setIdx }: { slides: Slide[]; idx: number; setIdx: (i: number) => void }) {
   return (
-    <SlideCanvas
-      overlay={
-          <>
+    <div>
+      <SlideCanvas
+        overlay={
+            <>
+              <button
+                onClick={() => setIdx(Math.max(0, idx - 1))}
+                disabled={idx === 0}
+                aria-label="前のスライド"
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/35 text-white text-xl flex items-center justify-center backdrop-blur-sm hover:bg-black/55 disabled:opacity-0 disabled:cursor-default transition-all"
+              >
+                ‹
+              </button>
+              <button
+                onClick={() => setIdx(Math.min(slides.length - 1, idx + 1))}
+                disabled={idx === slides.length - 1}
+                aria-label="次のスライド"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/35 text-white text-xl flex items-center justify-center backdrop-blur-sm hover:bg-black/55 disabled:opacity-0 disabled:cursor-default transition-all"
+              >
+                ›
+              </button>
+            </>
+          }
+        >
+        {slides[idx].node}
+      </SlideCanvas>
+      {/* ページネーション: canvas外に配置して重なりを防ぐ */}
+      <div className="flex items-center justify-center gap-3 bg-slate-800 rounded-b-xl px-3 py-2">
+        <div className="flex gap-1.5 items-center">
+          {slides.map((s, i) => (
             <button
-              onClick={() => setIdx(Math.max(0, idx - 1))}
-              disabled={idx === 0}
-              aria-label="前のスライド"
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/35 text-white text-xl flex items-center justify-center backdrop-blur-sm hover:bg-black/55 disabled:opacity-0 disabled:cursor-default transition-all"
-            >
-              ‹
-            </button>
-            <button
-              onClick={() => setIdx(Math.min(slides.length - 1, idx + 1))}
-              disabled={idx === slides.length - 1}
-              aria-label="次のスライド"
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/35 text-white text-xl flex items-center justify-center backdrop-blur-sm hover:bg-black/55 disabled:opacity-0 disabled:cursor-default transition-all"
-            >
-              ›
-            </button>
-
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-black/40 text-white backdrop-blur-sm rounded-full pl-3 pr-3.5 py-1.5">
-              <div className="flex gap-1.5 items-center">
-                {slides.map((s, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setIdx(i)}
-                    title={s.label}
-                    aria-label={s.label}
-                    className={`rounded-full transition-all duration-150 ${
-                      i === idx ? "bg-white w-5 h-2" : "bg-white/45 w-2 h-2 hover:bg-white/70"
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-[11px] font-medium tabular-nums border-l border-white/30 pl-2.5">
-                {idx + 1} / {slides.length}
-              </span>
-            </div>
-          </>
-        }
-      >
-      {slides[idx].node}
-    </SlideCanvas>
+              key={i}
+              onClick={() => setIdx(i)}
+              title={s.label}
+              aria-label={s.label}
+              className={`rounded-full transition-all duration-150 ${
+                i === idx ? "bg-white w-5 h-2" : "bg-white/45 w-2 h-2 hover:bg-white/70"
+              }`}
+            />
+          ))}
+        </div>
+        <span className="text-[11px] font-medium tabular-nums text-white border-l border-white/30 pl-2.5">
+          {idx + 1} / {slides.length}
+        </span>
+      </div>
+    </div>
   );
 }
 

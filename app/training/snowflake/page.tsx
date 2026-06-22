@@ -24,6 +24,15 @@ const subPages: SubPage[] = [
     badgeColor: "bg-sky-600",
   },
   {
+    title: "Snowflake で地理空間データを見る方法",
+    href: "/training/snowflake/geospatial",
+    description:
+      "GEOGRAPHY/GEOMETRY、H3、ジオコーディング、予測、センチメント、最近傍分析、インタラクティブマップまでを実践観点で整理。",
+    tags: ["geospatial", "geography", "geometry", "h3", "carto", "地図", "可視化"],
+    badge: "NEW",
+    badgeColor: "bg-cyan-600",
+  },
+  {
     title: "SPCS の基本",
     href: "/training/snowflake#spcs",
     description:
@@ -123,6 +132,213 @@ export default function SnowflakeTrainingPage() {
             className="inline-flex items-center gap-1 text-sm font-semibold text-teal-700 hover:text-teal-900 shrink-0"
           >
             Snowflake Adaptor へ →
+          </Link>
+        </div>
+      </section>
+
+      {/* ---- SNOWFLAKE x GIS summary ---- */}
+      <section className="mb-8 bg-gradient-to-br from-cyan-50 to-sky-50 border border-cyan-200 rounded-2xl p-6 md:p-8">
+        <div className="inline-flex items-center gap-2 bg-cyan-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
+          <span>🗺️</span>
+          SNOWFLAKE × GIS
+        </div>
+        <h3 className="text-2xl font-semibold text-slate-900 mb-3">Snowflake で地理情報を扱う</h3>
+        <p className="text-sm text-slate-700 leading-7 max-w-5xl mb-5">
+          GEOGRAPHY / GEOMETRY 型から H3 インデックス、空間結合、ArcGIS 連携までを都庁案件の実装パターンで整理します。
+          業務データと地図レイヤーを同じプラットフォームで扱えるため、dbt で整備したマートを Next.js と ArcGIS の両方から再利用しやすい構成です。
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-5 text-sm">
+          <div className="bg-white border border-cyan-200 rounded-xl p-4">
+            <div className="font-semibold text-cyan-800 mb-1">🗺️ GEOGRAPHY 型</div>
+            <p className="text-gray-700 leading-6">WGS84 球面座標系。GeoJSON / WKT の入出力に向く。</p>
+          </div>
+          <div className="bg-white border border-cyan-200 rounded-xl p-4">
+            <div className="font-semibold text-cyan-800 mb-1">📐 GEOMETRY 型</div>
+            <p className="text-gray-700 leading-6">平面座標系。投影座標系（SRID）を明示して扱う。</p>
+          </div>
+          <div className="bg-white border border-cyan-200 rounded-xl p-4">
+            <div className="font-semibold text-cyan-800 mb-1">🔷 H3 インデックス</div>
+            <p className="text-gray-700 leading-6">六角形グリッドで空間集計・結合を高速化。</p>
+          </div>
+          <div className="bg-white border border-cyan-200 rounded-xl p-4">
+            <div className="font-semibold text-cyan-800 mb-1">🔗 ArcGIS 連携</div>
+            <p className="text-gray-700 leading-6">dbt → Snowflake → Feature Layer → Next.js で利用。</p>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto rounded-xl border border-cyan-200 bg-white mb-5">
+          <table className="min-w-full text-sm">
+            <thead className="bg-cyan-100">
+              <tr>
+                <th className="text-left px-4 py-2 font-semibold text-cyan-900">型</th>
+                <th className="text-left px-4 py-2 font-semibold text-cyan-900">座標系</th>
+                <th className="text-left px-4 py-2 font-semibold text-cyan-900">主な用途</th>
+                <th className="text-left px-4 py-2 font-semibold text-cyan-900">入出力形式</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-t border-cyan-100">
+                <td className="px-4 py-2 font-semibold text-slate-900">GEOGRAPHY</td>
+                <td className="px-4 py-2 text-slate-700">WGS84（球面）</td>
+                <td className="px-4 py-2 text-slate-700">GPS 座標・GeoJSON・OpenStreetMap</td>
+                <td className="px-4 py-2 text-slate-700">GeoJSON / WKT / EWKT</td>
+              </tr>
+              <tr className="border-t border-cyan-100">
+                <td className="px-4 py-2 font-semibold text-slate-900">GEOMETRY</td>
+                <td className="px-4 py-2 text-slate-700">平面（SRID 指定）</td>
+                <td className="px-4 py-2 text-slate-700">CAD データ・建物ポリゴン・測量座標</td>
+                <td className="px-4 py-2 text-slate-700">WKT / EWKT / WKB</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 text-sm mb-5">
+          <div className="bg-white border border-cyan-200 rounded-xl p-4">
+            <div className="font-semibold text-cyan-900 mb-2">よく使う空間関数</div>
+            <ul className="space-y-1.5 text-gray-700">
+              <li>・ST_DISTANCE: 2 点間の距離</li>
+              <li>・ST_WITHIN: 点がポリゴン内にあるか</li>
+              <li>・ST_INTERSECTS: ジオメトリ同士の交差判定</li>
+              <li>・ST_AREA / ST_CENTROID / ST_BUFFER</li>
+              <li>・ST_ASGEOJSON: ArcGIS 連携向けの出力</li>
+            </ul>
+          </div>
+          <div className="bg-white border border-cyan-200 rounded-xl p-4">
+            <div className="font-semibold text-cyan-900 mb-2">実装時の要点</div>
+            <ul className="space-y-1.5 text-gray-700">
+              <li>・取り込み時に GEOGRAPHY（WGS84）へ統一</li>
+              <li>・ST_ISVALID と dbt test で無効データを除外</li>
+              <li>・大規模結合は H3 列を前計算して高速化</li>
+              <li>・ArcGIS 同期は updated_at ベースの増分更新</li>
+              <li>・高精度ポリゴンは ST_SIMPLIFY で軽量化</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/training/snowflake/geospatial"
+            className="inline-flex items-center gap-1.5 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+          >
+            地理空間データ活用の詳細へ →
+          </Link>
+          <Link
+            href="/training/snowflake-arcgis"
+            className="inline-flex items-center gap-1.5 bg-white border border-cyan-300 text-cyan-800 hover:bg-cyan-50 text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+          >
+            Snowflake × ArcGIS 連携へ →
+          </Link>
+        </div>
+      </section>
+
+      {/* ---- SNOWFLAKE CORTEX RAG summary ---- */}
+      <section className="mb-8 bg-gradient-to-br from-indigo-50 to-violet-50 border border-indigo-200 rounded-2xl p-6 md:p-8">
+        <div className="inline-flex items-center gap-2 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
+          <span>🔍</span>
+          SNOWFLAKE CORTEX RAG
+        </div>
+        <h3 className="text-2xl font-semibold text-slate-900 mb-3">Snowflake Cortex で RAG を構築する</h3>
+        <p className="text-sm text-slate-700 leading-7 max-w-5xl mb-5">
+          防災計画書・訓練マニュアル・過去訓練資料を根拠付きで回答する構成です。
+          PoC は Cortex Search + Cortex COMPLETE のマネージド機能で立ち上げ、
+          将来は API 契約を維持したまま SPCS 側の自前モデルへ段階移行できる設計にします。
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-5 text-sm">
+          <div className="bg-white border border-indigo-200 rounded-xl p-4">
+            <div className="font-semibold text-indigo-800 mb-1">🔍 Cortex Search</div>
+            <p className="text-gray-700 leading-6">ベクトル + キーワードのハイブリッド検索。</p>
+          </div>
+          <div className="bg-white border border-indigo-200 rounded-xl p-4">
+            <div className="font-semibold text-indigo-800 mb-1">🤖 Cortex COMPLETE</div>
+            <p className="text-gray-700 leading-6">LLM で根拠付き回答を生成。</p>
+          </div>
+          <div className="bg-white border border-indigo-200 rounded-xl p-4">
+            <div className="font-semibold text-indigo-800 mb-1">📄 文書チャンキング</div>
+            <p className="text-gray-700 leading-6">PDF/Word を 200〜800 token で分割。</p>
+          </div>
+          <div className="bg-white border border-indigo-200 rounded-xl p-4">
+            <div className="font-semibold text-indigo-800 mb-1">📋 監査ログ</div>
+            <p className="text-gray-700 leading-6">入出力・根拠・処理時間を記録。</p>
+          </div>
+        </div>
+
+        <div className="bg-white border border-indigo-200 rounded-xl p-4 md:p-5 mb-5">
+          <h4 className="font-semibold text-slate-900 mb-3">FR-003 の基本フロー</h4>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-700">
+            {[
+              "文書取込（PDF/Word）",
+              "チャンキング（目安 512 token）",
+              "Cortex Search（索引）",
+              "COMPLETE（回答 + 根拠）",
+              "監査ログ保存",
+            ].map((step, i, arr) => (
+              <div key={step} className="flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200 font-medium">{step}</span>
+                {i < arr.length - 1 && <span className="text-slate-400 font-bold">→</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-5">
+          <div className="bg-white border border-indigo-200 rounded-xl p-4">
+            <div className="font-semibold text-slate-900 mb-2">Cortex Search クエリ例</div>
+            <pre className="bg-slate-900 text-green-300 rounded-lg p-3 text-xs overflow-auto">{`SELECT PARSE_JSON(
+  SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
+    'disaster_search',
+    '{"query":"初動体制 参集完了時間","limit":5}'
+  )
+) AS search_result;`}</pre>
+          </div>
+          <div className="bg-white border border-indigo-200 rounded-xl p-4">
+            <div className="font-semibold text-slate-900 mb-2">回答生成時のガード例</div>
+            <pre className="bg-slate-900 text-green-300 rounded-lg p-3 text-xs overflow-auto">{`SELECT SNOWFLAKE.CORTEX.COMPLETE(
+  'mistral-large2',
+  ARRAY_CONSTRUCT(
+    OBJECT_CONSTRUCT('role','system',
+      '根拠が不足する場合は推測せず不足を明示する'),
+    OBJECT_CONSTRUCT('role','user', :prompt)
+  )
+) AS answer;`}</pre>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 text-sm mb-5">
+          <div className="bg-white border border-indigo-200 rounded-xl p-4">
+            <div className="font-semibold text-indigo-900 mb-2">運用の勘所</div>
+            <ul className="space-y-1.5 text-gray-700">
+              <li>・source_type フィルタで検索対象を絞る</li>
+              <li>・応答 3 秒以内を目安に limit=3〜5 を維持</li>
+              <li>・context は 1000 token 程度に抑制</li>
+              <li>・監査テーブルに evidence_refs を必ず保存</li>
+            </ul>
+          </div>
+          <div className="bg-white border border-indigo-200 rounded-xl p-4">
+            <div className="font-semibold text-indigo-900 mb-2">段階移行の目安</div>
+            <ul className="space-y-1.5 text-gray-700">
+              <li>・PoC: Cortex Search + mistral-large2</li>
+              <li>・beta: Cortex Search + より高性能モデル</li>
+              <li>・本番: SPCS 連携で独自モデル拡張</li>
+              <li>・API 契約固定でフロント改修を最小化</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/training/snowflake/rag"
+            className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+          >
+            RAG 構築の詳細へ →
+          </Link>
+          <Link
+            href="/training/snowflake/adaptor"
+            className="inline-flex items-center gap-1.5 bg-white border border-indigo-300 text-indigo-800 hover:bg-indigo-50 text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+          >
+            Next.js API 連携（Adaptor）へ →
           </Link>
         </div>
       </section>

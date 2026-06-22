@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 const tabs = [
   { label: "💪 Snowflake の強み", href: "/training/snowflake/strengths" },
   { label: "🗂️ データ基盤の位置づけ", href: "/training/snowflake/data-platform" },
+  { label: "🗺️ 地理空間データ活用", href: "/training/snowflake/geospatial" },
   { label: "📐 構成図", href: "/training/snowflake", hash: "" },
   { label: "❄️ SPCS の基本", href: "/training/snowflake#spcs", hash: "#spcs" },
   { label: "🔌 Snowflake Adaptor", href: "/training/snowflake/adaptor" },
@@ -14,7 +15,6 @@ const tabs = [
   { label: "⌨️ Cortex Code", href: "/training/snowflake/cortex-code" },
   { label: "🧠 Cortex AI", href: "/training/snowflake/cortex" },
   { label: "🔍 RAG 構築", href: "/training/snowflake/rag" },
-  { label: "🔌 MCP ゲートウェイ", href: "/training/snowflake/mcp-gateway" },
   { label: "🔗 Snowflake × ArcGIS 連携", href: "/training/snowflake-arcgis" },
 ];
 

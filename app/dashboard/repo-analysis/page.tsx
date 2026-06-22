@@ -8,6 +8,8 @@ import AgenticGuide from "./AgenticGuide";
 import JcgGuide from "./JcgGuide";
 import TochoGuide from "./TochoGuide";
 import ChushoGuide from "./ChushoGuide";
+import VendorGuide from "./VendorGuide";
+import SubcontractGuide from "./SubcontractGuide";
 import ComparisonSlide from "./ComparisonSlide";
 
 type GitTreeEntry = {
@@ -66,6 +68,18 @@ const PRESET_REPOS = [
     path: "C:\\Users\\cab02322\\src\\nomura\\tocho-geospatial-platform",
     description: "東京都庁向け Snowflake x ArcGIS x Next.js x SPCS",
     icon: "🗼",
+  },
+  {
+    label: "vendor-agnostic-rag",
+    path: "C:\\Users\\cab02322\\src\\nomura\\vendor-agnostic-rag",
+    description: "ベンダー非依存 RAG 検証プロジェクト",
+    icon: "🧩",
+  },
+  {
+    label: "subcontract-compliance",
+    path: "C:\\Users\\cab02322\\src\\nomura\\subcontract-compliance",
+    description: "下請法コンプライアンス支援プロジェクト",
+    icon: "🧾",
   },
   {
     label: "streamlit_snowflake",
@@ -3477,7 +3491,7 @@ function decodeBase64Utf8(b64: string): string {
 
 export default function RepoAnalysisPage() {
   const [pageTab, setPageTab] = useState<"repo" | "guide" | "comparison">("repo");
-  const [frameworkTab, setFrameworkTab] = useState<"hvd" | "streamlit" | "hackathon" | "agentic" | "jcg" | "tocho" | "chusho">("hvd");
+  const [frameworkTab, setFrameworkTab] = useState<"hvd" | "streamlit" | "hackathon" | "agentic" | "jcg" | "tocho" | "chusho" | "vendor" | "subcontract">("hvd");
   const [mode, setMode] = useState<Mode>("local");
   const [input, setInput] = useState("");
   const [token, setToken] = useState("");
@@ -3503,6 +3517,8 @@ export default function RepoAnalysisPage() {
   const [savedRepos, setSavedRepos] = useState<SavedRepo[]>([]);
   const [savedLocalPaths, setSavedLocalPaths] = useState<SavedLocalPath[]>([]);
   const [search, setSearch] = useState("");
+  const [presetSearch, setPresetSearch] = useState("");
+  const [guideSearch, setGuideSearch] = useState("");
   const [autoLoadState, setAutoLoadState] = useState<LastState | null>(null);
 
   useEffect(() => {
@@ -3818,6 +3834,41 @@ export default function RepoAnalysisPage() {
     );
   };
 
+  const presetQuery = presetSearch.trim().toLowerCase();
+  const filteredPresetRepos = PRESET_REPOS.filter((preset) => {
+    if (!presetQuery) return true;
+    const haystack = `${preset.label} ${preset.description} ${preset.path}`.toLowerCase();
+    return haystack.includes(presetQuery);
+  });
+  const filteredRecentCustomPaths = savedLocalPaths
+    .filter((p) => !PRESET_REPOS.some((r) => r.path === p.path))
+    .filter((item) => {
+      if (!presetQuery) return true;
+      const haystack = `${item.label} ${item.path}`.toLowerCase();
+      return haystack.includes(presetQuery);
+    });
+  const guideItems: Array<{
+    id: "hvd" | "streamlit" | "hackathon" | "agentic" | "jcg" | "tocho" | "chusho" | "vendor" | "subcontract";
+    label: string;
+    activeClass: string;
+    keywords: string;
+  }> = [
+    { id: "hvd", label: "❄️ HVD（Next.js + SPCS）", activeClass: "bg-blue-600 text-white", keywords: "hvd nextjs spcs" },
+    { id: "streamlit", label: "🐍 Streamlit PoC", activeClass: "bg-orange-500 text-white", keywords: "streamlit poc" },
+    { id: "hackathon", label: "🏆 hackathon-lib-check", activeClass: "bg-yellow-500 text-white", keywords: "hackathon lib check" },
+    { id: "agentic", label: "🧭 agentic-dev-template", activeClass: "bg-indigo-600 text-white", keywords: "agentic dev template" },
+    { id: "jcg", label: "❄️ jcg_snowflake", activeClass: "bg-sky-600 text-white", keywords: "jcg snowflake" },
+    { id: "tocho", label: "🗼 tocho-geospatial-platform", activeClass: "bg-rose-600 text-white", keywords: "tocho geospatial platform" },
+    { id: "chusho", label: "🏢 chusho-kigyocho-project", activeClass: "bg-emerald-600 text-white", keywords: "chusho kigyocho project" },
+    { id: "vendor", label: "🧩 vendor-agnostic-rag", activeClass: "bg-purple-600 text-white", keywords: "vendor agnostic rag" },
+    { id: "subcontract", label: "🧾 subcontract-compliance", activeClass: "bg-slate-700 text-white", keywords: "subcontract compliance 下請法" },
+  ];
+  const guideQuery = guideSearch.trim().toLowerCase();
+  const filteredGuideItems = guideItems.filter((item) => {
+    if (!guideQuery) return true;
+    return `${item.label} ${item.keywords}`.toLowerCase().includes(guideQuery);
+  });
+
   return (
     <div className="-mx-8 -mt-8 -mb-8">
     <div className="pl-4 pr-6 pt-6 pb-8">
@@ -3853,77 +3904,32 @@ export default function RepoAnalysisPage() {
 
       {pageTab === "guide" && (
         <div>
-          <div className="flex gap-2 mb-6 border-b border-gray-200 pb-4">
-            <button
-              onClick={() => setFrameworkTab("hvd")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                frameworkTab === "hvd"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              ❄️ HVD（Next.js + SPCS）
-            </button>
-            <button
-              onClick={() => setFrameworkTab("streamlit")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                frameworkTab === "streamlit"
-                  ? "bg-orange-500 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              🐍 Streamlit PoC
-            </button>
-            <button
-              onClick={() => setFrameworkTab("hackathon")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                frameworkTab === "hackathon"
-                  ? "bg-yellow-500 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              🏆 hackathon-lib-check
-            </button>
-            <button
-              onClick={() => setFrameworkTab("agentic")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                frameworkTab === "agentic"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              🧭 agentic-dev-template
-            </button>
-            <button
-              onClick={() => setFrameworkTab("jcg")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                frameworkTab === "jcg"
-                  ? "bg-sky-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              ❄️ jcg_snowflake
-            </button>
-            <button
-              onClick={() => setFrameworkTab("tocho")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                frameworkTab === "tocho"
-                  ? "bg-rose-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              🗼 tocho-geospatial-platform
-            </button>
-            <button
-              onClick={() => setFrameworkTab("chusho")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                frameworkTab === "chusho"
-                  ? "bg-emerald-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              🏢 chusho-kigyocho-project
-            </button>
+          <div className="mb-6 border-b border-gray-200 pb-4">
+            <div className="mb-3">
+              <input
+                type="text"
+                value={guideSearch}
+                onChange={(e) => setGuideSearch(e.target.value)}
+                placeholder="開発手順書を検索（例: tocho / jcg / streamlit）"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              {filteredGuideItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setFrameworkTab(item.id)}
+                  className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    frameworkTab === item.id ? item.activeClass : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+              {filteredGuideItems.length === 0 && (
+                <p className="text-xs text-gray-500">該当する開発手順書がありません。</p>
+              )}
+            </div>
           </div>
           {frameworkTab === "hvd" && <DevGuide />}
           {frameworkTab === "streamlit" && <StreamlitGuide />}
@@ -3932,6 +3938,8 @@ export default function RepoAnalysisPage() {
           {frameworkTab === "jcg" && <JcgGuide />}
           {frameworkTab === "tocho" && <TochoGuide />}
           {frameworkTab === "chusho" && <ChushoGuide />}
+          {frameworkTab === "vendor" && <VendorGuide />}
+          {frameworkTab === "subcontract" && <SubcontractGuide />}
         </div>
       )}
 
@@ -3970,9 +3978,19 @@ export default function RepoAnalysisPage() {
       <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm">
         {mode === "local" ? (
           <>
+            <div className="mb-3">
+              <input
+                type="text"
+                value={presetSearch}
+                onChange={(e) => setPresetSearch(e.target.value)}
+                placeholder="プリセットを検索（例: tocho / vendor / streamlit）"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+              />
+            </div>
+
             {/* プリセットリポジトリ — クリックで即解析 */}
-            <div className="flex flex-wrap gap-3 mb-4">
-              {PRESET_REPOS.map((preset) => {
+            <div className="mb-4 space-y-2">
+              {filteredPresetRepos.map((preset) => {
                 const isActive = analyzedLocalPath === preset.path;
                 const isLoadingThis = loading && localPath === preset.path;
                 return (
@@ -3980,7 +3998,7 @@ export default function RepoAnalysisPage() {
                     key={preset.path}
                     onClick={() => { setLocalPath(preset.path); handleLocalAnalyze(preset.path); }}
                     disabled={loading}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-all disabled:opacity-60 min-w-48 ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-all disabled:opacity-60 ${
                       isActive
                         ? "border-indigo-500 bg-indigo-50 shadow-sm"
                         : "border-gray-200 bg-white hover:border-indigo-300 hover:bg-gray-50"
@@ -4002,6 +4020,9 @@ export default function RepoAnalysisPage() {
                   </button>
                 );
               })}
+              {filteredPresetRepos.length === 0 && (
+                <p className="text-xs text-gray-500">該当するプリセットがありません。</p>
+              )}
             </div>
 
             {/* カスタムパス（折りたたみ） */}
@@ -4030,32 +4051,31 @@ export default function RepoAnalysisPage() {
             </details>
 
             {/* 最近のカスタムパス（プリセット以外） */}
-            {savedLocalPaths.filter((p) => !PRESET_REPOS.some((r) => r.path === p.path)).length > 0 && (
+            {filteredRecentCustomPaths.length > 0 && (
               <div className="mt-4">
                 <p className="text-xs font-semibold text-gray-500 mb-2">最近解析したパス</p>
-                <div className="flex flex-wrap gap-2">
-                  {savedLocalPaths
-                    .filter((p) => !PRESET_REPOS.some((r) => r.path === p.path))
-                    .map((item) => (
-                      <span
-                        key={item.path}
-                        className="group inline-flex items-center gap-1 bg-gray-100 hover:bg-indigo-50 rounded-full pl-3 pr-1 py-1 text-xs"
+                <div className="space-y-2">
+                  {filteredRecentCustomPaths.map((item) => (
+                    <div
+                      key={item.path}
+                      className="group flex items-center justify-between gap-2 bg-gray-100 hover:bg-indigo-50 rounded-lg px-3 py-2 text-xs"
+                    >
+                      <button
+                        onClick={() => { setLocalPath(item.path); handleLocalAnalyze(item.path); }}
+                        className="text-gray-700 font-medium text-left truncate"
+                        title={item.path}
                       >
-                        <button
-                          onClick={() => { setLocalPath(item.path); handleLocalAnalyze(item.path); }}
-                          className="text-gray-700 font-medium"
-                        >
-                          📂 {item.label}
-                        </button>
-                        <button
-                          onClick={() => deleteLocalPath(item.path)}
-                          className="text-gray-400 hover:text-red-500 px-1"
-                          title="履歴から削除"
-                        >
-                          ✕
-                        </button>
-                      </span>
-                    ))}
+                        📂 {item.label}
+                      </button>
+                      <button
+                        onClick={() => deleteLocalPath(item.path)}
+                        className="text-gray-400 hover:text-red-500 px-1 flex-shrink-0"
+                        title="履歴から削除"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

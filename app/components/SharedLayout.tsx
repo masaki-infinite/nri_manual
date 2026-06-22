@@ -276,7 +276,6 @@ export default function SharedLayout({
             { name: "Cortex Code", href: "/training/snowflake/cortex-code" },
             { name: "Cortex AI", href: "/training/snowflake/cortex" },
             { name: "RAG 構築", href: "/training/snowflake/rag" },
-            { name: "MCP ゲートウェイ", href: "/training/snowflake/mcp-gateway" },
             { name: "Snowflake × ArcGIS 連携", href: "/training/snowflake-arcgis" },
           ],
         },

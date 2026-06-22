@@ -36,6 +36,16 @@ export const trainingPageSections: Record<string, PageSection[]> = {
     { id: "patterns", label: "典型構成" },
     { id: "summary", label: "まとめ" },
   ],
+  "/training/snowflake/geospatial": [
+    { id: "overview", label: "概要" },
+    { id: "data-types", label: "データ型・ファイル形式" },
+    { id: "methods", label: "見る方法 6 選" },
+    { id: "sql", label: "主要SQL" },
+    { id: "stack", label: "可視化スタック" },
+    { id: "carto-case", label: "Snowflake + CARTO 事例" },
+    { id: "practice", label: "導入ステップ" },
+    { id: "links", label: "参考リンク" },
+  ],
   "/training/snowflake": [
     { id: "spcs", label: "SPCS の基本" },
     { id: "pages", label: "ページ一覧" },
