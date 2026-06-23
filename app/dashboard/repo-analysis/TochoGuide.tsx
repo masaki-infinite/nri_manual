@@ -4103,170 +4103,241 @@ function Slides({
   );
 }
 
+function NriSlide({
+  evalNo,
+  section,
+  badge,
+  message,
+  page,
+  children,
+}: {
+  evalNo: number;
+  section: string;
+  badge: string;
+  message: string;
+  page: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="h-full bg-white flex flex-col">
+      {/* 評価項目バー */}
+      <div className="flex items-stretch text-white text-[11px] font-semibold">
+        <div className="bg-[#1f3864] px-3 flex items-center">評価項目、評価基準及び配点表の項目</div>
+        <div className="bg-[#33415c] px-3 flex items-center">３．業務実施計画・手法等</div>
+        <div className="flex items-center gap-1 px-2 py-1.5 bg-[#1f3864] ml-auto">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <span key={n} className={`px-1.5 py-0.5 text-[10px] rounded-sm ${n === evalNo ? "bg-[#1f3864] text-white ring-1 ring-white" : "bg-[#c3ccde] text-[#1f3864]"}`}>No.{n}</span>
+          ))}
+          <span className="px-1.5 py-0.5 text-[10px] rounded-sm bg-[#33c0d4] text-white">必須</span>
+        </div>
+      </div>
+
+      {/* タイトル行 */}
+      <div className="flex items-center justify-between px-8 pt-4 pb-2">
+        <div className="flex items-center gap-2.5">
+          <span className="w-1.5 h-6 bg-[#1f3864]" />
+          <span className="text-[#1f3864] text-[17px] font-bold">{section}</span>
+        </div>
+        <span className="bg-[#fbe2cf] text-[#b85c18] text-[12.5px] font-bold px-5 py-1 rounded">{badge}</span>
+      </div>
+
+      {/* メッセージ */}
+      <div className="px-8 pb-3">
+        <div className="border-l-[5px] border-[#1f3864] pl-3 text-[#1f3864] text-[19px] font-bold leading-snug">{message}</div>
+      </div>
+
+      {/* 本文 */}
+      <div className="flex-1 px-8 pt-1 pb-2 min-h-0 overflow-hidden">{children}</div>
+
+      {/* フッター */}
+      <div className="flex items-center justify-end gap-3 px-8 py-2 border-t border-gray-100">
+        <span className="text-[10px] text-gray-400">Copyright（C） Nomura Research Institute, Ltd. All rights reserved.</span>
+        <span className="text-[#c00000] font-black text-[16px] tracking-tighter italic">NRI</span>
+        <span className="text-[#1f3864] font-bold text-[12px]">{page}</span>
+      </div>
+    </div>
+  );
+}
+
 function buildProposalSlides(): Slide[] {
   return [
     {
-      label: "表紙",
+      label: "P4 チャットボット機能",
       node: (
-        <div className="h-full bg-gradient-to-br from-[#0a1f44] via-[#11357a] to-[#0a2a6b] text-white flex flex-col justify-center px-14 relative overflow-hidden">
-          <div className="absolute -top-6 right-8 text-white/10 text-[170px] leading-none select-none pointer-events-none">🗼</div>
-          <div className="relative">
-            <div className="inline-flex items-center gap-2 bg-white/15 border border-white/30 rounded-full px-4 py-1.5 text-[13px] font-bold mb-6">企画提案書</div>
-            <h1 className="text-[40px] font-bold leading-tight mb-4">東京の災害対応力の向上に向けた<br />生成AI を活用した図上訓練構築支援</h1>
-            <p className="text-sky-100 text-[16px] mb-10 max-w-[80%]">過去資料を活かした RAG 検索と地理空間可視化による、実践的な訓練シナリオ生成基盤のご提案</p>
-            <div className="flex items-center gap-3 text-[13px] text-white/85">
-              <span className="bg-white/10 border border-white/25 rounded-lg px-3 py-1.5">提案：株式会社野村総合研究所</span>
-              <span className="bg-white/10 border border-white/25 rounded-lg px-3 py-1.5">2026年</span>
-            </div>
-          </div>
-        </div>
-      ),
-      script: ["表紙です。本提案は、東京都の災害対応力向上に向けて、生成AIを活用した図上訓練の構築を支援するものです。"],
-    },
-    {
-      label: "背景と課題",
-      node: (
-        <SlideShell tag="背景" accent="rose" title="背景と課題" subtitle="従来の図上訓練が抱える3つの構造的課題">
-          <div className="h-full grid grid-cols-3 gap-5 text-[12px]">
-            {[
-              { icon: "📚", t: "過去資料の死蔵", d: "訓練記録・マニュアル・過去シナリオが部署や紙に分散し、十分に再利用されていない。" },
-              { icon: "🧑‍🏫", t: "シナリオ作成の属人化", d: "質の高い訓練シナリオの作成が一部の熟練職員に依存し、作成工数も大きい。" },
-              { icon: "🗺️", t: "地理空間情報との分断", d: "被害想定やハザード情報が地図と訓練シナリオで連動せず、現場の実感に結びつきにくい。" },
-            ].map((c) => (
-              <div key={c.t} className="bg-white border border-rose-200 rounded-xl p-5 flex flex-col shadow-sm">
-                <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center text-[24px] mb-3">{c.icon}</div>
-                <div className="font-bold text-slate-800 text-[15px] mb-2">{c.t}</div>
-                <p className="text-slate-600 leading-relaxed text-[12px]">{c.d}</p>
+        <NriSlide
+          evalNo={2}
+          section="P4｜チャットボット機能の設計"
+          badge="図上訓練支援AI"
+          page={23}
+          message="防災計画・マニュアルへのアクセスコストをゼロにし、訓練準備の質を底上げする"
+        >
+          <div className="h-full flex flex-col gap-3">
+            {/* 処理フロー */}
+            <div>
+              <div className="text-[12px] font-bold text-[#1f3864] mb-1.5">■ 処理フロー</div>
+              <div className="flex items-center gap-2">
+                {[
+                  { t: "質問入力", s: "職員が自然文で質問", c: "bg-[#1f3864]" },
+                  { t: "RAG 検索", s: "ナレッジから根拠抽出", c: "bg-[#2e5a8f]" },
+                  { t: "LLM 回答生成", s: "文脈に基づき回答", c: "bg-[#5b9bd5]" },
+                  { t: "引用元明示", s: "出典ページを提示", c: "bg-[#ed7d31]" },
+                ].map((n, i, arr) => (
+                  <Fragment key={n.t}>
+                    <div className={`flex-1 ${n.c} text-white rounded-md px-3 py-2 text-center`}>
+                      <div className="font-bold text-[13px]">{n.t}</div>
+                      <div className="text-[10px] text-white/85 leading-tight mt-0.5">{n.s}</div>
+                    </div>
+                    {i < arr.length - 1 && <span className="text-[#1f3864] text-lg font-bold">→</span>}
+                  </Fragment>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* 2カラム */}
+            <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
+              <div className="border border-[#1f3864]/25 rounded-lg p-3 flex flex-col">
+                <div className="text-[12px] font-bold text-[#1f3864] mb-2 pb-1 border-b border-[#1f3864]/15">ナレッジベースの構成</div>
+                <ul className="text-[11.5px] text-slate-700 space-y-1.5">
+                  <li className="flex gap-2"><span className="text-[#ed7d31] font-bold">●</span><span>地域防災計画（震災編） <b className="text-[#1f3864]">923P</b></span></li>
+                  <li className="flex gap-2"><span className="text-[#ed7d31] font-bold">●</span><span>首都直下地震等対処要領 <b className="text-[#1f3864]">104P</b></span></li>
+                  <li className="flex gap-2"><span className="text-[#ed7d31] font-bold">●</span><span>都本部各部門・チーム別マニュアル <b className="text-[#1f3864]">15部門 × 50〜70P</b></span></li>
+                  <li className="flex gap-2"><span className="text-[#ed7d31] font-bold">●</span><span>過去の訓練資料（訓練シナリオ＋状況付与一覧）</span></li>
+                </ul>
+              </div>
+              <div className="border border-[#1f3864]/25 rounded-lg p-3 flex flex-col">
+                <div className="text-[12px] font-bold text-[#1f3864] mb-2 pb-1 border-b border-[#1f3864]/15">チャンキング方針・対話制御</div>
+                <ul className="text-[11.5px] text-slate-700 space-y-1.5">
+                  <li className="flex gap-2"><span className="text-[#5b9bd5] font-bold">▶</span><span>Snowflake の自動チャンキングを第一優先</span></li>
+                  <li className="flex gap-2"><span className="text-[#5b9bd5] font-bold">▶</span><span>精度検証（サンプル Q＆A テスト）→ 低精度箇所のみ人手で識別子（###）方式修正</span></li>
+                  <li className="flex gap-2"><span className="text-[#5b9bd5] font-bold">▶</span><span>マルチターン対話対応（過去 10 回分のチャット履歴を DB で管理）</span></li>
+                </ul>
+              </div>
+            </div>
+
+            {/* NRIの工夫 */}
+            <div className="bg-[#fdeee3] border-l-4 border-[#ed7d31] rounded px-4 py-2 text-[11.5px] text-[#7a3c10]">
+              <b>NRI の工夫：</b> マネージド RAG で何を実現し何を解決するかを明確化。自動チャンキングを起点に低精度箇所のみ識別子方式で補正し、アクセスコスト最小化と回答精度を両立。
+            </div>
           </div>
-        </SlideShell>
+        </NriSlide>
       ),
-      script: ["従来の図上訓練には、過去資料の死蔵、シナリオ作成の属人化、地理空間情報との分断という3つの構造的な課題があります。"],
+      script: ["P4 チャットボット機能です。防災計画やマニュアルへのアクセスコストをゼロにし、訓練準備の質を底上げします。質問入力から RAG 検索、回答生成、引用元明示までの流れと、923ページに及ぶ地域防災計画などのナレッジベース構成、Snowflake の自動チャンキングを活かした精度担保が特長です。"],
     },
     {
-      label: "ご提案の全体像",
+      label: "P5 整合性チェック機能",
       node: (
-        <SlideShell tag="提案概要" accent="indigo" title="ご提案の全体像" subtitle="過去資料 → RAG 検索 → シナリオ生成 → 地図連動を一気通貫で支援">
-          <div className="h-full flex flex-col justify-center gap-6">
-            <div className="border-2 border-indigo-200 bg-indigo-50/40 rounded-xl p-5 overflow-x-auto">
-              <FlowLane
-                accent="sky"
-                nodes={[
-                  { icon: "📚", bg: "bg-slate-500", title: "過去資料", sub: "マニュアル/訓練記録/ハザード", arrow: "取込・索引" },
-                  { icon: "🔎", bg: "bg-emerald-600", title: "Cortex Search", sub: "ハイブリッド検索", snow: true, arrow: "文脈付与" },
-                  { icon: "🧠", bg: "bg-indigo-600", title: "シナリオ生成", sub: "AI_COMPLETE", snow: true, arrow: "地図連動" },
-                  { icon: "🗺️", bg: "bg-rose-500", title: "地図可視化", sub: "ArcGIS Maps SDK", arrow: null },
-                ]}
-              />
+        <NriSlide
+          evalNo={2}
+          section="P5｜整合性チェック機能の設計"
+          badge="図上訓練支援AI"
+          page={24}
+          message="1 行の変更が引き起こす連鎖修正を、3 レイヤーのレビュー観点で AI が自動検出・修正案を提示する"
+        >
+          <div className="h-full grid grid-cols-[1.25fr_1fr] gap-4">
+            {/* 左：3レイヤー */}
+            <div className="flex flex-col gap-2 min-h-0">
+              <div className="text-[12px] font-bold text-[#1f3864]">3 レイヤーのレビュー観点（総合防災ヒアリングで作り込む）</div>
+              <div className="bg-[#eef2f8] border-l-4 border-[#1f3864] rounded px-3 py-2">
+                <div className="font-bold text-[#1f3864] text-[12px]">レイヤー A｜資料内の整合性</div>
+                <div className="text-[10.5px] text-slate-600 leading-snug mt-0.5">タイムラインの時刻矛盾／被害規模の数値矛盾／担当部署の役割矛盾／物理的制約との矛盾</div>
+              </div>
+              <div className="bg-[#eaf3fb] border-l-4 border-[#5b9bd5] rounded px-3 py-2">
+                <div className="font-bold text-[#2e6da4] text-[12px]">レイヤー B｜資料間の整合性</div>
+                <div className="text-[10.5px] text-slate-600 leading-snug mt-0.5">訓練シナリオ ↔ 状況付与一覧／訓練資料 ↔ マニュアル・防災計画／過去訓練資料との整合</div>
+              </div>
+              <div className="bg-[#fdeee3] border-l-4 border-[#ed7d31] rounded px-3 py-2">
+                <div className="font-bold text-[#b85c18] text-[12px]">レイヤー C｜現場リアリティとの整合性</div>
+                <div className="text-[10.5px] text-slate-600 leading-snug mt-0.5">消防・自衛隊・海保の実働限界／季節・気象・震源との被害想定整合／区市町村の受援能力との整合</div>
+              </div>
+              <div className="bg-white border border-[#ed7d31]/40 rounded px-3 py-1.5 text-[10.5px] text-[#7a3c10] mt-auto">
+                <b>設計思想：</b>RAG ではなく、レビュー観点一覧をプロンプトに埋め込む方式を採用（観点の網羅性と再現性を確保）
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-4 text-[12px]">
-              {[
-                { t: "蓄積を資産化", d: "散在する過去資料を検索可能な知識基盤へ" },
-                { t: "誰でも高品質", d: "熟練者の知見を AI が再現しシナリオ化" },
-                { t: "地図で実感", d: "被害想定を地図上に重ね、訓練を立体化" },
-              ].map((c) => (
-                <div key={c.t} className="bg-white border border-slate-200 rounded-lg px-4 py-3">
-                  <div className="font-bold text-indigo-700 text-[13px] mb-1">{c.t}</div>
-                  <div className="text-slate-600 leading-snug">{c.d}</div>
+
+            {/* 右：処理フロー */}
+            <div className="flex flex-col min-h-0">
+              <div className="text-[12px] font-bold text-[#1f3864] mb-1.5">処理フロー</div>
+              <div className="flex-1 flex flex-col justify-between">
+                {[
+                  "ファイル入力",
+                  "テキスト・表の抽出／構造化",
+                  "観点別エージェントが並列チェック",
+                  "矛盾箇所の特定・重要度判定",
+                  "修正案生成",
+                  "ハイライト表示 ＋ Excel 出力",
+                ].map((s, i, arr) => (
+                  <Fragment key={s}>
+                    <div className={`rounded px-3 py-1.5 text-[11px] text-center font-medium ${i === arr.length - 1 ? "bg-[#ed7d31] text-white" : "bg-[#1f3864] text-white"}`}>{s}</div>
+                    {i < arr.length - 1 && <div className="text-center text-[#1f3864] text-[11px] leading-none">▼</div>}
+                  </Fragment>
+                ))}
+              </div>
+            </div>
+          </div>
+        </NriSlide>
+      ),
+      script: ["P5 整合性チェック機能です。1行の変更が引き起こす連鎖修正を、資料内・資料間・現場リアリティの 3 レイヤーのレビュー観点で AI が自動検出します。RAG ではなく観点一覧をプロンプトに埋め込む方式を採用し、ファイル入力から観点別エージェントの並列チェック、矛盾の特定、修正案生成、ハイライトと Excel 出力までを行います。"],
+    },
+    {
+      label: "P6 シナリオ生成機能",
+      node: (
+        <NriSlide
+          evalNo={2}
+          section="P6｜訓練シナリオ生成機能の設計"
+          badge="図上訓練支援AI"
+          page={25}
+          message="ゼロから作らず、プリセット ＋ 差分生成で整合性を保ったまま大幅変更を可能にする"
+        >
+          <div className="h-full flex flex-col gap-2.5">
+            {/* インプット */}
+            <div>
+              <div className="text-[12px] font-bold text-[#1f3864] mb-1.5">■ インプット構造</div>
+              <div className="grid grid-cols-2 gap-3 text-[11px]">
+                <div className="bg-[#eaf3fb] border border-[#5b9bd5]/50 rounded px-3 py-2">
+                  <div className="font-bold text-[#2e6da4]">基本プリセット選択</div>
+                  <div className="text-slate-600 leading-snug mt-0.5">震源地・季節気象・訓練期間</div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </SlideShell>
-      ),
-      script: ["全体像です。過去資料を取り込んで索引化し、Cortex Search で検索、AIでシナリオを生成し、ArcGISで地図に連動させる一気通貫の基盤をご提案します。"],
-    },
-    {
-      label: "ソリューションの特長",
-      node: (
-        <SlideShell tag="特長" accent="teal" title="ソリューションの3つの特長" subtitle="マネージドAI × 地理空間 × 行政グレードのセキュリティ">
-          <div className="h-full grid grid-cols-3 gap-5 text-[12px]">
-            {[
-              { icon: "⚙️", t: "運用負荷の小さいマネージド RAG", d: "Cortex Search が索引作成・更新・スケーリングを自動管理。専用インフラ不要で運用コストを最小化します。", bd: "border-emerald-200" },
-              { icon: "🗺️", t: "地理空間との統合可視化", d: "ArcGIS Maps SDK と PLATEAU により、被害想定や避難経路を 2D/3D 地図で表現。シナリオと地図を連動させます。", bd: "border-sky-200" },
-              { icon: "🛡️", t: "行政グレードのセキュリティ", d: "RBAC・IP制限・学習オプトアウト・国内リージョン暗号化・監査ログを標準機能で実現します。", bd: "border-violet-200" },
-            ].map((c) => (
-              <div key={c.t} className={"bg-white border rounded-xl p-5 flex flex-col shadow-sm " + c.bd}>
-                <div className="text-[30px] mb-2">{c.icon}</div>
-                <div className="font-bold text-slate-800 text-[14px] mb-2 leading-snug">{c.t}</div>
-                <p className="text-slate-600 leading-relaxed flex-1">{c.d}</p>
-              </div>
-            ))}
-          </div>
-        </SlideShell>
-      ),
-      script: ["特長は3つです。運用負荷の小さいマネージドRAG、地理空間との統合可視化、そして行政グレードのセキュリティです。"],
-    },
-    {
-      label: "期待効果",
-      node: (
-        <SlideShell tag="効果" accent="violet" title="期待される効果" subtitle="作成工数の削減と、訓練の質・実効性の向上">
-          <div className="h-full grid grid-cols-3 gap-5 text-center">
-            {[
-              { m: "大幅削減", l: "シナリオ作成工数", d: "過去資料の検索・下書き生成を AI が支援" },
-              { m: "標準化", l: "訓練品質のばらつき", d: "熟練者依存を解消し、一定品質を担保" },
-              { m: "立体化", l: "訓練のリアリティ", d: "地図・被害想定との連動で実感を向上" },
-            ].map((c) => (
-              <div key={c.l} className="bg-violet-50 border border-violet-200 rounded-xl p-5 flex flex-col justify-center">
-                <div className="text-[24px] font-bold text-violet-700 mb-2">{c.m}</div>
-                <div className="font-bold text-slate-800 text-[13px] mb-1">{c.l}</div>
-                <div className="text-slate-600 text-[11px] leading-snug">{c.d}</div>
-              </div>
-            ))}
-          </div>
-        </SlideShell>
-      ),
-      script: ["期待効果です。シナリオ作成工数の削減、訓練品質の標準化、そして地図連動による訓練のリアリティ向上が見込まれます。"],
-    },
-    {
-      label: "実施体制・スケジュール",
-      node: (
-        <SlideShell tag="体制" accent="blue" title="実施体制とスケジュール" subtitle="段階的に構築し、早期に価値を提供">
-          <div className="h-full flex flex-col justify-center gap-5">
-            <div className="grid grid-cols-4 gap-3 text-[11.5px]">
-              {[
-                { p: "Phase 1", t: "基盤構築", d: "資料取込・Cortex Search 索引・基本チャット", c: "bg-blue-50 border-blue-200 text-blue-700" },
-                { p: "Phase 2", t: "シナリオ生成", d: "ラベル付け・シナリオ生成・整合性チェック", c: "bg-sky-50 border-sky-200 text-sky-700" },
-                { p: "Phase 3", t: "地図連動", d: "ArcGIS 可視化・被害想定の重ね合わせ", c: "bg-teal-50 border-teal-200 text-teal-700" },
-                { p: "Phase 4", t: "運用定着", d: "ユーザー教育・運用設計・改善", c: "bg-emerald-50 border-emerald-200 text-emerald-700" },
-              ].map((x) => (
-                <div key={x.p} className={"border rounded-xl p-3 " + x.c}>
-                  <div className="font-bold text-[12px] mb-1">{x.p}</div>
-                  <div className="font-bold text-slate-800 text-[12.5px] mb-1">{x.t}</div>
-                  <div className="text-slate-600 text-[10.5px] leading-snug">{x.d}</div>
+                <div className="bg-[#fdeee3] border border-[#ed7d31]/50 rounded px-3 py-2">
+                  <div className="font-bold text-[#b85c18]">今年の変更条件入力</div>
+                  <div className="text-slate-600 leading-snug mt-0.5">訓練テーマ・変更指示・重点参加機関</div>
                 </div>
-              ))}
-            </div>
-            <div className="bg-white border border-slate-200 rounded-lg px-4 py-3 text-[11.5px] text-slate-600 flex items-center gap-3">
-              <span className="font-bold text-slate-700 flex-shrink-0">推進体制：</span>
-              <span>PM ＋ AI/データエンジニア ＋ GIS スペシャリスト ＋ 都庁ご担当者による協働体制。各フェーズでレビューゲートを設置します。</span>
-            </div>
-          </div>
-        </SlideShell>
-      ),
-      script: ["実施体制とスケジュールです。基盤構築・シナリオ生成・地図連動・運用定着の4フェーズで段階的に構築し、早期から価値を提供します。"],
-    },
-    {
-      label: "なぜ当社か",
-      node: (
-        <SlideShell tag="強み" accent="orange" title="なぜ当社にお任せいただけるか" subtitle="Snowflake・生成AI・GIS の実装知見を一気通貫で提供">
-          <div className="h-full grid grid-cols-3 gap-5 text-[12px]">
-            {[
-              { icon: "❄️", t: "Snowflake 実装力", d: "Cortex AI・データ基盤の構築実績と、マネージドRAGの設計ノウハウ。" },
-              { icon: "🗺️", t: "地理空間の専門性", d: "ArcGIS / PLATEAU を用いた可視化・被害想定シミュレーションの知見。" },
-              { icon: "🏛️", t: "行政案件の知見", d: "セキュリティ・調達要件を踏まえた、行政グレードの開発・運用体制。" },
-            ].map((c) => (
-              <div key={c.t} className="bg-white border border-orange-200 rounded-xl p-5 flex flex-col shadow-sm">
-                <div className="text-[30px] mb-2">{c.icon}</div>
-                <div className="font-bold text-slate-800 text-[14px] mb-2">{c.t}</div>
-                <p className="text-slate-600 leading-relaxed flex-1">{c.d}</p>
               </div>
-            ))}
+            </div>
+
+            {/* 二段構え */}
+            <div className="flex-1 min-h-0">
+              <div className="text-[12px] font-bold text-[#1f3864] mb-1.5">■ 処理の二段構え</div>
+              <div className="grid grid-cols-2 gap-3 text-[11px]">
+                <div className="border border-[#1f3864]/25 rounded px-3 py-2">
+                  <div className="font-bold text-[#1f3864]">RAG で解く部分</div>
+                  <div className="text-slate-600 leading-snug mt-0.5">過去の訓練シナリオ・状況付与一覧から類似ケースを検索</div>
+                </div>
+                <div className="border border-[#1f3864]/25 rounded px-3 py-2">
+                  <div className="font-bold text-[#1f3864]">プロンプトに埋め込む部分</div>
+                  <div className="text-slate-600 leading-snug mt-0.5">総合防災ヒアリングで言語化した暗黙知・設計ルールを実装</div>
+                </div>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[
+                  "72 時間以内は自衛隊の活動を優先配置",
+                  "通電火災は発災から数時間後に発生",
+                  "区市町村への付与は発災直後から段階的に増加",
+                ].map((r) => (
+                  <span key={r} className="bg-[#f4f6fa] border border-[#1f3864]/20 rounded-full px-3 py-1 text-[10.5px] text-[#1f3864]">暗黙知ルール例：{r}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* 出力 */}
+            <div className="bg-[#eef2f8] border-l-4 border-[#1f3864] rounded px-4 py-2 text-[11px] text-slate-700 flex items-center gap-3">
+              <span className="font-bold text-[#1f3864] flex-shrink-0">出力イメージ：</span>
+              <span>状況付与計画一覧表（Excel 形式）・変更箇所ハイライト（前年比較）・引用元明示</span>
+              <span className="ml-auto flex-shrink-0 bg-[#ed7d31] text-white text-[10.5px] font-bold rounded px-2.5 py-1">生成後に P5 整合性チェックを自動実行</span>
+            </div>
           </div>
-        </SlideShell>
+        </NriSlide>
       ),
-      script: ["最後に、当社の強みです。Snowflakeの実装力、地理空間の専門性、行政案件の知見を一気通貫でご提供できる点が、当社にお任せいただける理由です。"],
+      script: ["P6 訓練シナリオ生成機能です。ゼロから作らず、プリセットと差分生成で整合性を保ったまま大幅変更を可能にします。基本プリセットと今年の変更条件を入力し、RAG で類似ケースを検索しつつ、72時間以内は自衛隊優先といった暗黙知ルールをプロンプトに実装。状況付与計画一覧表を Excel で出力し、生成後は P5 の整合性チェックを自動実行します。"],
     },
   ];
 }
