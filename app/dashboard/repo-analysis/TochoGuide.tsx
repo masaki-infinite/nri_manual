@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, Fragment } from "react";
 import Image from "next/image";
 
-type TabId = "overview" | "architecture" | "wbs" | "steps" | "docs" | "artifacts" | "slides" | "qa";
+type TabId = "overview" | "architecture" | "wbs" | "steps" | "docs" | "artifacts" | "slides" | "proposal" | "qa";
 
 type TochoDoc = {
   id: string;
@@ -20,6 +20,7 @@ const tochoDocs: TochoDoc[] = [
 
 const tabs: { id: TabId; label: string }[] = [
   { id: "slides", label: "🎯 説明スライド" },
+  { id: "proposal", label: "📝 提案書作成" },
   { id: "overview", label: "🗼 概要" },
   { id: "architecture", label: "🏗️ 構成図" },
   { id: "wbs", label: "📅 WBS" },
@@ -4102,6 +4103,255 @@ function Slides({
   );
 }
 
+function buildProposalSlides(): Slide[] {
+  return [
+    {
+      label: "表紙",
+      node: (
+        <div className="h-full bg-gradient-to-br from-[#0a1f44] via-[#11357a] to-[#0a2a6b] text-white flex flex-col justify-center px-14 relative overflow-hidden">
+          <div className="absolute -top-6 right-8 text-white/10 text-[170px] leading-none select-none pointer-events-none">🗼</div>
+          <div className="relative">
+            <div className="inline-flex items-center gap-2 bg-white/15 border border-white/30 rounded-full px-4 py-1.5 text-[13px] font-bold mb-6">企画提案書</div>
+            <h1 className="text-[40px] font-bold leading-tight mb-4">東京の災害対応力の向上に向けた<br />生成AI を活用した図上訓練構築支援</h1>
+            <p className="text-sky-100 text-[16px] mb-10 max-w-[80%]">過去資料を活かした RAG 検索と地理空間可視化による、実践的な訓練シナリオ生成基盤のご提案</p>
+            <div className="flex items-center gap-3 text-[13px] text-white/85">
+              <span className="bg-white/10 border border-white/25 rounded-lg px-3 py-1.5">提案：株式会社野村総合研究所</span>
+              <span className="bg-white/10 border border-white/25 rounded-lg px-3 py-1.5">2026年</span>
+            </div>
+          </div>
+        </div>
+      ),
+      script: ["表紙です。本提案は、東京都の災害対応力向上に向けて、生成AIを活用した図上訓練の構築を支援するものです。"],
+    },
+    {
+      label: "背景と課題",
+      node: (
+        <SlideShell tag="背景" accent="rose" title="背景と課題" subtitle="従来の図上訓練が抱える3つの構造的課題">
+          <div className="h-full grid grid-cols-3 gap-5 text-[12px]">
+            {[
+              { icon: "📚", t: "過去資料の死蔵", d: "訓練記録・マニュアル・過去シナリオが部署や紙に分散し、十分に再利用されていない。" },
+              { icon: "🧑‍🏫", t: "シナリオ作成の属人化", d: "質の高い訓練シナリオの作成が一部の熟練職員に依存し、作成工数も大きい。" },
+              { icon: "🗺️", t: "地理空間情報との分断", d: "被害想定やハザード情報が地図と訓練シナリオで連動せず、現場の実感に結びつきにくい。" },
+            ].map((c) => (
+              <div key={c.t} className="bg-white border border-rose-200 rounded-xl p-5 flex flex-col shadow-sm">
+                <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center text-[24px] mb-3">{c.icon}</div>
+                <div className="font-bold text-slate-800 text-[15px] mb-2">{c.t}</div>
+                <p className="text-slate-600 leading-relaxed text-[12px]">{c.d}</p>
+              </div>
+            ))}
+          </div>
+        </SlideShell>
+      ),
+      script: ["従来の図上訓練には、過去資料の死蔵、シナリオ作成の属人化、地理空間情報との分断という3つの構造的な課題があります。"],
+    },
+    {
+      label: "ご提案の全体像",
+      node: (
+        <SlideShell tag="提案概要" accent="indigo" title="ご提案の全体像" subtitle="過去資料 → RAG 検索 → シナリオ生成 → 地図連動を一気通貫で支援">
+          <div className="h-full flex flex-col justify-center gap-6">
+            <div className="border-2 border-indigo-200 bg-indigo-50/40 rounded-xl p-5 overflow-x-auto">
+              <FlowLane
+                accent="sky"
+                nodes={[
+                  { icon: "📚", bg: "bg-slate-500", title: "過去資料", sub: "マニュアル/訓練記録/ハザード", arrow: "取込・索引" },
+                  { icon: "🔎", bg: "bg-emerald-600", title: "Cortex Search", sub: "ハイブリッド検索", snow: true, arrow: "文脈付与" },
+                  { icon: "🧠", bg: "bg-indigo-600", title: "シナリオ生成", sub: "AI_COMPLETE", snow: true, arrow: "地図連動" },
+                  { icon: "🗺️", bg: "bg-rose-500", title: "地図可視化", sub: "ArcGIS Maps SDK", arrow: null },
+                ]}
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-4 text-[12px]">
+              {[
+                { t: "蓄積を資産化", d: "散在する過去資料を検索可能な知識基盤へ" },
+                { t: "誰でも高品質", d: "熟練者の知見を AI が再現しシナリオ化" },
+                { t: "地図で実感", d: "被害想定を地図上に重ね、訓練を立体化" },
+              ].map((c) => (
+                <div key={c.t} className="bg-white border border-slate-200 rounded-lg px-4 py-3">
+                  <div className="font-bold text-indigo-700 text-[13px] mb-1">{c.t}</div>
+                  <div className="text-slate-600 leading-snug">{c.d}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </SlideShell>
+      ),
+      script: ["全体像です。過去資料を取り込んで索引化し、Cortex Search で検索、AIでシナリオを生成し、ArcGISで地図に連動させる一気通貫の基盤をご提案します。"],
+    },
+    {
+      label: "ソリューションの特長",
+      node: (
+        <SlideShell tag="特長" accent="teal" title="ソリューションの3つの特長" subtitle="マネージドAI × 地理空間 × 行政グレードのセキュリティ">
+          <div className="h-full grid grid-cols-3 gap-5 text-[12px]">
+            {[
+              { icon: "⚙️", t: "運用負荷の小さいマネージド RAG", d: "Cortex Search が索引作成・更新・スケーリングを自動管理。専用インフラ不要で運用コストを最小化します。", bd: "border-emerald-200" },
+              { icon: "🗺️", t: "地理空間との統合可視化", d: "ArcGIS Maps SDK と PLATEAU により、被害想定や避難経路を 2D/3D 地図で表現。シナリオと地図を連動させます。", bd: "border-sky-200" },
+              { icon: "🛡️", t: "行政グレードのセキュリティ", d: "RBAC・IP制限・学習オプトアウト・国内リージョン暗号化・監査ログを標準機能で実現します。", bd: "border-violet-200" },
+            ].map((c) => (
+              <div key={c.t} className={"bg-white border rounded-xl p-5 flex flex-col shadow-sm " + c.bd}>
+                <div className="text-[30px] mb-2">{c.icon}</div>
+                <div className="font-bold text-slate-800 text-[14px] mb-2 leading-snug">{c.t}</div>
+                <p className="text-slate-600 leading-relaxed flex-1">{c.d}</p>
+              </div>
+            ))}
+          </div>
+        </SlideShell>
+      ),
+      script: ["特長は3つです。運用負荷の小さいマネージドRAG、地理空間との統合可視化、そして行政グレードのセキュリティです。"],
+    },
+    {
+      label: "期待効果",
+      node: (
+        <SlideShell tag="効果" accent="violet" title="期待される効果" subtitle="作成工数の削減と、訓練の質・実効性の向上">
+          <div className="h-full grid grid-cols-3 gap-5 text-center">
+            {[
+              { m: "大幅削減", l: "シナリオ作成工数", d: "過去資料の検索・下書き生成を AI が支援" },
+              { m: "標準化", l: "訓練品質のばらつき", d: "熟練者依存を解消し、一定品質を担保" },
+              { m: "立体化", l: "訓練のリアリティ", d: "地図・被害想定との連動で実感を向上" },
+            ].map((c) => (
+              <div key={c.l} className="bg-violet-50 border border-violet-200 rounded-xl p-5 flex flex-col justify-center">
+                <div className="text-[24px] font-bold text-violet-700 mb-2">{c.m}</div>
+                <div className="font-bold text-slate-800 text-[13px] mb-1">{c.l}</div>
+                <div className="text-slate-600 text-[11px] leading-snug">{c.d}</div>
+              </div>
+            ))}
+          </div>
+        </SlideShell>
+      ),
+      script: ["期待効果です。シナリオ作成工数の削減、訓練品質の標準化、そして地図連動による訓練のリアリティ向上が見込まれます。"],
+    },
+    {
+      label: "実施体制・スケジュール",
+      node: (
+        <SlideShell tag="体制" accent="blue" title="実施体制とスケジュール" subtitle="段階的に構築し、早期に価値を提供">
+          <div className="h-full flex flex-col justify-center gap-5">
+            <div className="grid grid-cols-4 gap-3 text-[11.5px]">
+              {[
+                { p: "Phase 1", t: "基盤構築", d: "資料取込・Cortex Search 索引・基本チャット", c: "bg-blue-50 border-blue-200 text-blue-700" },
+                { p: "Phase 2", t: "シナリオ生成", d: "ラベル付け・シナリオ生成・整合性チェック", c: "bg-sky-50 border-sky-200 text-sky-700" },
+                { p: "Phase 3", t: "地図連動", d: "ArcGIS 可視化・被害想定の重ね合わせ", c: "bg-teal-50 border-teal-200 text-teal-700" },
+                { p: "Phase 4", t: "運用定着", d: "ユーザー教育・運用設計・改善", c: "bg-emerald-50 border-emerald-200 text-emerald-700" },
+              ].map((x) => (
+                <div key={x.p} className={"border rounded-xl p-3 " + x.c}>
+                  <div className="font-bold text-[12px] mb-1">{x.p}</div>
+                  <div className="font-bold text-slate-800 text-[12.5px] mb-1">{x.t}</div>
+                  <div className="text-slate-600 text-[10.5px] leading-snug">{x.d}</div>
+                </div>
+              ))}
+            </div>
+            <div className="bg-white border border-slate-200 rounded-lg px-4 py-3 text-[11.5px] text-slate-600 flex items-center gap-3">
+              <span className="font-bold text-slate-700 flex-shrink-0">推進体制：</span>
+              <span>PM ＋ AI/データエンジニア ＋ GIS スペシャリスト ＋ 都庁ご担当者による協働体制。各フェーズでレビューゲートを設置します。</span>
+            </div>
+          </div>
+        </SlideShell>
+      ),
+      script: ["実施体制とスケジュールです。基盤構築・シナリオ生成・地図連動・運用定着の4フェーズで段階的に構築し、早期から価値を提供します。"],
+    },
+    {
+      label: "なぜ当社か",
+      node: (
+        <SlideShell tag="強み" accent="orange" title="なぜ当社にお任せいただけるか" subtitle="Snowflake・生成AI・GIS の実装知見を一気通貫で提供">
+          <div className="h-full grid grid-cols-3 gap-5 text-[12px]">
+            {[
+              { icon: "❄️", t: "Snowflake 実装力", d: "Cortex AI・データ基盤の構築実績と、マネージドRAGの設計ノウハウ。" },
+              { icon: "🗺️", t: "地理空間の専門性", d: "ArcGIS / PLATEAU を用いた可視化・被害想定シミュレーションの知見。" },
+              { icon: "🏛️", t: "行政案件の知見", d: "セキュリティ・調達要件を踏まえた、行政グレードの開発・運用体制。" },
+            ].map((c) => (
+              <div key={c.t} className="bg-white border border-orange-200 rounded-xl p-5 flex flex-col shadow-sm">
+                <div className="text-[30px] mb-2">{c.icon}</div>
+                <div className="font-bold text-slate-800 text-[14px] mb-2">{c.t}</div>
+                <p className="text-slate-600 leading-relaxed flex-1">{c.d}</p>
+              </div>
+            ))}
+          </div>
+        </SlideShell>
+      ),
+      script: ["最後に、当社の強みです。Snowflakeの実装力、地理空間の専門性、行政案件の知見を一気通貫でご提供できる点が、当社にお任せいただける理由です。"],
+    },
+  ];
+}
+
+function ProposalDeck({
+  idx,
+  setIdx,
+  showScript,
+  setShowScript,
+}: {
+  idx: number;
+  setIdx: (i: number) => void;
+  showScript: boolean;
+  setShowScript: (v: boolean) => void;
+}) {
+  const slides = buildProposalSlides();
+  const safeIdx = Math.min(idx, slides.length - 1);
+  const current = slides[safeIdx];
+  const lines = current.script ?? [];
+  return (
+    <div className="space-y-3">
+      <div className="bg-gradient-to-r from-[#3a0b2e] via-[#5c1346] to-[#6e1c3d] text-white rounded-xl p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="text-pink-200 text-xs font-semibold mb-1">📝 提案書スライド（デザイン検討用ドラフト）</div>
+            <h3 className="font-bold text-base truncate">東京都庁 図上訓練構築支援 ― 企画提案書</h3>
+          </div>
+          <button
+            onClick={() => setShowScript(!showScript)}
+            aria-pressed={showScript}
+            className={`flex-shrink-0 flex items-center gap-1.5 text-[12px] font-bold px-3.5 py-2 rounded-lg border transition ${showScript ? "bg-white text-[#6e1c3d] border-white" : "bg-white/15 text-white border-white/40 hover:bg-white/25"}`}
+          >
+            <span>🗣️</span>
+            <span>{showScript ? "台本を隠す" : "台本を表示"}</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 text-[12px] text-amber-800 flex items-center gap-2">
+        <span>🎨</span>
+        <span>このタブは提案書スライドの<span className="font-semibold">デザイン検討用</span>です。構成・配色・文言はこれからブラッシュアップしていきます。ご要望をお知らせください。</span>
+      </div>
+
+      <div className={showScript ? "grid lg:grid-cols-[1.5fr_1fr] gap-4 items-start" : ""}>
+        <SlideViewer slides={slides} idx={safeIdx} setIdx={setIdx} />
+
+        {showScript && (
+          <div className="bg-white border border-rose-200 rounded-xl shadow-sm flex flex-col">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-rose-100 bg-rose-50/60 rounded-t-xl">
+              <span className="text-[12px] font-bold text-rose-700 bg-white border border-rose-200 rounded-full px-2.5 py-0.5 tabular-nums">{safeIdx + 1} / {slides.length}</span>
+              <span className="text-[13px] font-bold text-slate-700">{current.label}</span>
+            </div>
+            <div className="p-4 space-y-2 flex-1">
+              <div className="text-[11px] font-semibold text-rose-600 flex items-center gap-1">🗣️ このスライドの台本</div>
+              {lines.length > 0 ? (
+                lines.map((l, i) => (
+                  <p key={i} className="text-[12.5px] text-gray-700 leading-relaxed bg-slate-50 border border-slate-100 rounded-lg px-3 py-2">{l}</p>
+                ))
+              ) : (
+                <p className="text-[12px] text-slate-400">（このスライドの台本は未設定です）</p>
+              )}
+            </div>
+            <div className="flex items-center justify-between px-4 py-3 border-t border-rose-100">
+              <button
+                onClick={() => setIdx(Math.max(0, safeIdx - 1))}
+                disabled={safeIdx === 0}
+                className="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-default transition"
+              >
+                ‹ 前へ
+              </button>
+              <button
+                onClick={() => setIdx(Math.min(slides.length - 1, safeIdx + 1))}
+                disabled={safeIdx === slides.length - 1}
+                className="text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-40 disabled:cursor-default transition"
+              >
+                次へ ›
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 type ArchSlide = { label: string; node: React.ReactNode; script: string[] };
 
 function SlideShell({ tag, title, subtitle, accent = "indigo", children }: { tag: string; title: string; subtitle?: string; accent?: string; children: React.ReactNode }) {
@@ -4505,6 +4755,115 @@ function buildArchSlides(): ArchSlide[] {
         "検索の Cortex Search は、埋め込み生成・索引・更新を自動管理し、内部でベクトル＋キーワード＋セマンティック再ランクのハイブリッド検索が標準で動きます。『参集』と『招集』のような表記ゆれにも強く、チューニング不要で高い精度が得られます。",
         "生成の Cortex COMPLETE は、検索で得たチャンクを文脈として LLM に渡し回答します。モデル名を変えるだけで差し替えでき、中立性要件にも合致します。",
         "なお、埋め込みを自前で持つ手動ベクトル検索も技術的には可能ですが、索引更新や再ランクを自分で実装する必要があり運用が重いため、マネージドの Cortex Search が同等以上を提供する本案件では採用しません。",
+      ],
+    },
+    {
+      label: "避難訓練シナリオ：方式適性",
+      node: (
+        <SlideShell tag="方式適性" accent="teal" title="避難訓練シナリオ生成 ― なぜ Cortex Search（パターンA）が向くか" subtitle="非構造化ドキュメント RAG ＋ 固有名詞一致 ＋ 関連度順序が品質を左右する">
+          <div className="h-full flex flex-col gap-2.5 text-[11px]">
+            {/* 結論バナー */}
+            <div className="bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-1.5 flex items-center gap-2 flex-shrink-0">
+              <span className="w-4 h-4 rounded-full bg-emerald-500 text-white text-[10px] flex items-center justify-center flex-shrink-0">✓</span>
+              <span className="text-[12.5px] font-bold text-emerald-800">「過去資料から避難訓練シナリオを生成」＝典型的な非構造化 RAG。原則 Cortex Search（パターンA）が向く</span>
+              <span className="text-[10px] text-emerald-600 ml-auto whitespace-nowrap">※「絶対 B はダメ」ではなく要件が Search の強みと重なる</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 flex-1 min-h-0">
+              {/* 左：なぜ向くか */}
+              <div className="flex flex-col gap-2 min-h-0">
+                <div className="font-bold text-slate-700 text-[12.5px] flex items-center gap-1.5"><span className="text-emerald-600">🎯</span> なぜ向くか（Retrieve 品質が生成品質を決める）</div>
+                {/* RAGフロー */}
+                <div className="bg-teal-50 border border-teal-200 rounded-lg px-3 py-2 flex items-center justify-between gap-1 text-center flex-shrink-0">
+                  {(() => {
+                    const nodes = [
+                      { i: "📚", t: "過去資料", d: "マニュアル/訓練記録/フロア図/過去シナリオ" },
+                      { i: "🔎", t: "Retrieve", d: "関連箇所を検索" },
+                      { i: "✦", t: "Generate", d: "新しい訓練シナリオを生成" },
+                    ];
+                    return nodes.map((n, i) => (
+                      <Fragment key={n.t}>
+                        <div className="flex-1">
+                          <div className="text-[16px]">{n.i}</div>
+                          <div className="font-bold text-slate-700 text-[10.5px]">{n.t}</div>
+                          <div className="text-slate-500 text-[9px] leading-tight">{n.d}</div>
+                        </div>
+                        {i < nodes.length - 1 && <span className="text-teal-400 font-bold flex-shrink-0">→</span>}
+                      </Fragment>
+                    ));
+                  })()}
+                </div>
+                {/* 4観点 */}
+                <div className="space-y-1.5 flex-1">
+                  {[
+                    { k: "Hybrid 検索", v: "「避難経路/非常階段」の意味近似と「3F東側/A棟」の固有名詞・略語一致の両方が効く" },
+                    { k: "リランキング", v: "「避難」関連 chunk は多い。シナリオ作成に本当に効く past case を上位に並べる" },
+                    { k: "top-k の順序", v: "取得した過去事例の並びが、そのまま生成シナリオの質に直結する" },
+                    { k: "メタデータフィルタ", v: "建物・階・訓練種別（火災/地震）で ai_labels 等により絞り込める" },
+                  ].map((r) => (
+                    <div key={r.k} className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 flex gap-2">
+                      <span className="w-[84px] font-bold text-teal-800 flex-shrink-0 text-[10.5px]">{r.k}</span>
+                      <span className="text-slate-600 leading-snug text-[10px]">{r.v}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="bg-amber-50 border border-amber-200 rounded px-2.5 py-1.5 text-[10px] text-amber-800 leading-snug flex-shrink-0">
+                  ⚠️ パターン B でも RAG は組めるが、Hybrid / Rerank を自前で足さないと「ベストな過去事例」が先頭に来ないことがある。シナリオ生成は Retrieve 品質依存が大きいため A の方が楽に品質を出しやすい。
+                </div>
+              </div>
+
+              {/* 右：使い分け */}
+              <div className="flex flex-col gap-2 min-h-0">
+                <div className="font-bold text-slate-700 text-[12.5px] flex items-center gap-1.5"><span className="text-violet-600">🧭</span> ツールの使い分け（混同しやすい点）</div>
+                <div className="space-y-1.5">
+                  {[
+                    { tool: "Cortex Search", data: "PDF・Word・訓練記録テキスト等", fit: "◎ メインの Retrieve 層", cls: "border-emerald-300 bg-emerald-50", fc: "text-emerald-700" },
+                    { tool: "Cortex Analyst", data: "テーブル化された数値・一覧（参加者数・実施日）", fit: "△ 補助（過去3年の実施回数 等）", cls: "border-slate-300 bg-slate-50", fc: "text-slate-600" },
+                    { tool: "パターンB（VECTOR + AI_EMBED）", data: "同上だが自前運用", fit: "○ 可能だが品質・運用は自前", cls: "border-amber-300 bg-amber-50", fc: "text-amber-700" },
+                  ].map((r) => (
+                    <div key={r.tool} className={"border rounded-lg px-2.5 py-1.5 " + r.cls}>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-slate-800 text-[11px]">{r.tool}</span>
+                        <span className={"font-bold text-[10.5px] whitespace-nowrap " + r.fc}>{r.fit}</span>
+                      </div>
+                      <div className="text-slate-500 text-[9.5px] mt-0.5">{r.data}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-[10px] text-slate-600 leading-snug">
+                  「過去の資料から」が <span className="font-semibold text-slate-700">文書・PDF・議事録</span> なら Search 系。<span className="font-semibold text-slate-700">スプレッドシート/DB だけ</span>なら Analyst の話になる。
+                </div>
+                {/* パターンBで十分なケース */}
+                <div className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 flex-1">
+                  <div className="font-bold text-slate-700 text-[10.5px] mb-1">パターン B でも十分なケース</div>
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[9.5px] text-slate-600">
+                    {["資料が少ない（数十〜数百 chunk）", "「だいたい意味が近い」検索で足りる", "自前で Rerank/FTS を足す余力がある", "Search サービス課金を避けたい"].map((c) => (
+                      <div key={c} className="flex gap-1"><span className="text-slate-400 flex-shrink-0">・</span><span className="leading-tight">{c}</span></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 実務的おすすめ構成 */}
+            <div className="grid grid-cols-2 gap-3 flex-shrink-0">
+              <div className="bg-violet-50 border border-violet-200 rounded-lg px-3 py-1.5">
+                <div className="font-bold text-violet-800 text-[10.5px] mb-0.5">🗂️ 登録時</div>
+                <div className="text-[9.5px] text-slate-600 leading-snug">過去資料 → Document AI/チャンク化 → <span className="font-mono">AI_CLASSIFY</span>（火災/地震/避難経路 等ラベル） → Cortex Search に索引</div>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
+                <div className="font-bold text-blue-800 text-[10.5px] mb-0.5">💬 質問時</div>
+                <div className="text-[9.5px] text-slate-600 leading-snug">「3F火災想定で初参加者向けシナリオを」 → メタフィルタ(3F,火災) → Search Retrieve(Hybrid+Rerank) → <span className="font-mono">AI_COMPLETE</span> 生成</div>
+              </div>
+            </div>
+          </div>
+        </SlideShell>
+      ),
+      script: [
+        "このスライドは、過去資料から避難訓練のシナリオを生成するという具体的な用途で、どの方式が向くかを整理したものです。結論から言うと、これは典型的な非構造化ドキュメント RAG なので、原則としてマネージドの Cortex Search、つまりパターン A が向きます。絶対に B が駄目という意味ではなく、要件が Search の強みと重なるケースです。",
+        "理由は、シナリオの生成品質が検索すなわち Retrieve の品質に強く依存するからです。避難経路のような意味の近さと、3F 東側や A 棟といった固有名詞の一致の両方が効くハイブリッド検索、関連する過去事例を上位に並べるリランキング、取得した事例の並び順、そして建物や階・火災か地震かといったメタデータでの絞り込みが、いずれもこの用途に効きます。",
+        "混同しやすいのが Cortex Analyst との違いです。Analyst はテーブル化された数値や一覧を扱うもので、過去3年の実施回数のような補助に向きます。対象が文書・PDF・議事録なら Search 系、スプレッドシートや DB だけなら Analyst の話になります。",
+        "パターン B でも構築自体は可能ですが、ハイブリッドや再ランク相当を自前で足す前提です。資料が少なく、課金を避けたい場合には現実的です。実務的には、登録時にラベル付けして索引化し、質問時はメタフィルタと Search、COMPLETE で生成する構成が自然で、教材の比較表の意図どおり Search が第一候補になります。",
       ],
     },
     {
@@ -5821,6 +6180,8 @@ export default function TochoGuide() {
   const [presentationShowScript, setPresentationShowScript] = useState(false);
   const [archShowScript, setArchShowScript] = useState(false);
   const [qaOpenIdx, setQaOpenIdx] = useState<number | null>(null);
+  const [proposalSlideIdx, setProposalSlideIdx] = useState(0);
+  const [proposalShowScript, setProposalShowScript] = useState(false);
 
   const openDoc = (file: string) => {
     setActiveDoc(file);
@@ -5870,6 +6231,14 @@ export default function TochoGuide() {
           setIdx={setPresentationSlideIdx}
           showScript={presentationShowScript}
           setShowScript={setPresentationShowScript}
+        />
+      )}
+      {tab === "proposal" && (
+        <ProposalDeck
+          idx={proposalSlideIdx}
+          setIdx={setProposalSlideIdx}
+          showScript={proposalShowScript}
+          setShowScript={setProposalShowScript}
         />
       )}
       {tab === "overview" && <Overview onDocOpen={openDoc} />}
