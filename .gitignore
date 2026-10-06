@@ -42,3 +42,6 @@ next-env.d.ts
 
 # private docs (do not commit sensitive materials)
 /public/private-docs/
+
+# local project pages/data (keep on this machine; do not publish to GitHub)
+/app/dashboard/projects/
